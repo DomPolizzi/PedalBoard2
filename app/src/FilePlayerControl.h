@@ -23,7 +23,7 @@
 #define __JUCER_HEADER_FILEPLAYERCONTROL_FILEPLAYERCONTROL_54B42392__
 
 //[Headers]     -- You can add your own extra header files here --
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "WaveformDisplay.h"
 
 class FilePlayerProcessor;
@@ -39,11 +39,11 @@ class FilePlayerProcessor;
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class FilePlayerControl  : public Component,
-                           public FilenameComponentListener,
-                           public Timer,
-                           public ChangeListener,
-                           public ButtonListener
+class FilePlayerControl  : public juce::Component,
+                           public juce::FilenameComponentListener,
+                           public juce::Timer,
+                           public juce::ChangeListener,
+                           public juce::Button::Listener
 {
 public:
     //==========================================================================
@@ -54,23 +54,23 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
 	///	Used to load a sound file.
-	void filenameComponentChanged(FilenameComponent *filenameComp);
+	void filenameComponentChanged(juce::FilenameComponent *filenameComp);
 	///	Used to update the read position graphic.
 	void timerCallback();
 	///	Used to change the player's read position when the user clicks on the WaveformDisplay.
-	void changeListenerCallback(ChangeBroadcaster *source);
+	void changeListenerCallback(juce::ChangeBroadcaster *source);
 
 	///	Changes the colour of the WaveformDisplay background.
-	void setWaveformBackground(const Colour& col);
+	void setWaveformBackground(const juce::Colour& col);
 
 	///	Used to keep track of the last directory the user loaded a sound from.
-	static File lastDir;
+	static juce::File lastDir;
 
     //[/UserMethods]
 
-    void paint (Graphics& g);
+    void paint (juce::Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
+    void buttonClicked (juce::Button* buttonThatWasClicked);
 
 
 
@@ -83,8 +83,8 @@ private:
 	FilePlayerProcessor *processor;
 
 	///	The two drawables we use for the playButton.
-	ScopedPointer<Drawable> playImage;
-	ScopedPointer<Drawable> pauseImage;
+	std::unique_ptr<juce::Drawable> playImage;
+	std::unique_ptr<juce::Drawable> pauseImage;
 	///	Whether the playPauseButton is currently displaying the play icon.
 	bool playing;
 
@@ -92,11 +92,11 @@ private:
 
     //==========================================================================
     WaveformDisplay* fileDisplay;
-    FilenameComponent* filename;
-    ToggleButton* syncButton;
-    ToggleButton* loopButton;
-    DrawableButton* playPauseButton;
-    DrawableButton* rtzButton;
+    juce::FilenameComponent* filename;
+    juce::ToggleButton* syncButton;
+    juce::ToggleButton* loopButton;
+    juce::DrawableButton* playPauseButton;
+    juce::DrawableButton* rtzButton;
 
 
     //==========================================================================

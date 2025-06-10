@@ -88,15 +88,15 @@ dragY(0)
 	   (pluginName != "Audio Output") &&
 	   (pluginName != "OSC Input"))
 	{
-		ScopedPointer<Drawable> closeUp(JuceHelperStuff::loadSVGFromMemory(Vectors::closefilterbutton_svg,
+		auto closeUp = std::unique_ptr<Drawable>(JuceHelperStuff::loadSVGFromMemory(Vectors::closefilterbutton_svg,
 																		   Vectors::closefilterbutton_svgSize));
-		ScopedPointer<Drawable> closeOver(JuceHelperStuff::loadSVGFromMemory(Vectors::closefilterbuttonover_svg,
+		auto closeOver = std::unique_ptr<Drawable>(JuceHelperStuff::loadSVGFromMemory(Vectors::closefilterbuttonover_svg,
 																			 Vectors::closefilterbuttonover_svgSize));
-		ScopedPointer<Drawable> closeDown(JuceHelperStuff::loadSVGFromMemory(Vectors::closefilterbuttondown_svg,
+		auto closeDown = std::unique_ptr<Drawable>(JuceHelperStuff::loadSVGFromMemory(Vectors::closefilterbuttondown_svg,
 																			 Vectors::closefilterbuttondown_svgSize));
-		ScopedPointer<Drawable> bypassOff(JuceHelperStuff::loadSVGFromMemory(Vectors::bypassbuttonoff_svg,
+		auto bypassOff = std::unique_ptr<Drawable>(JuceHelperStuff::loadSVGFromMemory(Vectors::bypassbuttonoff_svg,
 																		     Vectors::bypassbuttonoff_svgSize));
-		ScopedPointer<Drawable> bypassOn(JuceHelperStuff::loadSVGFromMemory(Vectors::bypassbuttonon_svg,
+		auto bypassOn = std::unique_ptr<Drawable>(JuceHelperStuff::loadSVGFromMemory(Vectors::bypassbuttonon_svg,
 																		    Vectors::bypassbuttonon_svgSize));
 
 		//So the audio I/O etc. don't get their titles squeezed by the

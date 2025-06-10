@@ -1,27 +1,10 @@
 //	ApplicationMappingsEditor.h - Component used to edit the application
 //								  mappings.
-//	----------------------------------------------------------------------------
-//	This file is part of Pedalboard2, an audio plugin host.
-//	Copyright (c) 2011 Niall Moody.
-//
-//	This program is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation, either version 3 of the License, or
-//	(at your option) any later version.
-//
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
-//
-//	You should have received a copy of the GNU General Public License
-//	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//	----------------------------------------------------------------------------
 
 #ifndef APPLICATIONMAPPINGSEDITOR_H_
 #define APPLICATIONMAPPINGSEDITOR_H_
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "MidiMappingManager.h"
 #include "MidiCcAlertWindow.h"
 #include "OscMappingManager.h"
@@ -72,18 +55,11 @@ class ApplicationMappingsEditor : public Component,
 	{
 	  private:
 		class MappingItemButtons;
+		CommandID id;
 	  public:
 		///	Constructor.
-		MappingItem(const String& commandName,
-					CommandID commandId,
-					ApplicationCommandManager *app,
-					MidiMappingManager *midi,
-					OscMappingManager *osc):
-		name(commandName),
-		id(commandId),
-		appManager(app),
-		midiManager(midi),
-		oscManager(osc)
+		MappingItem(const String& name, CommandID commandId)
+			: name(name), id(commandId)
 		{
 			
 		};
@@ -102,25 +78,16 @@ class ApplicationMappingsEditor : public Component,
 		};
 
 		///	Adds the buttons used to edit the command's mappings.
-		Component *createItemComponent()
+		std::unique_ptr<Component> createItemComponent() override
 		{
-			return new MappingItemButtons(id,
-										  appManager,
-										  midiManager,
-										  oscManager);
-		};
+			ApplicationMappingsEditor* editor = dynamic_cast<ApplicationMappingsEditor*>(getOwnerView()->getParentComponent());
+			jassert(editor != nullptr);
+			return std::make_unique<MappingItemButtons>(id, editor->appManager, editor->midiManager, editor->oscManager);
+		}
+
 	  private:
 		///	The command's name.
 		String name;
-		///	The command's id.
-		CommandID id;
-
-		///	The app's ApplicationCommandManager.
-		ApplicationCommandManager *appManager;
-		///	The app's MidiMappingManager.
-		MidiMappingManager *midiManager;
-		///	The app's OscMappingManager.
-		OscMappingManager *oscManager;
 
 		///	Component holding the buttons to edit the command's mappings.
 		class MappingItemButtons : public Component,
@@ -132,22 +99,23 @@ class ApplicationMappingsEditor : public Component,
 			MappingItemButtons(CommandID commandId,
 							   ApplicationCommandManager *app,
 							   MidiMappingManager *midi,
-							   OscMappingManager *osc):
-			id(commandId),
-			appManager(app),
-			midiManager(midi),
-			oscManager(osc)
+							   OscMappingManager *osc)
+				: id(commandId),
+				  appManager(app),
+				  midiManager(midi),
+				  oscManager(osc),
+				  addMapping(nullptr)
 			{
 				int i;
 
 				//Setup the addMapping button.
-				ScopedPointer<Drawable> addImage(JuceHelperStuff::loadSVGFromMemory(Vectors::addmappingbutton_svg,
+				auto addImage = std::unique_ptr<Drawable>(JuceHelperStuff::loadSVGFromMemory(Vectors::addmappingbutton_svg,
 																					Vectors::addmappingbutton_svgSize));
-				ScopedPointer<Drawable> addImageOver(JuceHelperStuff::loadSVGFromMemory(Vectors::addmappingbuttonover_svg,
-																						Vectors::addmappingbuttonover_svgSize));
+				auto addImageOver = std::unique_ptr<Drawable>(JuceHelperStuff::loadSVGFromMemory(Vectors::addmappingbuttonover_svg,
+																					Vectors::addmappingbuttonover_svgSize));
 				addMapping = new DrawableButton(L"Add Mapping Buttton",
 												DrawableButton::ImageFitted);
-				addMapping->setImages(addImage, addImageOver);
+				addMapping->setImages(addImage.get(), addImageOver.get());
 				addMapping->addListener(this);
 				addAndMakeVisible(addMapping);
 
@@ -199,8 +167,184 @@ class ApplicationMappingsEditor : public Component,
 				deleteAllChildren();
 			};
 
-			///	So the buttons get re-positioned correctly.
-			void resized()
+			void buttonClicked(Button *button) override
+			{
+				if(button == addMapping)
+				{
+					PopupMenu popeye;
+
+					popeye.addItem(1, "Add Key Mapping");
+					popeye.addItem(2, "Add MIDI CC Mapping");
+					popeye.addItem(3, "Add Open Sound Control Mapping");
+
+					popeye.showMenuAsync(PopupMenu::Options().withTargetComponent(button), [this](int result){
+						switch(result)
+						{
+							case 1:
+							{
+								auto* win = new AlertWindow("Keypress mapping",
+												"Enter the key combination to map this command to:\n\n",
+												AlertWindow::NoIcon);
+								win->addButton("OK", 1);
+								win->addButton("Cancel", 0);
+								win->setWantsKeyboardFocus(true);
+								win->grabKeyboardFocus();
+								win->addKeyListener(this);
+								win->enterModalState(true, juce::ModalCallbackFunction::create([this, win](int result) {
+									if (result == 1) {
+										KeyPressMappingSet *keyMappings = appManager->getKeyMappings();
+										keyMappings->addKeyPress(id, tempKeyPress);
+										TextButton *tempB = new TextButton(tempKeyPress.getTextDescription());
+										tempB->getProperties().set("type", "KeyPress");
+										tempB->addListener(this);
+										mappingButtons.add(tempB);
+										addAndMakeVisible(tempB);
+										resized();
+									}
+									delete win;
+								}));
+							}
+							break;
+							case 2:
+							{
+								auto* win = new MidiCcAlertWindow(midiManager);
+								win->enterModalState(true, juce::ModalCallbackFunction::create([this, win](int result) {
+									if (result == 1) {
+										int index = win->getComboBoxComponent("midiCc")->getSelectedId();
+										if(index > 1) {
+											String tempstr;
+											MidiAppMapping *mapping = new MidiAppMapping(midiManager,
+																					index-2,
+																					id);
+											midiManager->registerAppMapping(mapping);
+											tempstr << "MIDI CC: " << index-2;
+											TextButton *tempB = new TextButton(tempstr);
+											tempB->getProperties().set("type", "MIDI CC");
+											tempB->addListener(this);
+											mappingButtons.add(tempB);
+											addAndMakeVisible(tempB);
+											resized();
+										}
+									}
+									delete win;
+								}));
+							}
+							break;
+							case 3:
+							{
+								auto* win = new AlertWindow("Open Sound Control mapping", 
+												"Enter OSC address to map this command to:",
+												AlertWindow::NoIcon);
+								win->addComboBox("oscAddress", oscManager->getReceivedAddresses());
+								win->getComboBoxComponent("oscAddress")->setEditableText(true);
+								win->addTextEditor("oscParam", "0", "Parameter:");
+								win->getTextEditor("oscParam")->setInputRestrictions(3, "0123456789");
+								win->addButton("OK", 1, KeyPress(KeyPress::returnKey));
+								win->addButton("Cancel", 0, KeyPress(KeyPress::escapeKey));
+								win->enterModalState(true, juce::ModalCallbackFunction::create([this, win](int result) {
+									if (result == 1) {
+										int param;
+										String tempstr, tempstr2;
+										tempstr = win->getComboBoxComponent("oscAddress")->getText();
+										tempstr2 = win->getTextEditorContents("oscParam");
+										param = tempstr2.getIntValue();
+										if(!tempstr.isEmpty()) {
+											OscAppMapping *mapping = new OscAppMapping(oscManager,
+																					tempstr,
+																					param,
+																					id);
+											oscManager->registerAppMapping(mapping);
+											TextButton *tempB = new TextButton(tempstr);
+											tempB->getProperties().set("type", "OSC");
+											tempB->addListener(this);
+											mappingButtons.add(tempB);
+											addAndMakeVisible(tempB);
+											resized();
+										}
+									}
+									delete win;
+								}));
+							}
+							break;
+						}
+					});
+				}
+				else
+				{
+					PopupMenu popeye;
+
+					popeye.addItem(1, "Remove Mapping");
+
+					popeye.showMenuAsync(PopupMenu::Options().withTargetComponent(button), [this, button](int result){
+						if(result)
+						{
+							String typeString = button->getProperties()["type"];
+
+							if(typeString == "KeyPress")
+							{
+								int i;
+								String buttonText = button->getName();
+								KeyPressMappingSet *mappings = appManager->getKeyMappings();
+								const Array<KeyPress> keys = mappings->getKeyPressesAssignedToCommand(id);
+
+								for(i=0;i<keys.size();++i)
+								{
+									if(keys[i].getTextDescription() == buttonText)
+									{
+										mappings->removeKeyPress(keys[i]);
+										removeChildComponent(button);
+										mappingButtons.removeFirstMatchingValue(dynamic_cast<TextButton *>(button));
+										delete button;
+
+										break;
+									}
+								}
+							}
+							else if(typeString == "MIDI CC")
+							{
+								int i;
+								String tempstr = button->getName().substring(9);
+								int cc = tempstr.getIntValue();
+
+								for(i=0;i<midiManager->getNumAppMappings();++i)
+								{
+									MidiAppMapping *mapping = midiManager->getAppMapping(i);
+									if(mapping->getCc() == cc)
+									{
+										delete mapping;
+										removeChildComponent(button);
+										mappingButtons.removeFirstMatchingValue(dynamic_cast<TextButton *>(button));
+										delete button;
+
+										break;
+									}
+								}
+							}
+							else if(typeString == "OSC")
+							{
+								int i;
+
+								for(i=0;i<oscManager->getNumAppMappings();++i)
+								{
+									OscAppMapping *mapping = oscManager->getAppMapping(i);
+									if(mapping->getAddress() == button->getName())
+									{
+										delete mapping;
+										removeChildComponent(button);
+										mappingButtons.removeFirstMatchingValue(dynamic_cast<TextButton *>(button));
+										delete button;
+
+										break;
+									}
+								}
+							}
+							resized();
+						}
+					});
+				}
+			};
+
+			void resized() override
 			{
 				int i;
 				const int buttonWidth = 90;
@@ -220,233 +364,31 @@ class ApplicationMappingsEditor : public Component,
 				}
 			};
 
-			///	So we can respond to any button clicks.
-			void buttonClicked(Button *button)
+			bool keyPressed(const juce::KeyPress& key, juce::Component* originatingComponent) override
 			{
-				if(button == addMapping)
+				juce::AlertWindow* win = dynamic_cast<juce::AlertWindow*>(originatingComponent);
+				if (win)
 				{
-					PopupMenu popeye;
-
-					popeye.addItem(1, "Add Key Mapping");
-					popeye.addItem(2, "Add MIDI CC Mapping");
-					popeye.addItem(3, "Add Open Sound Control Mapping");
-
-					switch(popeye.showAt(button))
-					{
-						case 1:
-							{
-								AlertWindow win("Keypress mapping",
-												"Enter the key combination to map this command to:\n\n",
-												AlertWindow::NoIcon);
-
-								win.addButton("OK", 1);
-								win.addButton("Cancel", 0);
-								win.setWantsKeyboardFocus(true);
-								win.grabKeyboardFocus();
-								win.addKeyListener(this);
-
-								if(win.runModalLoop())
-								{
-									KeyPressMappingSet *keyMappings = appManager->getKeyMappings();
-
-									keyMappings->addKeyPress(id, tempKeyPress);
-
-									TextButton *tempB = new TextButton(tempKeyPress.getTextDescription());
-									tempB->getProperties().set("type", "KeyPress");
-									tempB->addListener(this);
-									mappingButtons.add(tempB);
-									addAndMakeVisible(tempB);
-									resized();
-								}
-							}
-							break;
-						case 2:
-							{
-								/*AlertWindow win("MIDI CC mapping", 
-												"Select a MIDI CC to map this command to:",
-												AlertWindow::NoIcon);
-
-								win.addComboBox("midiCc", MidiMappingManager::getCCNames());
-								win.addButton("OK", 1, KeyPress(KeyPress::returnKey));
-								win.addButton("Cancel", 0, KeyPress(KeyPress::escapeKey));*/
-								MidiCcAlertWindow win(midiManager);
-
-								if(win.runModalLoop())
-								{
-									int index;
-
-									index = win.getComboBoxComponent("midiCc")->getSelectedId();
-									if(index > 1)
-									{
-										String tempstr;
-										MidiAppMapping *mapping = new MidiAppMapping(midiManager,
-																					 index-2,
-																					 id);
-										midiManager->registerAppMapping(mapping);
-										tempstr << "MIDI CC: " << index-2;
-										TextButton *tempB = new TextButton(tempstr);
-										tempB->getProperties().set("type", "MIDI CC");
-										tempB->addListener(this);
-										mappingButtons.add(tempB);
-										addAndMakeVisible(tempB);
-										resized();
-									}
-								}
-							}
-							break;
-						case 3:
-							{
-								AlertWindow win("Open Sound Control mapping", 
-												"Enter OSC address to map this command to:",
-												AlertWindow::NoIcon);
-
-								//win.addTextEditor("oscAddress", "");
-								win.addComboBox("oscAddress", oscManager->getReceivedAddresses());
-								win.getComboBoxComponent("oscAddress")->setEditableText(true);
-								win.addTextEditor("oscParam", "0", "Parameter:");
-								win.getTextEditor("oscParam")->setInputRestrictions(3, "0123456789");
-								win.addButton("OK", 1, KeyPress(KeyPress::returnKey));
-								win.addButton("Cancel", 0, KeyPress(KeyPress::escapeKey));
-
-								if(win.runModalLoop())
-								{
-									int param;
-									String tempstr, tempstr2;
-
-									//tempstr = win.getTextEditorContents("oscAddress");
-									tempstr = win.getComboBoxComponent("oscAddress")->getText();
-									tempstr2 = win.getTextEditorContents("oscParam");
-									param = tempstr2.getIntValue();
-									if(!tempstr.isEmpty())
-									{
-										OscAppMapping *mapping = new OscAppMapping(oscManager,
-																				   tempstr,
-																				   param,
-																				   id);
-										oscManager->registerAppMapping(mapping);
-										TextButton *tempB = new TextButton(tempstr);
-										tempB->getProperties().set("type", "OSC");
-										tempB->addListener(this);
-										mappingButtons.add(tempB);
-										addAndMakeVisible(tempB);
-										resized();
-									}
-								}
-							}
-							break;
-					}
-				}
-				else
-				{
-					PopupMenu popeye;
-
-					popeye.addItem(1, "Remove Mapping");
-
-					if(popeye.showAt(button))
-					{
-						String typeString = button->getProperties()["type"];
-
-						if(typeString == "KeyPress")
-						{
-							int i;
-							String buttonText = button->getName();
-							KeyPressMappingSet *mappings = appManager->getKeyMappings();
-							const Array<KeyPress> keys = mappings->getKeyPressesAssignedToCommand(id);
-
-							for(i=0;i<keys.size();++i)
-							{
-								if(keys[i].getTextDescription() == buttonText)
-								{
-									mappings->removeKeyPress(keys[i]);
-									removeChildComponent(button);
-									mappingButtons.removeFirstMatchingValue(dynamic_cast<TextButton *>(button));
-									delete button;
-
-									break;
-								}
-							}
-						}
-						else if(typeString == "MIDI CC")
-						{
-							int i;
-							String tempstr = button->getName().substring(9);
-							int cc = tempstr.getIntValue();
-
-							for(i=0;i<midiManager->getNumAppMappings();++i)
-							{
-								MidiAppMapping *mapping = midiManager->getAppMapping(i);
-								if(mapping->getCc() == cc)
-								{
-									delete mapping;
-									removeChildComponent(button);
-									mappingButtons.removeFirstMatchingValue(dynamic_cast<TextButton *>(button));
-									delete button;
-
-									break;
-								}
-							}
-						}
-						else if(typeString == "OSC")
-						{
-							int i;
-
-							for(i=0;i<oscManager->getNumAppMappings();++i)
-							{
-								OscAppMapping *mapping = oscManager->getAppMapping(i);
-								if(mapping->getAddress() == button->getName())
-								{
-									delete mapping;
-									removeChildComponent(button);
-									mappingButtons.removeFirstMatchingValue(dynamic_cast<TextButton *>(button));
-									delete button;
-
-									break;
-								}
-							}
-						}
-						resized();
-					}
-				}
-			};
-
-			///	Used to respond to the KeyPress AlertWindow.
-			bool keyPressed(const KeyPress &key, Component *originatingComponent)
-			{
-				AlertWindow *win = dynamic_cast<AlertWindow *>(originatingComponent);
-
-				if(win)
-				{
-					String tempstr;
-
+					juce::String tempstr;
 					tempKeyPress = key;
-
 					tempstr << L"Enter the key combination to map this command to:\n\n" << key.getTextDescription();
 					win->setMessage(tempstr);
 					win->repaint();
 				}
-
 				return true;
-			};
+			}
+
 		  private:
-			///	The command's id.
 			CommandID id;
-
-			///	The app's ApplicationCommandManager.
-			ApplicationCommandManager *appManager;
-			///	The app's MidiMappingManager.
-			MidiMappingManager *midiManager;
-			///	The app's OscMappingManager.
-			OscMappingManager *oscManager;
-
-			///	The add mapping button.
-			DrawableButton *addMapping;
-			///	The various individual mapping buttons.
-			Array<TextButton *> mappingButtons;
-
-			///	Where we store the KeyPress from the KeyPress AlertWindow.
+			ApplicationCommandManager* appManager;
+			MidiMappingManager* midiManager;
+			OscMappingManager* oscManager;
+			Array<TextButton*> mappingButtons;
+			DrawableButton* addMapping;
 			KeyPress tempKeyPress;
 		};
 	};
+
 	///	The mapping category item in the mappingsTree.
 	class CategoryItem : public TreeViewItem
 	{
@@ -482,11 +424,7 @@ class ApplicationMappingsEditor : public Component,
 
 				for(i=0;i<commands.size();++i)
 				{
-					addSubItem(new MappingItem(appManager->getNameOfCommand(commands[i]),
-											   commands[i],
-											   appManager,
-											   midiManager,
-											   oscManager));
+					addSubItem(new MappingItem(appManager->getNameOfCommand(commands[i]), commands[i]));
 				}
 			}
 		};

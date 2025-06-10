@@ -47,7 +47,7 @@ AudioRecorderControl::AudioRecorderControl (RecorderProcessor *proc, AudioThumbn
     addAndMakeVisible (fileDisplay = new WaveformDisplayLite (thumbnail));
     fileDisplay->setName (L"fileDisplay");
 
-    addAndMakeVisible (filename = new FilenameComponent ("filename", File::nonexistent, true, false, true, "*.wav", ".wav", "<no file loaded>"));
+    addAndMakeVisible (filename = new FilenameComponent ("filename", juce::File(), true, false, true, "*.wav", ".wav", "<no file loaded>"));
     filename->setName (L"filename");
 
     addAndMakeVisible (syncButton = new ToggleButton (L"syncButton"));
@@ -62,11 +62,11 @@ AudioRecorderControl::AudioRecorderControl (RecorderProcessor *proc, AudioThumbn
 
 	recording = false;
 
-	recordImage = JuceHelperStuff::loadSVGFromMemory(Vectors::recordbutton_svg,
-													 Vectors::recordbutton_svgSize);
-	stopImage = JuceHelperStuff::loadSVGFromMemory(Vectors::stopbutton_svg,
-												   Vectors::stopbutton_svgSize);
-	recordButton->setImages(recordImage);
+	recordImage.reset(JuceHelperStuff::loadSVGFromMemory(Vectors::recordbutton_svg,
+															 Vectors::recordbutton_svgSize));
+	stopImage.reset(JuceHelperStuff::loadSVGFromMemory(Vectors::stopbutton_svg,
+									   Vectors::stopbutton_svgSize));
+	recordButton->setImages(recordImage.get());
 	recordButton->setColour(DrawableButton::backgroundColourId,
 						    ColourScheme::getInstance().colours[L"Button Colour"]);
 	recordButton->setColour(DrawableButton::backgroundOnColourId,
@@ -75,13 +75,13 @@ AudioRecorderControl::AudioRecorderControl (RecorderProcessor *proc, AudioThumbn
 	recordButton->setTooltip(L"Record audio input");
 
 	const File& soundFile = processor->getFile();
-	if(soundFile != File::nonexistent)
+	if(soundFile.existsAsFile())
 		filename->setCurrentFile(soundFile, true, dontSendNotification);
 	else
 		filename->setDefaultBrowseTarget(FilePlayerControl::lastDir);
 
 	syncButton->setToggleState(processor->getParameter(RecorderProcessor::SyncToMainTransport) > 0.5f,
-							   false);
+							   juce::dontSendNotification);
 
 	filename->addListener(this);
 
@@ -104,10 +104,15 @@ AudioRecorderControl::~AudioRecorderControl()
 
     //[/Destructor_pre]
 
-    deleteAndZero (fileDisplay);
-    deleteAndZero (filename);
-    deleteAndZero (syncButton);
-    deleteAndZero (recordButton);
+    delete fileDisplay;
+    delete filename;
+    delete syncButton;
+    delete recordButton;
+    
+    fileDisplay = nullptr;
+    filename = nullptr;
+    syncButton = nullptr;
+    recordButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -115,7 +120,7 @@ AudioRecorderControl::~AudioRecorderControl()
 }
 
 //==============================================================================
-void AudioRecorderControl::paint (Graphics& g)
+void AudioRecorderControl::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -134,7 +139,7 @@ void AudioRecorderControl::resized()
     //[/UserResized]
 }
 
-void AudioRecorderControl::buttonClicked (Button* buttonThatWasClicked)
+void AudioRecorderControl::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -155,9 +160,9 @@ void AudioRecorderControl::buttonClicked (Button* buttonThatWasClicked)
 	else if(buttonThatWasClicked == recordButton)
 	{
 		if(!recording)
-			recordButton->setImages(stopImage);
+			recordButton->setImages(stopImage.get());
 		else
-			recordButton->setImages(recordImage);
+			recordButton->setImages(recordImage.get());
 		recording = !recording;
 
 		/*if(recording)
@@ -173,73 +178,41 @@ void AudioRecorderControl::buttonClicked (Button* buttonThatWasClicked)
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
 //------------------------------------------------------------------------------
-void AudioRecorderControl::filenameComponentChanged(FilenameComponent *filenameComp)
+void AudioRecorderControl::filenameComponentChanged(juce::FilenameComponent *filenameComp)
 {
-	File phil = filenameComp->getCurrentFile();
+	juce::File phil = filenameComp->getCurrentFile();
 	//processor->setFile(phil);
 	processor->cacheFile(phil);
 	FilePlayerControl::lastDir = phil.getParentDirectory();
 }
 
 //------------------------------------------------------------------------------
-void AudioRecorderControl::changeListenerCallback(ChangeBroadcaster *source)
+void AudioRecorderControl::changeListenerCallback(juce::ChangeBroadcaster *source)
 {
 	if(source == processor)
 	{
 		if(processor->isRecording())
 		{
-			recordButton->setImages(stopImage);
+			recordButton->setImages(stopImage.get());
 			recording = true;
 		}
 		else
 		{
-			recordButton->setImages(recordImage);
+			recordButton->setImages(recordImage.get());
 			recording = false;
 		}
-		syncButton->setToggleState(processor->getParameter(RecorderProcessor::SyncToMainTransport) > 0.5f, false);
+		syncButton->setToggleState(processor->getParameter(RecorderProcessor::SyncToMainTransport) > 0.5f, juce::dontSendNotification);
 
-		filename->setCurrentFile(processor->getFile(), true, dontSendNotification);
+		filename->setCurrentFile(processor->getFile(), true, juce::dontSendNotification);
 	}
 }
 
 //------------------------------------------------------------------------------
-void AudioRecorderControl::setWaveformBackground(const Colour& col)
+void AudioRecorderControl::setWaveformBackground(const juce::Colour& col)
 {
 	fileDisplay->setBackgroundColour(col);
 }
 
-//[/MiscUserCode]
-
-
-//==============================================================================
 #if 0
-/*  -- Jucer information section --
 
-    This is where the Jucer puts all of its metadata, so don't change anything in here!
-
-BEGIN_JUCER_METADATA
-
-<JUCER_COMPONENT documentType="Component" className="AudioRecorderControl" componentName=""
-                 parentClasses="public Component, public FilenameComponentListener, public ChangeListener"
-                 constructorParams="RecorderProcessor *proc, AudioThumbnail&amp; thumbnail"
-                 variableInitialisers="processor(proc)" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330000013" fixedSize="0" initialWidth="300"
-                 initialHeight="100">
-  <BACKGROUND backgroundColour="eeece1"/>
-  <GENERICCOMPONENT name="fileDisplay" id="ca679484fd8a4509" memberName="fileDisplay"
-                    virtualName="" explicitFocusOrder="0" pos="0 28 2M 48M" class="WaveformDisplayLite"
-                    params="thumbnail"/>
-  <GENERICCOMPONENT name="filename" id="f1e80797e31ff742" memberName="filename" virtualName=""
-                    explicitFocusOrder="0" pos="0 0 28M 24" class="FilenameComponent"
-                    params="&quot;filename&quot;, File::nonexistent, true, false, true, &quot;*.wav&quot;, &quot;.wav&quot;, &quot;&lt;no file loaded&gt;&quot;"/>
-  <TOGGLEBUTTON name="syncButton" id="b0788f5602fb3d7f" memberName="syncButton"
-                virtualName="" explicitFocusOrder="0" pos="0 23R 168 24" buttonText="Sync to main transport"
-                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <GENERICCOMPONENT name="recordButton" id="8087375604e93800" memberName="recordButton"
-                    virtualName="" explicitFocusOrder="0" pos="26R 0 24 24" class="DrawableButton"
-                    params="&quot;recordButton&quot;, DrawableButton::ImageOnButtonBackground"/>
-</JUCER_COMPONENT>
-
-END_JUCER_METADATA
-*/
 #endif

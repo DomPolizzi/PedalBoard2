@@ -26,7 +26,7 @@
 
 #include "MidiMappingManager.h"
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 class OscMappingManager;
 class PluginField;

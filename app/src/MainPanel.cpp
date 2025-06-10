@@ -1607,7 +1607,7 @@ Result MainPanel::saveDocument (const File& file)
 	if(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("pdlAudioSettings"))
 		main->addChildElement(deviceManager.createStateXml());
 
-	main->writeToFile(file, "");
+	main->writeTo(file);
 
 	//Remove the child "Patch" elements so they don't get deleted.
 	for((i=main->getNumChildElements()-1);i>=0;--i)

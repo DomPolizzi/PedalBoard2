@@ -30,8 +30,8 @@ midiChannel(0)
 {
 	jassert(plugin);
 
-	setPlayConfigDetails(plugin->getNumInputChannels(),
-						 plugin->getNumOutputChannels(),
+	setPlayConfigDetails(plugin->getTotalNumInputChannels(),
+						 plugin->getTotalNumOutputChannels(),
 						 plugin->getSampleRate(),
 						 plugin->getBlockSize());
 }
@@ -48,10 +48,10 @@ void BypassableInstance::prepareToPlay(double sampleRate,
 {
 	int numChannels;
 
-	if(plugin->getNumInputChannels() > plugin->getNumOutputChannels())
-		numChannels = plugin->getNumInputChannels();
+	if(plugin->getTotalNumInputChannels() > plugin->getTotalNumOutputChannels())
+		numChannels = plugin->getTotalNumInputChannels();
 	else
-		numChannels = plugin->getNumOutputChannels();
+		numChannels = plugin->getTotalNumOutputChannels();
 
 	jassert(numChannels > 0);
 
@@ -62,8 +62,8 @@ void BypassableInstance::prepareToPlay(double sampleRate,
 	tempBuffer.setSize(numChannels, (estimatedSamplesPerBlock * 2));
 
 	plugin->setPlayHead(getPlayHead());
-	plugin->setPlayConfigDetails(plugin->getNumInputChannels(),
-								 plugin->getNumOutputChannels(),
+	plugin->setPlayConfigDetails(plugin->getTotalNumInputChannels(),
+								 plugin->getTotalNumOutputChannels(),
 								 sampleRate,
 								 estimatedSamplesPerBlock);
 	plugin->prepareToPlay(sampleRate, estimatedSamplesPerBlock);
@@ -82,22 +82,21 @@ void BypassableInstance::processBlock(AudioSampleBuffer &buffer,
 	int i, j;
 	float rampVal = bypassRamp;
 	MidiBuffer tempMidi;
-	MidiBuffer::Iterator it(midiMessages);
-
 	jassert(buffer.getNumChannels() <= tempBuffer.getNumChannels());
 
 	//Pass on any MIDI messages received via OSC.
 	midiCollector.removeNextBlockOfMessages(tempMidi, buffer.getNumSamples());
 	if(!midiMessages.isEmpty())
 	{
-		MidiMessage tempMess;
-		int tempSample;
-
-		while(it.getNextEvent(tempMess, tempSample))
+		// Using modern JUCE MIDI handling instead of deprecated Iterator
+		for (const auto& metadata : midiMessages)
 		{
+			const auto& message = metadata.getMessage();
+			const int position = metadata.samplePosition;
+			
 			//Filter out any messages on the wrong channel.
-			if((midiChannel == 0) || (tempMess.getChannel() == midiChannel))
-				tempMidi.addEvent(tempMess, tempSample);
+			if((midiChannel == 0) || (message.getChannel() == midiChannel))
+				tempMidi.addEvent(message, position);
 		}
 	}
 
@@ -122,8 +121,8 @@ void BypassableInstance::processBlock(AudioSampleBuffer &buffer,
 	//Add the correct (bypassed or un-bypassed) audio back to the buffer.
 	for(j=0;j<buffer.getNumChannels();++j)
 	{
-		float *origData = tempBuffer.getSampleData(j);
-		float *newData = buffer.getSampleData(j);
+		float *origData = tempBuffer.getWritePointer(j);
+		float *newData = buffer.getWritePointer(j);
 
 		rampVal = bypassRamp;
 		for(i=0;i<buffer.getNumSamples();++i)

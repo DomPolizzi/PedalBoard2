@@ -24,7 +24,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 class MetronomeProcessor;
 
@@ -80,8 +80,8 @@ private:
 	MetronomeProcessor *processor;
 
 	///	The two drawables we use for the playButton.
-	ScopedPointer<Drawable> playImage;
-	ScopedPointer<Drawable> pauseImage;
+	std::unique_ptr<Drawable> playImage;
+	std::unique_ptr<Drawable> pauseImage;
 
 	///	Whether or not we're currently playing.
 	bool playing;

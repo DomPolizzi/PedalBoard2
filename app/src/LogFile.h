@@ -20,7 +20,7 @@
 #ifndef LOGFILE_H_
 #define LOGFILE_H_
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 #include <map>
 
@@ -89,7 +89,7 @@ class LogFile : public ChangeBroadcaster
 	};
 
 	///	The log file output stream.
-	ScopedPointer<FileOutputStream> logFile;
+	std::unique_ptr<FileOutputStream> logFile;
 	///	True if we're currently logging events.
 	bool isLogging;
 

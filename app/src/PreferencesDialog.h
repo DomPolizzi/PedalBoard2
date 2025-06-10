@@ -23,7 +23,7 @@
 #define __JUCER_HEADER_PREFERENCESDIALOG_PREFERENCESDIALOG_3C07F714__
 
 //[Headers]     -- You can add your own extra header files here --
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 class MainPanel;
 //[/Headers]

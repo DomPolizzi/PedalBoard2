@@ -2,6 +2,9 @@
 Nial Moody's PedalBoard2, My attempts to Make it better
 
 
+## Requiremnets
+- JUCE / Projucer: https://juce.com/download/
+
 ---
 ## README from Mr. Moody:
 

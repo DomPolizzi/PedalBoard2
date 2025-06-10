@@ -130,7 +130,7 @@ void LevelProcessor::getStateInformation(MemoryBlock &destData)
 //------------------------------------------------------------------------------
 void LevelProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-	ScopedPointer<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+	auto xmlState = std::unique_ptr<XmlElement>(getXmlFromBinary(data, sizeInBytes));
 
     if (xmlState != 0)
     {
@@ -475,7 +475,7 @@ void FilePlayerProcessor::getStateInformation(MemoryBlock &destData)
 //------------------------------------------------------------------------------
 void FilePlayerProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-	ScopedPointer<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+	auto xmlState = std::unique_ptr<XmlElement>(getXmlFromBinary(data, sizeInBytes));
 
     if (xmlState != 0)
     {
@@ -625,7 +625,7 @@ void OutputToggleProcessor::getStateInformation(MemoryBlock &destData)
 //------------------------------------------------------------------------------
 void OutputToggleProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-	ScopedPointer<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+	auto xmlState = std::unique_ptr<XmlElement>(getXmlFromBinary(data, sizeInBytes));
 
     if (xmlState != 0)
     {

@@ -20,7 +20,7 @@
 #ifndef NIALLSAUDIOPLUGINFORMAT_H_
 #define NIALLSAUDIOPLUGINFORMAT_H_
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 class NiallsAudioPlugin;
 class NAPModuleHandle;

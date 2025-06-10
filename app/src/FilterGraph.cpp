@@ -342,7 +342,7 @@ Result FilterGraph::saveDocument (const File& file)
 
     String error;
 
-    if (! xml->writeToFile (file, String::empty))
+    if (! xml->writeTo (file))
 		return Result::fail("Couldn't write to the file");
 
     delete xml;*/

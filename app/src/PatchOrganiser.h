@@ -23,7 +23,7 @@
 #define __JUCER_HEADER_PATCHORGANISER_PATCHORGANISER_B5AD9ECF__
 
 //[Headers]     -- You can add your own extra header files here --
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 class MainPanel;
 //[/Headers]

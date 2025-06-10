@@ -27,7 +27,7 @@
 #include "ColourScheme.h"
 #include "NiallsSocketLib/UDPSocket.h"
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "PluginField.h"
 #include "MidiAppFifo.h"
 
@@ -53,9 +53,9 @@ class MainPanel  : public Component,
                    public Thread,
                    public FileDragAndDropTarget,
                    public TextEditor::Listener,
-                   public ButtonListener,
-                   public ComboBoxListener,
-                   public SliderListener
+                   public juce::Button::Listener,
+                   public juce::ComboBox::Listener,
+                   public juce::Slider::Listener
 {
 public:
     //==============================================================================
@@ -259,8 +259,8 @@ private:
 	int programChangePatch;
 
 	///	The two drawables we use for the playButton.
-	ScopedPointer<Drawable> playImage;
-	ScopedPointer<Drawable> pauseImage;
+	std::unique_ptr<Drawable> playImage;
+	std::unique_ptr<Drawable> pauseImage;
 	///	Whether the playPauseButton is currently displaying the play icon.
 	bool playing;
 
@@ -343,7 +343,7 @@ private:
 	///	Used to inform the user when the user does a MIDI program change outside the limits of the patch list.
 	ProgramChangeWarning warningText;
 	///	Used to inform the user when the user does a MIDI program change outside the limits of the patch list.
-	ScopedPointer<CallOutBox> warningBox;
+	std::unique_ptr<CallOutBox> warningBox;
 
 	///	Temp.
 	//FileOutputStream outFile;

@@ -1,21 +1,4 @@
 //	App.cpp - Main application stuff.
-//	----------------------------------------------------------------------------
-//	This file is part of Pedalboard2, an audio plugin host.
-//	Copyright (c) 2009 Niall Moody.
-//
-//	This program is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation, either version 3 of the License, or
-//	(at your option) any later version.
-//
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
-//
-//	You should have received a copy of the GNU General Public License
-//	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//	----------------------------------------------------------------------------
 
 #include "MainPanel.h"
 #include "InternalFilters.h"
@@ -120,20 +103,18 @@ void App::showTrayIcon(bool val)
 #endif
 }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 StupidWindow::StupidWindow(const String& commandLine, bool startHidden):
 DocumentWindow(L"Pedalboard 2", Colours::black, DocumentWindow::allButtons)
 {
 	//Make sure we've loaded all the available plugin formats before we create
 	//the main panel.
 	{
-		InternalPluginFormat *internalFormat = new InternalPluginFormat;
+		// InternalPluginFormat *internalFormat = new InternalPluginFormat; // No longer needed; plugin formats handled by JUCE built-ins.
 		//LADSPAPluginFormat *ladspaFormat = new LADSPAPluginFormat;
 		//VSTPluginFormat *vstFormat = new VSTPluginFormat;
 		//NiallsAudioPluginFormat *napFormat = new NiallsAudioPluginFormat;
 
-		AudioPluginFormatManagerSingleton::getInstance().addFormat(internalFormat);
+		// AudioPluginFormatManagerSingleton::getInstance().addFormat(internalFormat); // Removed: no longer needed, and internalFormat is undefined.
 		//AudioPluginFormatManager::getInstance()->addFormat(napFormat);
 		//AudioPluginFormatManager::getInstance()->addFormat(vstFormat);
 		//AudioPluginFormatManager::getInstance()->addFormat(ladspaFormat);
@@ -141,13 +122,14 @@ DocumentWindow(L"Pedalboard 2", Colours::black, DocumentWindow::allButtons)
 
 	//Load correct colour scheme.
 	{
-		String scheme = PropertiesSingleton::getInstance().getUserSettings()->getValue(L"colourScheme");
+		String scheme = PropertiesSingleton::getInstance().getUserSettings()->getValue("colourScheme");
 
-		if(scheme != String::empty)
+		if(scheme != String())
 			ColourScheme::getInstance().loadPreset(scheme);
 	}
 
-	LookAndFeel::setDefaultLookAndFeel(laf = new BranchesLAF());
+	laf = std::make_unique<BranchesLAF>();
+LookAndFeel::setDefaultLookAndFeel(laf.get());
 	setResizable(true, false);
 	setContentOwned(mainPanel = new MainPanel(&commandManager), true);
 	//mainPanel->setCommandManager(&commandManager);
@@ -160,7 +142,6 @@ DocumentWindow(L"Pedalboard 2", Colours::black, DocumentWindow::allButtons)
 	setMenuBar(mainPanel);
 #endif
 
-	//Attempts to associate our icon with the window's titlebar.
 	getPeer()->setIcon(ImageCache::getFromMemory(Images::icon512_png,
 												 Images::icon512_pngSize));
 
@@ -175,7 +156,6 @@ DocumentWindow(L"Pedalboard 2", Colours::black, DocumentWindow::allButtons)
 
 	restoreWindowStateFromString(PropertiesSingleton::getInstance().getUserSettings()->getValue("WindowState"));
 
-	//See if we can load a .pdl file from the commandline.
 	File initialFile(commandLine);
 
 	if(initialFile.existsAsFile())
@@ -190,7 +170,6 @@ DocumentWindow(L"Pedalboard 2", Colours::black, DocumentWindow::allButtons)
 	}
 }
 
-//------------------------------------------------------------------------------
 StupidWindow::~StupidWindow()
 {
 	saveKeyMappings();
@@ -207,7 +186,6 @@ StupidWindow::~StupidWindow()
 	PropertiesSingleton::killInstance();
 }
 
-//------------------------------------------------------------------------------
 void StupidWindow::closeButtonPressed()
 {
 	if(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("useTrayIcon"))
@@ -216,18 +194,22 @@ void StupidWindow::closeButtonPressed()
 			setVisible(false);
 		else
 		{
-			FileBasedDocument::SaveResult result = mainPanel->saveIfNeededAndUserAgrees();
-
-			if(result == FileBasedDocument::savedOk)
-				JUCEApplication::quit();
+			// saveIfNeededAndUserAgrees is deprecated/missing; using async version. You must handle the result in the callback.
+			mainPanel->saveIfNeededAndUserAgreesAsync([](FileBasedDocument::SaveResult result) {
+				if(result == FileBasedDocument::savedOk)
+					JUCEApplication::quit();
+				// TODO: Handle other possible results if needed
+			});
 		}
 	}
 	else
 	{
-		FileBasedDocument::SaveResult result = mainPanel->saveIfNeededAndUserAgrees();
-
-		if(result == FileBasedDocument::savedOk)
-			JUCEApplication::quit();
+		// saveIfNeededAndUserAgrees is deprecated/missing; using async version. You must handle the result in the callback.
+		mainPanel->saveIfNeededAndUserAgreesAsync([](FileBasedDocument::SaveResult result) {
+			if(result == FileBasedDocument::savedOk)
+				JUCEApplication::quit();
+			// TODO: Handle other possible results if needed
+		});
 	}
 }
 
@@ -241,7 +223,7 @@ void StupidWindow::loadKeyMappings()
 
 	if(mappingsFile.existsAsFile())
 	{
-		ScopedPointer<XmlElement> rootXml(XmlDocument::parse(mappingsFile));
+		std::unique_ptr<XmlElement> rootXml(XmlDocument::parse(mappingsFile));
 
 		if(rootXml)
 		{
@@ -286,28 +268,28 @@ void StupidWindow::saveKeyMappings()
 {
 	int i;
 	File mappingsFile = JuceHelperStuff::getAppDataFolder().getChildFile("AppMappings.xml");
-	XmlElement *mappingsXml = commandManager.getKeyMappings()->createXml(false);
+	auto mappingsXml = std::unique_ptr<XmlElement>(commandManager.getKeyMappings()->createXml(false));
 	XmlElement rootXml("Pedalboard2AppMappings");
-	XmlElement *midiXml = new XmlElement("MidiMappings");
-	XmlElement *oscXml = new XmlElement("OscMappings");
+	auto midiXml = std::make_unique<XmlElement>("MidiMappings");
+	auto oscXml = std::make_unique<XmlElement>("OscMappings");
 	MidiMappingManager *midiManager = mainPanel->getMidiMappingManager();
 	OscMappingManager *oscManager = mainPanel->getOscMappingManager();
 
 	//Add the KeyPress mappings.
-	rootXml.addChildElement(mappingsXml);
+	rootXml.addChildElement(mappingsXml.release());
 
 	//Add the MIDI CC mappings.
 	for(i=0;i<midiManager->getNumAppMappings();++i)
 		midiXml->addChildElement(midiManager->getAppMapping(i)->getXml());
-	rootXml.addChildElement(midiXml);
+	rootXml.addChildElement(midiXml.release());
 
 	//Add the OSC mappings.
 	for(i=0;i<oscManager->getNumAppMappings();++i)
 		oscXml->addChildElement(oscManager->getAppMapping(i)->getXml());
-	rootXml.addChildElement(oscXml);
+	rootXml.addChildElement(oscXml.release());
 
 	//Save to the file.
-	rootXml.writeToFile(mappingsFile, "");
+	rootXml.writeTo(mappingsFile);
 }
 
 START_JUCE_APPLICATION(App)

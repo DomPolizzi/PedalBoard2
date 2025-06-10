@@ -21,7 +21,7 @@
 #ifndef PEDALBOARDPROCESSOREDITORS_H_
 #define PEDALBOARDPROCESSOREDITORS_H_
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 class LevelProcessor;
 class FilePlayerProcessor;

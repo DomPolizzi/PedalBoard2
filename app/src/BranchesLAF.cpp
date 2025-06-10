@@ -17,41 +17,33 @@
 //	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //	----------------------------------------------------------------------------
 
+#include <JuceHeader.h>
 #include "BranchesLAF.h"
 #include "ColourScheme.h"
 #include "LookAndFeelImages.h"
+
+// Use a typedef to avoid confusion with juce::LookAndFeel_V4::ColourScheme
+typedef ::ColourScheme CustomColourScheme;
 
 using namespace std;
 
 //------------------------------------------------------------------------------
 BranchesLAF::BranchesLAF():
-LookAndFeel()
+juce::LookAndFeel_V4()
 {
-	/*setColour(TextButton::buttonColourId, Colour(0xFFEEECE1));
-	setColour(TextButton::buttonOnColourId, Colour(0xFFEEECE1));
-	setColour(PopupMenu::highlightedBackgroundColourId, Colour(0x40000000));
-	setColour(PopupMenu::backgroundColourId, Colour(0xFFEEECE1));
-	setColour(AlertWindow::backgroundColourId, Colour(0xFFEEECE1));
-	setColour(ComboBox::buttonColourId, Colour(0xFFEEECE1));
-	setColour(TextEditor::highlightColourId, Colour(0xB0B0B0FF));
-	setColour(TextEditor::focusedOutlineColourId, Colour(0x40000000));
-	setColour(DirectoryContentsDisplayComponent::highlightColourId, Colour(0xFFD7D1B5));
-	setColour(ProgressBar::backgroundColourId, Colour(0xFFD7D1B5));
-	setColour(ProgressBar::foregroundColourId, Colour(0xB0B0B0FF));*/
+	std::map<juce::String, juce::Colour>& colours = CustomColourScheme::getInstance().colours;
 
-	map<String, Colour>& colours = ColourScheme::getInstance().colours;
-
-	setColour(TextButton::buttonColourId, colours[L"Button Colour"]);
-	setColour(TextButton::buttonOnColourId, colours[L"Button Colour"]);
-	setColour(PopupMenu::highlightedBackgroundColourId, colours[L"Menu Selection Colour"]);
-	setColour(PopupMenu::backgroundColourId, colours[L"Window Background"]);
-	setColour(AlertWindow::backgroundColourId, colours[L"Window Background"]);
-	setColour(ComboBox::buttonColourId, colours[L"Button Colour"]);
-	setColour(TextEditor::highlightColourId, colours[L"Button Highlight"]);
-	setColour(TextEditor::focusedOutlineColourId, colours[L"Menu Selection Colour"]);
-	setColour(DirectoryContentsDisplayComponent::highlightColourId, Colour(0xFFD7D1B5));
-	setColour(ProgressBar::backgroundColourId, colours[L"Window Background"]);
-	setColour(ProgressBar::foregroundColourId, colours[L"CPU Meter Colour"]);
+	setColour(juce::TextButton::buttonColourId, colours[L"Button Colour"]);
+	setColour(juce::TextButton::buttonOnColourId, colours[L"Button Colour"]);
+	setColour(juce::PopupMenu::highlightedBackgroundColourId, colours[L"Menu Selection Colour"]);
+	setColour(juce::PopupMenu::backgroundColourId, colours[L"Window Background"]);
+	setColour(juce::AlertWindow::backgroundColourId, colours[L"Window Background"]);
+	setColour(juce::ComboBox::buttonColourId, colours[L"Button Colour"]);
+	setColour(juce::TextEditor::highlightColourId, colours[L"Button Highlight"]);
+	setColour(juce::TextEditor::focusedOutlineColourId, colours[L"Menu Selection Colour"]);
+	setColour(juce::DirectoryContentsDisplayComponent::highlightColourId, juce::Colour(0xFFD7D1B5));
+	setColour(juce::ProgressBar::backgroundColourId, colours[L"Window Background"]);
+	setColour(juce::ProgressBar::foregroundColourId, colours[L"CPU Meter Colour"]);
 }
 
 //------------------------------------------------------------------------------
@@ -61,46 +53,31 @@ BranchesLAF::~BranchesLAF()
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawButtonBackground(Graphics &g,
-									   Button &button,
-									   const Colour &backgroundColour,
+void BranchesLAF::drawButtonBackground(juce::Graphics &g,
+									   juce::Button &button,
+									   const juce::Colour &backgroundColour,
 									   bool isMouseOverButton,
 									   bool isButtonDown)
 {
-	Path highlight, shadow;
-	Colour buttonCol = ColourScheme::getInstance().colours[L"Button Colour"];
-	/*GradientBrush grad(backgroundColour.brighter(0.8f),
-					   0.0f,
-					   0.0f,
-					   backgroundColour.darker(0.05f),
-					   0.0f,
-					   (float)(button.getHeight()),
-					   false);*/
-	/*ColourGradient grad(backgroundColour.brighter(0.8f),
-					    0.0f,
-					    0.0f,
-					    backgroundColour.darker(0.05f),
-					    0.0f,
-					    (float)(button.getHeight()),
-					    false);*/
-	ColourGradient grad(buttonCol.brighter(0.8f),
-					    0.0f,
-					    0.0f,
-					    buttonCol.darker(0.05f),
-					    0.0f,
-					    (float)(button.getHeight()),
-					    false);
+	juce::Path highlight, shadow;
+	juce::Colour buttonCol = CustomColourScheme::getInstance().colours[L"Button Colour"];
+	
+	juce::ColourGradient grad(buttonCol.brighter(0.8f),
+				    0.0f,
+				    0.0f,
+				    buttonCol.darker(0.05f),
+				    0.0f,
+				    (float)(button.getHeight()),
+				    false);
 
-	g.setColour(Colours::black);
+	g.setColour(juce::Colours::black);
 	g.drawRoundedRectangle(1.0f,
 						   1.0f,
 						   (float)(button.getWidth()-2),
 						   (float)(button.getHeight()-2),
 						   4.0f,
 						   1.0f);
-	//g.setColour(Colour(0xFFEEECE1));
-	//g.setColour(backgroundColour);
-	//g.setBrush(&grad);
+
 	g.setGradientFill(grad);
 	g.fillRoundedRectangle(1.0f,
 						   1.0f,
@@ -108,17 +85,10 @@ void BranchesLAF::drawButtonBackground(Graphics &g,
 						   (float)(button.getHeight()-2),
 						   4.0f);
 
-	/*g.setColour(Colour(0x08000000));
-	g.fillRoundedRectangle(1.0f,
-						   (float)(button.getHeight()/2),
-						   (float)(button.getWidth()-2),
-						   (float)(button.getHeight()-2),
-						   4.0f);*/
-
 	//Draw mouse over.
 	if(isMouseOverButton)
 	{
-		g.setColour(ColourScheme::getInstance().colours[L"Button Highlight"]);
+		g.setColour(CustomColourScheme::getInstance().colours[L"Button Highlight"]);
 		g.drawRoundedRectangle(2.0f,
 							   2.0f,
 							   (float)(button.getWidth()-4),
@@ -138,16 +108,16 @@ void BranchesLAF::drawButtonBackground(Graphics &g,
 			g.setColour(buttonCol.brighter(1.0f).withAlpha(0.69f));
 		else
 			g.setColour(buttonCol.brighter(1.0f).withAlpha(0.38f));
-		g.strokePath(highlight, PathStrokeType(2.0f,
-											   PathStrokeType::curved,
-											   PathStrokeType::rounded));
+		g.strokePath(highlight, juce::PathStrokeType(2.0f,
+									   juce::PathStrokeType::curved,
+									   juce::PathStrokeType::rounded));
 	}
 	else
 	{
-		g.setColour(Colour(0x20000000));
-		g.strokePath(highlight, PathStrokeType(1.0f,
-											   PathStrokeType::curved,
-											   PathStrokeType::rounded));
+		g.setColour(juce::Colour(0x20000000));
+		g.strokePath(highlight, juce::PathStrokeType(1.0f,
+									   juce::PathStrokeType::curved,
+									   juce::PathStrokeType::rounded));
 	}
 
 	//Draw shadow.
@@ -161,10 +131,10 @@ void BranchesLAF::drawButtonBackground(Graphics &g,
 	shadow.lineTo((float)(button.getWidth()-2), 3.0f);
 	if(!isButtonDown)
 	{
-		g.setColour(Colour(0x20000000));
-		g.strokePath(shadow, PathStrokeType(1.0f,
-											PathStrokeType::curved,
-											PathStrokeType::rounded));
+		g.setColour(juce::Colour(0x20000000));
+		g.strokePath(shadow, juce::PathStrokeType(1.0f,
+									juce::PathStrokeType::curved,
+									juce::PathStrokeType::rounded));
 	}
 	else
 	{
@@ -172,30 +142,30 @@ void BranchesLAF::drawButtonBackground(Graphics &g,
 			g.setColour(buttonCol.brighter(1.0f).withAlpha(0.69f));
 		else
 			g.setColour(buttonCol.brighter(1.0f).withAlpha(0.38f));
-		g.strokePath(shadow, PathStrokeType(2.0f,
-											PathStrokeType::curved,
-											PathStrokeType::rounded));
+		g.strokePath(shadow, juce::PathStrokeType(2.0f,
+									juce::PathStrokeType::curved,
+									juce::PathStrokeType::rounded));
 	}
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawButtonText(Graphics &g,
-								 TextButton &button,
+void BranchesLAF::drawButtonText(juce::Graphics &g,
+								 juce::TextButton &button,
 								 bool isMouseOverButton,
 								 bool isButtonDown)
 {
 	int inc;
 
-	g.setFont (button.getFont());
-    g.setColour (ColourScheme::getInstance().colours[L"Text Colour"]
+	g.setFont(juce::Font(15.0f));
+    g.setColour (CustomColourScheme::getInstance().colours[L"Text Colour"]
                        .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f));
 
-    const int yIndent = jmin (4, button.proportionOfHeight (0.3f));
-    const int cornerSize = jmin (button.getHeight(), button.getWidth()) / 2;
+    const int yIndent = juce::jmin(4, button.proportionOfHeight(0.3f));
+    const int cornerSize = juce::jmin(button.getHeight(), button.getWidth()) / 2;
 
-    const int fontHeight = roundFloatToInt (button.getFont().getHeight() * 0.6f);
-    const int leftIndent  = jmin (fontHeight, 2 + cornerSize / (button.isConnectedOnLeft() ? 4 : 2));
-    const int rightIndent = jmin (fontHeight, 2 + cornerSize / (button.isConnectedOnRight() ? 4 : 2));
+    const int fontHeight = juce::roundToInt(juce::Font(15.0f).getHeight() * 0.6f);
+    const int leftIndent  = juce::jmin(fontHeight, 2 + cornerSize / (button.isConnectedOnLeft() ? 4 : 2));
+    const int rightIndent = juce::jmin(fontHeight, 2 + cornerSize / (button.isConnectedOnRight() ? 4 : 2));
 
 	if(isButtonDown)
 		inc = 1;
@@ -207,12 +177,12 @@ void BranchesLAF::drawButtonText(Graphics &g,
                       yIndent+inc,
                       button.getWidth() - leftIndent - rightIndent,
                       button.getHeight() - yIndent * 2,
-                      Justification::centred, 2);
+                      juce::Justification::centred, 2);
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawScrollbarButton(Graphics &g,
-									  ScrollBar &scrollbar,
+void BranchesLAF::drawScrollbarButton(juce::Graphics &g,
+									  juce::ScrollBar &scrollbar,
 									  int width,
 									  int height,
 									  int buttonDirection,
@@ -221,14 +191,12 @@ void BranchesLAF::drawScrollbarButton(Graphics &g,
 									  bool isButtonDown)
 {
 	float inc;
-	Path highlight, shadow, tri;
-	map<String, Colour>& colours = ColourScheme::getInstance().colours;
+	juce::Path highlight, shadow, tri;
+	std::map<juce::String, juce::Colour>& colours = CustomColourScheme::getInstance().colours;
 
 	if(!isScrollbarVertical)
 	{
-		//Background behind the button.
-		//GradientBrush grad(Colour(0xFFDADCC6), 0.0f, 0.0f, Colour(0xFFEEECE1), 0.0f, (float)height, false);
-		ColourGradient grad(colours[L"Window Background"].darker(0.25f),
+		juce::ColourGradient grad(colours[L"Window Background"].darker(0.25f),
 							0.0f,
 							0.0f,
 							colours[L"Window Background"],
@@ -238,26 +206,24 @@ void BranchesLAF::drawScrollbarButton(Graphics &g,
 
 		if(buttonDirection == 3)
 		{
-			//g.setBrush(&grad);
 			g.setGradientFill(grad);
 			g.fillRect((float)3, (float)0, (float)width, (float)height);
 
-			g.setColour(Colour(0x30000000));
+			g.setColour(juce::Colour(0x30000000));
 			g.fillRect((float)width-3.0f, (float)0, 3.0f, 1.0f);
 			g.fillRect((float)width-3.0f, (float)height-1.0f, 3.0f, 1.0f);
 		}
 		else if(buttonDirection == 1)
 		{
-			//g.setBrush(&grad);
 			g.setGradientFill(grad);
 			g.fillRect((float)0, (float)0, (float)width-3.0f, (float)height);
 
-			g.setColour(Colour(0x30000000));
+			g.setColour(juce::Colour(0x30000000));
 			g.fillRect((float)0, (float)0, 3.0f, 1.0f);
 			g.fillRect((float)0, (float)height-1.0f, 3.0f, 1.0f);
 		}
 
-		g.setColour(Colour(0x80000000));
+		g.setColour(juce::Colour(0x80000000));
 		g.drawRoundedRectangle(1.0f,
 							   1.0f,
 							   (float)(width-2),
@@ -271,7 +237,7 @@ void BranchesLAF::drawScrollbarButton(Graphics &g,
 							   (float)(height-2),
 							   2.0f);
 
-		g.setColour(Colour(0x08000000));
+		g.setColour(juce::Colour(0x08000000));
 		g.fillRoundedRectangle(1.0f,
 							   (float)(height/2),
 							   (float)(width-2),
@@ -287,17 +253,17 @@ void BranchesLAF::drawScrollbarButton(Graphics &g,
 			highlight.lineTo((float)(width-3), 2.0f);
 			if(!isButtonDown)
 			{
-				g.setColour(Colour(0xB0FFFFFF));
-				g.strokePath(highlight, PathStrokeType(2.0f,
-													   PathStrokeType::curved,
-													   PathStrokeType::rounded));
+				g.setColour(juce::Colour(0xB0FFFFFF));
+				g.strokePath(highlight, juce::PathStrokeType(2.0f,
+													   juce::PathStrokeType::curved,
+													   juce::PathStrokeType::rounded));
 			}
 			else
 			{
-				g.setColour(Colour(0x20000000));
-				g.strokePath(highlight, PathStrokeType(1.0f,
-													   PathStrokeType::curved,
-													   PathStrokeType::rounded));
+				g.setColour(juce::Colour(0x20000000));
+				g.strokePath(highlight, juce::PathStrokeType(1.0f,
+													   juce::PathStrokeType::curved,
+													   juce::PathStrokeType::rounded));
 			}
 
 			//Draw shadow.
@@ -311,25 +277,23 @@ void BranchesLAF::drawScrollbarButton(Graphics &g,
 			shadow.lineTo((float)(width-2), 3.0f);
 			if(!isButtonDown)
 			{
-				g.setColour(Colour(0x20000000));
-				g.strokePath(shadow, PathStrokeType(1.0f,
-													PathStrokeType::curved,
-													PathStrokeType::rounded));
+				g.setColour(juce::Colour(0x20000000));
+				g.strokePath(shadow, juce::PathStrokeType(1.0f,
+											juce::PathStrokeType::curved,
+											juce::PathStrokeType::rounded));
 			}
 			else
 			{
-				g.setColour(Colour(0xB0FFFFFF));
-				g.strokePath(shadow, PathStrokeType(2.0f,
-													PathStrokeType::curved,
-													PathStrokeType::rounded));
+				g.setColour(juce::Colour(0xB0FFFFFF));
+				g.strokePath(shadow, juce::PathStrokeType(2.0f,
+											juce::PathStrokeType::curved,
+											juce::PathStrokeType::rounded));
 			}
 		}
 	}
 	else
 	{
-		//Background behind the button.
-		//GradientBrush grad(Colour(0xFFDADCC6), 0.0f, 0.0f, Colour(0xFFEEECE1), (float)width, 0.0f, false);
-		ColourGradient grad(colours[L"Window Background"].darker(0.25f),
+		juce::ColourGradient grad(colours[L"Window Background"].darker(0.25f),
 							0.0f,
 							0.0f,
 							colours[L"Window Background"],
@@ -339,26 +303,24 @@ void BranchesLAF::drawScrollbarButton(Graphics &g,
 
 		if(buttonDirection == 2)
 		{
-			//g.setBrush(&grad);
 			g.setGradientFill(grad);
 			g.fillRect((float)0, (float)0, (float)width, (float)height-3.0f);
 
-			g.setColour(Colour(0x30000000));
+			g.setColour(juce::Colour(0x30000000));
 			g.fillRect((float)0, (float)0, 1.0f, 3.0f);
 			g.fillRect((float)width-1.0f, 0.0f, 1.0f, 3.0f);
 		}
 		else if(buttonDirection == 0)
 		{
-			//g.setBrush(&grad);
 			g.setGradientFill(grad);
 			g.fillRect((float)0, (float)3, (float)width, (float)height);
 
-			g.setColour(Colour(0x30000000));
+			g.setColour(juce::Colour(0x30000000));
 			g.fillRect((float)0, (float)height-3.0f, 1.0f, 3.0f);
 			g.fillRect((float)width-1.0f, (float)height-3.0f, 1.0f, 3.0f);
 		}
 
-		g.setColour(Colour(0x80000000));
+		g.setColour(juce::Colour(0x80000000));
 		g.drawRoundedRectangle(1.0f,
 							   1.0f,
 							   (float)(width-2),
@@ -372,7 +334,7 @@ void BranchesLAF::drawScrollbarButton(Graphics &g,
 							   (float)(height-2),
 							   2.0f);
 
-		g.setColour(Colour(0x08000000));
+		g.setColour(juce::Colour(0x08000000));
 		g.fillRoundedRectangle((float)(width/2),
 							   1.0f,
 							   (float)(width-2),
@@ -388,17 +350,17 @@ void BranchesLAF::drawScrollbarButton(Graphics &g,
 			highlight.lineTo((float)(width-3), 2.0f);
 			if(!isButtonDown)
 			{
-				g.setColour(Colour(0xB0FFFFFF));
-				g.strokePath(highlight, PathStrokeType(2.0f,
-													   PathStrokeType::curved,
-													   PathStrokeType::rounded));
+				g.setColour(juce::Colour(0xB0FFFFFF));
+				g.strokePath(highlight, juce::PathStrokeType(2.0f,
+													   juce::PathStrokeType::curved,
+													   juce::PathStrokeType::rounded));
 			}
 			else
 			{
-				g.setColour(Colour(0x20000000));
-				g.strokePath(highlight, PathStrokeType(1.0f,
-													   PathStrokeType::curved,
-													   PathStrokeType::rounded));
+				g.setColour(juce::Colour(0x20000000));
+				g.strokePath(highlight, juce::PathStrokeType(1.0f,
+													   juce::PathStrokeType::curved,
+													   juce::PathStrokeType::rounded));
 			}
 
 			//Draw shadow.
@@ -412,17 +374,17 @@ void BranchesLAF::drawScrollbarButton(Graphics &g,
 			shadow.lineTo((float)(width-2), 3.0f);
 			if(!isButtonDown)
 			{
-				g.setColour(Colour(0x20000000));
-				g.strokePath(shadow, PathStrokeType(1.0f,
-													PathStrokeType::curved,
-													PathStrokeType::rounded));
+				g.setColour(juce::Colour(0x20000000));
+				g.strokePath(shadow, juce::PathStrokeType(1.0f,
+													juce::PathStrokeType::curved,
+													juce::PathStrokeType::rounded));
 			}
 			else
 			{
-				g.setColour(Colour(0xB0FFFFFF));
-				g.strokePath(shadow, PathStrokeType(2.0f,
-													PathStrokeType::curved,
-													PathStrokeType::rounded));
+				g.setColour(juce::Colour(0xB0FFFFFF));
+				g.strokePath(shadow, juce::PathStrokeType(2.0f,
+													juce::PathStrokeType::curved,
+													juce::PathStrokeType::rounded));
 			}
 		}
 	}
@@ -459,13 +421,6 @@ void BranchesLAF::drawScrollbarButton(Graphics &g,
 					   (float)(height/2)-(float)(height/8)+inc);
 			break;
 		case 3:
-			/*tri.addTriangle((float)(width/2)+(float)(width/6),
-							(float)(height/2)+(float)(height/4),
-							(float)(width/2)-(float)(width/6),
-							(float)(height/2),
-							(float)(width/2)+(float)(width/6),
-							(float)(height/2)-(float)(height/4));*/
-
 			tri.startNewSubPath((float)(width/2)+(float)(width/8)+inc,
 								(float)(height/2)+(float)(height/4)+inc);
 			tri.lineTo((float)(width/2)-(float)(width/8)+inc,
@@ -474,29 +429,29 @@ void BranchesLAF::drawScrollbarButton(Graphics &g,
 					   (float)(height/2)-(float)(height/4)+inc);
 			break;
 	}
+
 	g.setColour(colours[L"Vector Colour"]);
-	g.strokePath(tri, 2.0f);
+	g.strokePath(tri, juce::PathStrokeType(2.0f));
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawScrollbar(Graphics &g,
-							    ScrollBar &scrollbar,
-							    int x,
-							    int y,
-							    int width,
-							    int height,
-							    bool isScrollbarVertical,
-							    int thumbStartPosition,
-							    int thumbSize,
-							    bool isMouseOver,
-							    bool isMouseDown)
+void BranchesLAF::drawScrollbar(juce::Graphics &g,
+					   juce::ScrollBar &scrollbar,
+					   int x,
+					   int y,
+					   int width,
+					   int height,
+					   bool isScrollbarVertical,
+					   int thumbStartPosition,
+					   int thumbSize,
+					   bool isMouseOver,
+					   bool isMouseDown)
 {
-	map<String, Colour>& colours = ColourScheme::getInstance().colours;
+	std::map<juce::String, juce::Colour>& colours = CustomColourScheme::getInstance().colours;
 
 	if(!isScrollbarVertical)
 	{
-		//GradientBrush grad(Colour(0xFFDADCC6), 0.0f, (float)y, Colour(0xFFEEECE1), 0.0f, (float)height, false);
-		ColourGradient grad(colours[L"Window Background"].darker(0.25f),
+		juce::ColourGradient grad(colours[L"Window Background"].darker(0.25f),
 							0.0f,
 							(float)y,
 							colours[L"Window Background"],
@@ -504,15 +459,14 @@ void BranchesLAF::drawScrollbar(Graphics &g,
 							(float)height,
 							false);
 
-		//g.setBrush(&grad);
 		g.setGradientFill(grad);
 		g.fillRect((float)x, (float)y, (float)width, (float)height);
 
-		g.setColour(Colour(0x30000000));
+		g.setColour(juce::Colour(0x30000000));
 		g.fillRect((float)x, (float)y, (float)width, 1.0f);
 		g.fillRect((float)x, (float)height-1.0f, (float)width, 1.0f);
 
-		g.setColour(Colour(0x80000000));
+		g.setColour(juce::Colour(0x80000000));
 		g.drawRoundedRectangle((float)(thumbStartPosition+1),
 							   (float)(y+1),
 							   (float)(thumbSize-2),
@@ -526,7 +480,7 @@ void BranchesLAF::drawScrollbar(Graphics &g,
 							   (float)(height-2),
 							   2.0f);
 
-		g.setColour(Colour(0x08000000));
+		g.setColour(juce::Colour(0x08000000));
 		g.fillRoundedRectangle((float)(thumbStartPosition+1),
 							   (float)(height/2),
 							   (float)(thumbSize-2),
@@ -535,8 +489,7 @@ void BranchesLAF::drawScrollbar(Graphics &g,
 	}
 	else
 	{
-		//GradientBrush grad(Colour(0xFFDADCC6), (float)x, (float)0.0f, Colour(0xFFEEECE1), (float)width, 0.0f, false);
-		ColourGradient grad(colours[L"Window Background"].darker(0.25f),
+		juce::ColourGradient grad(colours[L"Window Background"].darker(0.25f),
 							(float)x,
 							(float)0.0f,
 							colours[L"Window Background"],
@@ -544,15 +497,14 @@ void BranchesLAF::drawScrollbar(Graphics &g,
 							0.0f,
 							false);
 
-		//g.setBrush(&grad);
 		g.setGradientFill(grad);
 		g.fillRect((float)x, (float)y, (float)width, (float)height);
 
-		g.setColour(Colour(0x30000000));
+		g.setColour(juce::Colour(0x30000000));
 		g.fillRect((float)x, (float)y, 1.0f, (float)height);
 		g.fillRect((float)width-1.0f, (float)y, 1.0f, (float)height);
 
-		g.setColour(Colour(0x80000000));
+		g.setColour(juce::Colour(0x80000000));
 		g.drawRoundedRectangle((float)(x+1),
 							   (float)(thumbStartPosition+1),
 							   (float)(width-2),
@@ -566,7 +518,7 @@ void BranchesLAF::drawScrollbar(Graphics &g,
 							   (float)(thumbSize-2),
 							   2.0f);
 
-		g.setColour(Colour(0x08000000));
+		g.setColour(juce::Colour(0x08000000));
 		g.fillRoundedRectangle((float)(width/2),
 							   (float)(thumbStartPosition+1),
 							   (float)(width-2),
@@ -576,22 +528,15 @@ void BranchesLAF::drawScrollbar(Graphics &g,
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawMenuBarBackground(Graphics &g,
-									    int width,
-									    int height,
-									    bool isMouseOverBar,
-									    MenuBarComponent &menuBar)
+void BranchesLAF::drawMenuBarBackground(juce::Graphics &g,
+							   int width,
+							   int height,
+							   bool isMouseOverBar,
+							   juce::MenuBarComponent &menuBar)
 {
-	/*GradientBrush grad(Colour(0xFFEEECE1).brighter(0.8f),
-					   0.0f,
-					   0.0f,
-					   Colour(0xFFEEECE1).darker(0.05f),
-					   0.0f,
-					   (float)height,
-					   false);*/
-	Colour col = ColourScheme::getInstance().colours[L"Window Background"];
+	juce::Colour col = CustomColourScheme::getInstance().colours[L"Window Background"];
 
-	ColourGradient grad(col.brighter(0.8f),
+	juce::ColourGradient grad(col.brighter(0.8f),
 					    0.0f,
 					    0.0f,
 					    col.darker(0.05f),
@@ -599,34 +544,33 @@ void BranchesLAF::drawMenuBarBackground(Graphics &g,
 					    (float)height,
 					    false);
 
-	//g.setBrush(&grad);
 	g.setGradientFill(grad);
 	g.fillRect(0.0f, 0.0f, (float)width, (float)height);
 
-	g.setColour(Colour(0x30000000));
+	g.setColour(juce::Colour(0x30000000));
 	g.fillRect(0.0f, (float)height-1.0f, (float)width, 1.0f);
 }
 
 //------------------------------------------------------------------------------
-Font BranchesLAF::getMenuBarFont(MenuBarComponent &menuBar,
+juce::Font BranchesLAF::getMenuBarFont(juce::MenuBarComponent &menuBar,
 								 int itemIndex,
-								 const String &itemText)
+								 const juce::String &itemText)
 {
-	return Font(15.0f);
+	return juce::Font(15.0f);
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawMenuBarItem(Graphics &g,
+void BranchesLAF::drawMenuBarItem(juce::Graphics &g,
 								  int width,
 								  int height,
 								  int itemIndex,
-								  const String &itemText,
+								  const juce::String &itemText,
 								  bool isMouseOverItem,
 								  bool isMenuOpen,
 								  bool isMouseOverBar,
-								  MenuBarComponent &menuBar)
+								  juce::MenuBarComponent &menuBar)
 {
-	map<String, Colour>& colours = ColourScheme::getInstance().colours;
+	std::map<juce::String, juce::Colour>& colours = CustomColourScheme::getInstance().colours;
 
 	if (! menuBar.isEnabled())
     {
@@ -643,79 +587,66 @@ void BranchesLAF::drawMenuBarItem(Graphics &g,
     }
 
     g.setFont (getMenuBarFont (menuBar, itemIndex, itemText));
-    g.drawFittedText (itemText, 0, 0, width, height, Justification::centred, 1);
+    g.drawFittedText (itemText, 0, 0, width, height, juce::Justification::centred, 1);
 }
 
 //------------------------------------------------------------------------------
-int BranchesLAF::getMenuBarItemWidth(MenuBarComponent &menuBar,
-									 int itemIndex,
-									 const String &itemText)
+int BranchesLAF::getMenuBarItemWidth(juce::MenuBarComponent &menuBar,
+                                    int itemIndex,
+                                    const juce::String &itemText)
 {
-	return getMenuBarFont(menuBar, itemIndex, itemText)
-            .getStringWidth(itemText) + menuBar.getHeight() - 8;
+    return getMenuBarFont(menuBar, itemIndex, itemText).getStringWidth(itemText) + 20;
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawPopupMenuBackground(Graphics &g, int width, int height)
+void BranchesLAF::drawPopupMenuBackground(juce::Graphics &g, int width, int height)
 {
-	Path highlight, shadow;
+    juce::Path highlight, shadow;
 
-	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+    g.fillAll(CustomColourScheme::getInstance().colours[L"Window Background"]);
 
-	highlight.startNewSubPath(2.0f, (float)(height-3));
-	highlight.lineTo(2.0f, 2.0f);
-	//highlight.quadraticTo(2.0f, 2.0f, 4.0f, 2.0f);
-	highlight.lineTo((float)width, 2.0f);
-	g.setColour(Colour(0xB0FFFFFF));
-	g.strokePath(highlight, PathStrokeType(1.0f,
-										   PathStrokeType::curved,
-										   PathStrokeType::rounded));
+    highlight.startNewSubPath(2.0f, (float)(height-3));
+    highlight.lineTo(2.0f, 2.0f);
+    highlight.lineTo((float)(width-3), 2.0f);
 
-	//Draw shadow.
-	shadow.startNewSubPath(3.0f, (float)(height-2));
-	shadow.lineTo((float)(width-2),
-				  (float)(height-2));
-	/*shadow.quadraticTo((float)(width-2),
-						  (float)(height-2),
-						  (float)(width-2),
-						  (float)(height-4));*/
-	shadow.lineTo((float)(width-2), 3.0f);
-	g.setColour(Colour(0x20000000));
-	g.strokePath(shadow, PathStrokeType(1.0f,
-										PathStrokeType::curved,
-										PathStrokeType::rounded));
+    shadow.startNewSubPath((float)(width-3), 2.0f);
+    shadow.lineTo((float)(width-3), (float)(height-3));
+    shadow.lineTo(2.0f, (float)(height-3));
 
-    g.setColour(Colour(0x60000000));
-    g.drawRect(0, 0, width, height);
+    g.setColour(juce::Colours::white.withAlpha(0.9f));
+    g.strokePath(highlight, juce::PathStrokeType(1.0f));
+    g.setColour(juce::Colours::black.withAlpha(0.9f));
+    g.strokePath(shadow, juce::PathStrokeType(1.0f));
 }
 
 //------------------------------------------------------------------------------
-const Drawable *BranchesLAF::getDefaultFolderImage()
+const juce::Drawable *BranchesLAF::getDefaultFolderImage()
 {
-	static DrawableImage im;
+    static juce::DrawableImage im;
 
-	if(im.getImage().isNull())
-		im.setImage(ImageCache::getFromMemory(LookAndFeelImages::lookandfeelfolder_32_png, LookAndFeelImages::lookandfeelfolder_32_pngSize));
+    if(im.getImage().isNull())
+        im.setImage(juce::ImageCache::getFromMemory(LookAndFeelImages::lookandfeelfolder_32_png, 
+                                                   LookAndFeelImages::lookandfeelfolder_32_pngSize));
 
-	return &im;
+    return &im;
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawComboBox(Graphics& g,
-							   int width,
-							   int height,
-							   bool isButtonDown,
-							   int buttonX,
-							   int buttonY,
-							   int buttonW,
-							   int buttonH,
-							   ComboBox& box)
+void BranchesLAF::drawComboBox(juce::Graphics& g,
+                              int width,
+                              int height,
+                              bool isButtonDown,
+                              int buttonX,
+                              int buttonY,
+                              int buttonW,
+                              int buttonH,
+                              juce::ComboBox& box)
 {
-	float inc;
-	map<String, Colour>& colours = ColourScheme::getInstance().colours;
+    float inc;
+    std::map<juce::String, juce::Colour>& colours = CustomColourScheme::getInstance().colours;
 
-	g.setColour(colours[L"Text Editor Colour"]);
-	g.fillRect(0, 0, width-buttonW+3, height);
+    g.setColour(colours[L"Text Editor Colour"]);
+    g.fillRect(0, 0, width-buttonW+3, height);
 
     if (box.isEnabled() && box.hasKeyboardFocus(false))
     {
@@ -724,11 +655,11 @@ void BranchesLAF::drawComboBox(Graphics& g,
     }
     else
     {
-        g.setColour(box.findColour(ComboBox::outlineColourId));
+        g.setColour(box.findColour(juce::ComboBox::outlineColourId));
         g.drawRect(0, 0, width-buttonW+3, height);
     }
 
-    g.setColour(Colour(0x80000000));
+    g.setColour(juce::Colour(0x80000000));
 	g.drawRoundedRectangle(buttonX+1.0f,
 						   buttonY+1.0f,
 						   (float)(buttonW-2),
@@ -742,7 +673,7 @@ void BranchesLAF::drawComboBox(Graphics& g,
 						   (float)(buttonH-2),
 						   2.0f);
 
-	g.setColour(Colour(0x08000000));
+	g.setColour(juce::Colour(0x08000000));
 	g.fillRoundedRectangle(buttonX+1.0f,
 						   buttonY+(float)(buttonH/2),
 						   (float)(buttonW-2),
@@ -756,7 +687,7 @@ void BranchesLAF::drawComboBox(Graphics& g,
 
     if(box.isEnabled())
     {
-        Path tri;
+        juce::Path tri;
 
         tri.startNewSubPath(buttonX+(float)(buttonW/2)-(float)(buttonW/4)+inc,
 							buttonY+(float)(buttonH/2)-(float)(buttonH/8)+inc);
@@ -766,175 +697,168 @@ void BranchesLAF::drawComboBox(Graphics& g,
 				   buttonY+(float)(buttonH/2)-(float)(buttonH/8)+inc);
 
         g.setColour(colours[L"Vector Colour"]);
-        g.strokePath(tri, 2.0f);
+        g.strokePath(tri, juce::PathStrokeType(2.0f));
     }
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawProgressBar(Graphics& g,
-								  ProgressBar& progressBar,
-								  int width,
-								  int height,
-								  double progress,
-								  const String& textToShow)
+void BranchesLAF::drawProgressBar(juce::Graphics& g,
+                                 juce::ProgressBar& progressBar,
+                                 int width,
+                                 int height,
+                                 double progress,
+                                 const juce::String& textToShow)
 {
-	/*GradientBrush grad(progressBar.findColour(ProgressBar::backgroundColourId).darker(0.2f),
-					   0.0f,
-					   0.0f,
-					   progressBar.findColour(ProgressBar::backgroundColourId),
-					   0.0f,
-					   (float)height,
-					   false);*/
-	map<String, Colour>& colours = ColourScheme::getInstance().colours;
-	ColourGradient grad(colours[L"Window Background"].darker(0.2f),
-					    0.0f,
-					    0.0f,
-					    colours[L"Window Background"],
-					    0.0f,
-					    (float)height,
-					    false);
+    std::map<juce::String, juce::Colour>& colours = CustomColourScheme::getInstance().colours;
+    juce::ColourGradient grad(colours[L"Window Background"].darker(0.2f),
+                        0.0f,
+                        0.0f,
+                        colours[L"Window Background"],
+                        0.0f,
+                        (float)height,
+                        false);
 
-	//Draw the background.
-	//g.setBrush(&grad);
-	g.setGradientFill(grad);
-	g.fillRect(0.0f, 0.0f, (float)width, (float)height);
-	g.setColour(Colour(0x80000000));
-	g.drawRect(0, 0, width, height, 1);
+    //Draw the background.
+    g.setGradientFill(grad);
+    g.fillRect(0.0f, 0.0f, (float)width, (float)height);
+    g.setColour(juce::Colour(0x80000000));
+    g.drawRect(0, 0, width, height, 1);
 
-	//Draw the foreground.
-	g.setColour(Colour(0x80000000));
-	g.drawRoundedRectangle(1.0f,
-						   1.0f,
-						   (float)(width-2)*(float)progress,
-						   (float)(height-2),
-						   2.0f,
-						   1.0f);
-	g.setColour(colours[L"CPU Meter Colour"]);
-	g.fillRoundedRectangle(1.0f,
-						   1.0f,
-						   (float)(width-2)*(float)progress,
-						   (float)(height-2),
-						   2.0f);
+    //Draw the foreground.
+    g.setColour(juce::Colour(0x80000000));
+    g.drawRoundedRectangle(1.0f,
+                           1.0f,
+                           (float)(width-2)*(float)progress,
+                           (float)(height-2),
+                           2.0f,
+                           1.0f);
+    g.setColour(colours[L"CPU Meter Colour"]);
+    g.fillRoundedRectangle(1.0f,
+                           1.0f,
+                           (float)(width-2)*(float)progress,
+                           (float)(height-2),
+                           2.0f);
 
-	g.setColour(Colour(0x08000000));
-	g.fillRoundedRectangle(1.0f,
-						   (float)(height/2),
-						   (float)(width-2)*(float)progress,
-						   (float)(height-2),
-						   2.0f);
+    g.setColour(juce::Colour(0x08000000));
+    g.fillRoundedRectangle(1.0f,
+                           (float)(height/2),
+                           (float)(width-2)*(float)progress,
+                           (float)(height-2),
+                           2.0f);
 
-	//Draw the text.
-	g.setColour(Colour(0x80000000));
-	g.drawText(textToShow,
-			   2,
-			   1,
-			   width-4,
-			   height-2,
-			   Justification(Justification::horizontallyCentred),
-			   true);
+    //Draw the text.
+    g.setColour(juce::Colour(0x80000000));
+    g.drawText(textToShow,
+               2,
+               1,
+               width-4,
+               height-2,
+               juce::Justification::horizontallyCentred,
+               true);
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawKeymapChangeButton(Graphics &g,
-										 int width,
-										 int height,
-										 Button &button,
-										 const String &keyDescription)
+void BranchesLAF::drawKeymapChangeButton(juce::Graphics &g,
+                                        int width,
+                                        int height,
+                                        juce::Button &button,
+                                        const juce::String &keyDescription)
 {
-	map<String, Colour>& colours = ColourScheme::getInstance().colours;
+    std::map<juce::String, juce::Colour>& colours = CustomColourScheme::getInstance().colours;
 
-	if(keyDescription.isNotEmpty())
+    if(keyDescription.isNotEmpty())
     {
-		drawButtonBackground(g,
-							 button,
-							 colours[L"Button Colour"],
-							 button.isOver(),
-							 button.isDown());
+        drawButtonBackground(g,
+                             button,
+                             colours[L"Button Colour"],
+                             button.isOver(),
+                             button.isDown());
 
-		g.setColour(colours[L"Text Colour"]);
+        g.setColour(colours[L"Text Colour"]);
         g.setFont(height * 0.6f);
         g.drawFittedText(keyDescription,
                          3,
-						 0,
-						 width - 6,
-						 height,
-                         Justification::centred,
-						 1);
-	}
-	else
-	{
-		const float thickness = 7.0f;
+                         0,
+                         width - 6,
+                         height,
+                         juce::Justification::centred,
+                         1);
+    }
+    else
+    {
+        const float thickness = 7.0f;
         const float indent = 22.0f;
 
-        Path p;
+        juce::Path p;
         p.addEllipse(0.0f, 0.0f, 100.0f, 100.0f);
         p.addRectangle(indent,
-					   50.0f - thickness,
-					   100.0f - indent * 2.0f,
-					   thickness * 2.0f);
+                       50.0f - thickness,
+                       100.0f - indent * 2.0f,
+                       thickness * 2.0f);
         p.addRectangle(50.0f - thickness,
-					   indent,
-					   thickness * 2.0f,
-					   50.0f - indent - thickness);
+                       indent,
+                       thickness * 2.0f,
+                       50.0f - indent - thickness);
         p.addRectangle(50.0f - thickness,
-					   50.0f + thickness,
-					   thickness * 2.0f,
-					   50.0f - indent - thickness);
+                       50.0f + thickness,
+                       thickness * 2.0f,
+                       50.0f - indent - thickness);
         p.setUsingNonZeroWinding(false);
 
         g.setColour(colours[L"Text Colour"].withAlpha(button.isDown() ? 0.7f : (button.isOver() ? 0.5f : 0.3f)));
         g.fillPath(p,
-				   p.getTransformToScaleToFit(2.0f,
-				   2.0f,
-				   width - 4.0f,
-				   height - 4.0f,
-				   true));
-	}
+                   p.getTransformToScaleToFit(2.0f,
+                                              2.0f,
+                                              width - 4.0f,
+                                              height - 4.0f,
+                                              true));
+    }
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawLabel(Graphics& g, Label& label)
+void BranchesLAF::drawLabel(juce::Graphics& g, juce::Label& label)
 {
-    g.fillAll(label.findColour(Label::backgroundColourId));
+    g.fillAll(label.findColour(juce::Label::backgroundColourId));
 
     if(!label.isBeingEdited())
     {
         const float alpha = label.isEnabled() ? 1.0f : 0.5f;
+        const int borderSize = 4; // Default border size since the methods don't exist
 
-		g.setColour(ColourScheme::getInstance().colours[L"Text Colour"]);
+        g.setColour(CustomColourScheme::getInstance().colours[L"Text Colour"]);
         g.setFont(label.getFont());
         g.drawFittedText(label.getText(),
-                         label.getHorizontalBorderSize(),
-                         label.getVerticalBorderSize(),
-                         label.getWidth() - 2 * label.getHorizontalBorderSize(),
-                         label.getHeight() - 2 * label.getVerticalBorderSize(),
+                         borderSize,
+                         borderSize,
+                         label.getWidth() - 2 * borderSize,
+                         label.getHeight() - 2 * borderSize,
                          label.getJustificationType(),
-                         jmax(1, (int)(label.getHeight()/label.getFont().getHeight())),
+                         juce::jmax(1, (int)(label.getHeight()/label.getFont().getHeight())),
                          label.getMinimumHorizontalScale());
 
-        g.setColour(label.findColour(Label::outlineColourId).withMultipliedAlpha(alpha));
+        g.setColour(label.findColour(juce::Label::outlineColourId).withMultipliedAlpha(alpha));
         g.drawRect(0, 0, label.getWidth(), label.getHeight());
     }
     else if (label.isEnabled())
     {
-        g.setColour(label.findColour(Label::outlineColourId));
+        g.setColour(label.findColour(juce::Label::outlineColourId));
         g.drawRect(0, 0, label.getWidth(), label.getHeight());
     }
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawToggleButton(Graphics& g,
-                                   ToggleButton& button,
+void BranchesLAF::drawToggleButton(juce::Graphics& g,
+                                   juce::ToggleButton& button,
                                    bool isMouseOverButton,
                                    bool isButtonDown)
 {
     if(button.hasKeyboardFocus (true))
     {
-		g.setColour(ColourScheme::getInstance().colours[L"List Selected Colour"]);
+        g.setColour(CustomColourScheme::getInstance().colours[L"List Selected Colour"]);
         g.drawRect(0, 0, button.getWidth(), button.getHeight());
     }
 
-    float fontSize = jmin(15.0f, button.getHeight() * 0.75f);
+    float fontSize = juce::jmin(15.0f, button.getHeight() * 0.75f);
     const float tickWidth = fontSize * 1.1f;
 
     drawTickBox(g, button, 4.0f, (button.getHeight() - tickWidth) * 0.5f,
@@ -944,7 +868,7 @@ void BranchesLAF::drawToggleButton(Graphics& g,
                 isMouseOverButton,
                 isButtonDown);
 
-	g.setColour(ColourScheme::getInstance().colours[L"Text Colour"]);
+    g.setColour(CustomColourScheme::getInstance().colours[L"Text Colour"]);
     g.setFont(fontSize);
 
     if (! button.isEnabled())
@@ -955,12 +879,12 @@ void BranchesLAF::drawToggleButton(Graphics& g,
     g.drawFittedText(button.getButtonText(),
                      textX, 0,
                      button.getWidth() - textX - 2, button.getHeight(),
-                     Justification::centredLeft, 10);
+                     juce::Justification::centredLeft, 10);
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawTickBox(Graphics& g,
-                              Component& component,
+void BranchesLAF::drawTickBox(juce::Graphics& g,
+                              juce::Component& component,
                               float x, float y, float w, float h,
                               bool ticked,
                               bool isEnabled,
@@ -968,55 +892,68 @@ void BranchesLAF::drawTickBox(Graphics& g,
                               bool isButtonDown)
 {
     const float boxSize = w * 0.7f;
-
-    drawGlassSphere(g, x, y + (h - boxSize) * 0.5f, boxSize,
-					ColourScheme::getInstance().colours[L"Tick Box Colour"].withMultipliedAlpha(isEnabled ? 1.0f : 0.5f),
-                    isEnabled ? ((isButtonDown || isMouseOverButton) ? 1.1f : 0.5f) : 0.3f);
+    const float sphereX = x;
+    const float sphereY = y + (h - boxSize) * 0.5f;
+    
+    // Draw a simple sphere instead of calling drawGlassSphere
+    juce::Colour sphereColour = CustomColourScheme::getInstance().colours[L"Tick Box Colour"].withMultipliedAlpha(isEnabled ? 1.0f : 0.5f);
+    
+    g.setColour(sphereColour);
+    g.fillEllipse(sphereX, sphereY, boxSize, boxSize);
+    
+    // Add highlight
+    g.setColour(juce::Colours::white.withAlpha(0.4f));
+    g.fillEllipse(sphereX + boxSize * 0.2f, sphereY + boxSize * 0.2f, boxSize * 0.6f, boxSize * 0.6f);
+    
+    // Add outline
+    float outlineThickness = isEnabled ? ((isButtonDown || isMouseOverButton) ? 1.1f : 0.5f) : 0.3f;
+    g.setColour(juce::Colours::black.withAlpha(0.5f));
+    g.drawEllipse(sphereX, sphereY, boxSize, boxSize, outlineThickness);
 
     if(ticked)
     {
-        Path tick;
-		Colour tempCol = ColourScheme::getInstance().colours[L"Vector Colour"];
+        juce::Path tick;
+        juce::Colour tempCol = CustomColourScheme::getInstance().colours[L"Vector Colour"];
         tick.startNewSubPath(1.5f, 3.0f);
         tick.lineTo(3.0f, 6.0f);
         tick.lineTo(6.0f, 0.0f);
 
-		g.setColour(isEnabled ? tempCol : tempCol.withAlpha(0.25f));
+        g.setColour(isEnabled ? tempCol : tempCol.withAlpha(0.25f));
 
-        const AffineTransform trans(AffineTransform::scale(w / 9.0f, h / 9.0f)
+        const juce::AffineTransform trans(juce::AffineTransform::scale(w / 9.0f, h / 9.0f)
                                          .translated(x, y));
 
-        g.strokePath(tick, PathStrokeType(2.5f), trans);
+        g.strokePath(tick, juce::PathStrokeType(2.5f), trans);
     }
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::fillTextEditorBackground(Graphics& g, int /*width*/, int /*height*/,
-                                           TextEditor& textEditor)
+void BranchesLAF::fillTextEditorBackground(juce::Graphics& g, int /*width*/, int /*height*/,
+                                           juce::TextEditor& textEditor)
 {
-	g.fillAll(ColourScheme::getInstance().colours[L"Text Editor Colour"]);
+    g.fillAll(CustomColourScheme::getInstance().colours[L"Text Editor Colour"]);
 }
 
 //------------------------------------------------------------------------------
-void BranchesLAF::drawCallOutBoxBackground(CallOutBox &box,
-										   Graphics &g,
-										   const Path &path,
-										   Image &cachedImage)
+void BranchesLAF::drawCallOutBoxBackground(juce::CallOutBox &box,
+                                          juce::Graphics &g,
+                                          const juce::Path &path,
+                                          juce::Image &cachedImage)
 {
-	Image content(Image::ARGB, box.getWidth(), box.getHeight(), true);
+    juce::Image content(juce::Image::ARGB, box.getWidth(), box.getHeight(), true);
 
     {
-        Graphics g2(content);
+        juce::Graphics g2(content);
 
-		g2.setColour(ColourScheme::getInstance().colours[L"Window Background"].withAlpha(0.9f));
+        g2.setColour(CustomColourScheme::getInstance().colours[L"Window Background"].withAlpha(0.9f));
         g2.fillPath(path);
 
-        g2.setColour(Colours::black.withAlpha(0.8f));
-        g2.strokePath(path, PathStrokeType(2.0f));
+        g2.setColour(juce::Colours::black.withAlpha(0.8f));
+        g2.strokePath(path, juce::PathStrokeType(2.0f));
     }
 
-    DropShadowEffect shadow;
-	DropShadow shad(Colours::black.withAlpha(0.5f), 5, Point<int>(2, 2));
+    juce::DropShadowEffect shadow;
+    juce::DropShadow shad(juce::Colours::black.withAlpha(0.5f), 5, juce::Point<int>(2, 2));
     shadow.setShadowProperties(shad);
     shadow.applyEffect(content, g, 1.0f, 1.0f);
 }

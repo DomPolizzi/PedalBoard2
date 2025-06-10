@@ -1,24 +1,3 @@
-/*
-  ==============================================================================
-
-  This is an automatically generated file created by the Jucer!
-
-  Creation date:  12 Nov 2011 4:51:55pm
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Jucer version: 1.12
-
-  ------------------------------------------------------------------------------
-
-  The Jucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-6 by Raw Material Software ltd.
-
-  ==============================================================================
-*/
-
 //[Headers] You can add your own extra header files here...
 
 #include "Vectors.h"
@@ -47,55 +26,55 @@ ColourSchemeEditor::ColourSchemeEditor ()
       newButton (0)
 {
     addAndMakeVisible (colourEditor = new ColourSelector (ColourSelector::showAlphaChannel|ColourSelector::showColourAtTop|ColourSelector::showSliders|ColourSelector::showColourspace, 0));
-    colourEditor->setName (L"colourEditor");
+    colourEditor->setName ("colourEditor");
 
-    addAndMakeVisible (colourSelector = new ListBox (L"colourSelector", this));
-    colourSelector->setName (L"colourSelector");
+    addAndMakeVisible (colourSelector = new ListBox ("colourSelector", this));
+    colourSelector->setName ("colourSelector");
 
-    addAndMakeVisible (presetSelector = new ComboBox (L"presetSelector"));
+    addAndMakeVisible (presetSelector = new ComboBox ("presetSelector"));
     presetSelector->setEditableText (true);
     presetSelector->setJustificationType (Justification::centredLeft);
     presetSelector->setTextWhenNothingSelected (String::empty);
-    presetSelector->setTextWhenNoChoicesAvailable (L"(no choices)");
+    presetSelector->setTextWhenNoChoicesAvailable ("(no choices)");
     presetSelector->addListener (this);
 
-    addAndMakeVisible (deleteButton = new DrawableButton (L"deleteButton", DrawableButton::ImageOnButtonBackground));
-    deleteButton->setName (L"deleteButton");
+    addAndMakeVisible (deleteButton = new DrawableButton ("deleteButton", DrawableButton::ImageOnButtonBackground));
+    deleteButton->setName ("deleteButton");
 
-    addAndMakeVisible (saveButton = new DrawableButton (L"saveButton", DrawableButton::ImageOnButtonBackground));
-    saveButton->setName (L"saveButton");
+    addAndMakeVisible (saveButton = new DrawableButton ("saveButton", DrawableButton::ImageOnButtonBackground));
+    saveButton->setName ("saveButton");
 
-    addAndMakeVisible (newButton = new DrawableButton (L"newButton", DrawableButton::ImageOnButtonBackground));
-    newButton->setName (L"newButton");
+    addAndMakeVisible (newButton = new DrawableButton ("newButton", DrawableButton::ImageOnButtonBackground));
+    newButton->setName ("newButton");
 
 
     //[UserPreSize]
 
-	Colour tempCol = ColourScheme::getInstance().colours[L"Button Colour"];
-	ScopedPointer<Drawable> newImage(loadSVGFromMemory(Vectors::newbutton_svg,
-													   Vectors::newbutton_svgSize));
-	ScopedPointer<Drawable> saveImage(loadSVGFromMemory(Vectors::savebutton_svg,
-													    Vectors::savebutton_svgSize));
-	ScopedPointer<Drawable> deleteImage(loadSVGFromMemory(Vectors::deletebutton_svg,
-													      Vectors::deletebutton_svgSize));
+	Colour tempCol = ColourScheme::getInstance().colours["Button Colour"];
+	std::unique_ptr<Drawable> newImage(loadSVGFromMemory(Vectors::newbutton_svg,
+									   Vectors::newbutton_svgSize));
+	std::unique_ptr<Drawable> saveImage(loadSVGFromMemory(Vectors::savebutton_svg,
+									    Vectors::savebutton_svgSize));
+	std::unique_ptr<Drawable> deleteImage(loadSVGFromMemory(Vectors::deletebutton_svg,
+									      Vectors::deletebutton_svgSize));
 	
 	newButton->setImages(newImage);
 	newButton->setColour(DrawableButton::backgroundColourId, tempCol);
 	newButton->setColour(DrawableButton::backgroundOnColourId, tempCol);
-	newButton->setTooltip(L"New colour scheme");
+	newButton->setTooltip("New colour scheme");
 	saveButton->setImages(saveImage);
 	saveButton->setColour(DrawableButton::backgroundColourId, tempCol);
 	saveButton->setColour(DrawableButton::backgroundOnColourId, tempCol);
-	saveButton->setTooltip(L"Save current colour scheme");
+	saveButton->setTooltip("Save current colour scheme");
 	deleteButton->setImages(deleteImage);
 	deleteButton->setColour(DrawableButton::backgroundColourId, tempCol);
 	deleteButton->setColour(DrawableButton::backgroundOnColourId, tempCol);
-	deleteButton->setTooltip(L"Delete selected colour scheme");
+	deleteButton->setTooltip("Delete selected colour scheme");
 
-	colourEditor->setColour(ColourSelector::backgroundColourId, tempCol);
+	colourEditor->setColour(juce::ColourSelector::backgroundColourId, tempCol);
 
 	colourSelector->setOutlineThickness(1);
-	colourSelector->setColour(ListBox::outlineColourId, Colour(0x60000000));
+	colourSelector->setColour(juce::ListBox::outlineColourId, Colour(0x60000000));
 
 	colourSelector->updateContent();
 	colourSelector->selectRow(0);
@@ -107,7 +86,7 @@ ColourSchemeEditor::ColourSchemeEditor ()
 	Array<File> presets;
 	File settingsDir = JuceHelperStuff::getAppDataFolder();
 
-	settingsDir.findChildFiles(presets, File::findFiles, false, L"*.colourscheme");
+	settingsDir.findChildFiles(presets, File::findFiles, false, "*.colourscheme");
 	for(i=0;i<presets.size();++i)
 	{
 		String tempstr = presets[i].getFileNameWithoutExtension();
@@ -138,27 +117,35 @@ ColourSchemeEditor::~ColourSchemeEditor()
 	if(!ColourScheme::getInstance().doesColoursMatchPreset(presetSelector->getText()))
 	{
 		if(AlertWindow::showOkCancelBox(AlertWindow::WarningIcon,
-										L"Colour scheme not saved",
-										L"Save current scheme?",
-										L"Yes",
-										L"No"))
+										"Colour scheme not saved",
+										"Save current scheme?",
+										"Yes",
+										"No",
+										getTopLevelComponent()))
 		{
 			ColourScheme::getInstance().savePreset(presetSelector->getText());
 		}
 	}
 
 	//Save the selected preset to the properties file.
-	PropertiesSingleton::getInstance().getUserSettings()->setValue(L"colourScheme",
-																   presetSelector->getText());
+	PropertiesSingleton::getInstance().getUserSettings()->setValue("colourScheme",
+											   presetSelector->getText());
 
     //[/Destructor_pre]
 
-    deleteAndZero (colourEditor);
-    deleteAndZero (colourSelector);
-    deleteAndZero (presetSelector);
-    deleteAndZero (deleteButton);
-    deleteAndZero (saveButton);
-    deleteAndZero (newButton);
+    delete colourEditor;
+    delete colourSelector;
+    delete presetSelector;
+    delete deleteButton;
+    delete saveButton;
+    delete newButton;
+    
+    colourEditor = nullptr;
+    colourSelector = nullptr;
+    presetSelector = nullptr;
+    deleteButton = nullptr;
+    saveButton = nullptr;
+    newButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -175,7 +162,7 @@ void ColourSchemeEditor::paint (Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 
-	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+	g.fillAll(ColourScheme::getInstance().colours["Window Background"]);
 
     //[/UserPaint]
 }
@@ -250,7 +237,7 @@ void ColourSchemeEditor::paintListBoxItem(int rowNumber,
 	map<String, Colour>::iterator it;
 	map<String, Colour>& colours = ColourScheme::getInstance().colours;
 
-	g.fillAll(colours[L"Dialog Inner Background"]);
+	g.fillAll(colours["Dialog Inner Background"]);
 
 	for(it=colours.begin();it!=colours.end();++it,++i)
 	{
@@ -259,19 +246,19 @@ void ColourSchemeEditor::paintListBoxItem(int rowNumber,
 			//Colour in the background.
 			if(rowIsSelected)
 			{
-				ColourGradient basil(colours[L"List Selected Colour"].brighter(0.4f),
-									 0.0f,
-									 0.0f,
-									 colours[L"List Selected Colour"].darker(0.125f),
-									 0.0f,
-									 (float)height,
-									 false);
+				ColourGradient basil(colours["List Selected Colour"].brighter(0.4f),
+								 0.0f,
+								 0.0f,
+								 colours["List Selected Colour"].darker(0.125f),
+								 0.0f,
+								 (float)height,
+								 false);
 
 				g.setGradientFill(basil);
 
 				g.fillAll();
 
-				g.setColour(colours[L"List Selected Colour"].contrasting());
+				g.setColour(colours["List Selected Colour"].contrasting());
 			}
 			else
 			{
@@ -310,7 +297,7 @@ void ColourSchemeEditor::buttonClicked(Button *button)
 {
 	if(button == newButton)
 	{
-		presetSelector->addItem(L"New Colour Scheme", presetSelector->getNumItems()+1);
+		presetSelector->addItem("New Colour Scheme", presetSelector->getNumItems()+1);
 		presetSelector->setSelectedId(presetSelector->getNumItems());
 	}
 	else if(button == saveButton)
@@ -328,7 +315,7 @@ void ColourSchemeEditor::buttonClicked(Button *button)
 			String presetName = presetSelector->getText();
 			File settingsDir = JuceHelperStuff::getAppDataFolder();
 
-			tempstr << presetName << L".colourscheme";
+			tempstr << presetName << ".colourscheme";
 			tempFile = settingsDir.getChildFile(tempstr);
 			tempFile.deleteFile();
 
@@ -364,7 +351,7 @@ void ColourSchemeEditor::changeListenerCallback(ChangeBroadcaster *source)
 		{
 			if(i == row)
 			{
-				Colour tempCol = ColourScheme::getInstance().colours[L"Button Colour"];
+				Colour tempCol = ColourScheme::getInstance().colours["Button Colour"];
 
 				it->second = colourEditor->getCurrentColour();
 				colourSelector->updateContent();
@@ -374,8 +361,8 @@ void ColourSchemeEditor::changeListenerCallback(ChangeBroadcaster *source)
 				saveButton->setColour(DrawableButton::backgroundOnColourId, tempCol);
 				deleteButton->setColour(DrawableButton::backgroundColourId, tempCol);
 				deleteButton->setColour(DrawableButton::backgroundOnColourId, tempCol);
-				colourEditor->setColour(ColourSelector::backgroundColourId,
-										ColourScheme::getInstance().colours[L"Window Background"]);
+				colourEditor->setColour(juce::ColourSelector::backgroundColourId,
+									ColourScheme::getInstance().colours["Window Background"]);
 				repaint();
 				sendChangeMessage();
 
@@ -388,13 +375,13 @@ void ColourSchemeEditor::changeListenerCallback(ChangeBroadcaster *source)
 
 //------------------------------------------------------------------------------
 Drawable *ColourSchemeEditor::loadSVGFromMemory(const void *dataToInitialiseFrom,
-											    size_t sizeInBytes)
+								    size_t sizeInBytes)
 {
-	Drawable *retval = 0;
+	Drawable *retval = nullptr;
 
 	MemoryBlock memBlock(dataToInitialiseFrom, sizeInBytes);
 	XmlDocument doc(memBlock.toString());
-	ScopedPointer<XmlElement> svgData(doc.getDocumentElement());
+	std::unique_ptr<XmlElement> svgData(doc.getDocumentElement());
 
 	retval = Drawable::createFromSVG(*svgData);
 

@@ -1,37 +1,6 @@
-/*
-  ==============================================================================
-
-  This is an automatically generated file created by the Jucer!
-
-  Creation date:  2 Jul 2011 12:03:01pm
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Jucer version: 1.12
-
-  ------------------------------------------------------------------------------
-
-  The Jucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-6 by Raw Material Software ltd.
-
-  ==============================================================================
-*/
-
-//[Headers] You can add your own extra header files here...
-
 #include "ColourScheme.h"
-
-//[/Headers]
-
 #include "AboutPage.h"
 
-
-//[MiscUserDefs] You can add your own user definitions and misc code here...
-//[/MiscUserDefs]
-
-//==============================================================================
 AboutPage::AboutPage (const String& ip)
     : ipAddress(ip),
       titleLabel (0),
@@ -117,9 +86,6 @@ AboutPage::AboutPage (const String& ip)
     ipAddressLabel->setColour (TextEditor::textColourId, Colours::black);
     ipAddressLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
 
-
-    //[UserPreSize]
-
 	String tempstr;
 	Colour textCol = ColourScheme::getInstance().colours[L"Text Colour"].withAlpha(0.5f);
 
@@ -142,19 +108,12 @@ AboutPage::AboutPage (const String& ip)
 	juceVersionLabel->setColour(Label::textColourId, textCol);
 	ipAddressLabel->setColour(Label::textColourId, textCol);
 
-    //[/UserPreSize]
-
     setSize (400, 280);
 
-    //[Constructor] You can add your own custom stuff here..
-    //[/Constructor]
 }
 
 AboutPage::~AboutPage()
 {
-    //[Destructor_pre]. You can add your own custom destruction code here..
-    //[/Destructor_pre]
-
     deleteAndZero (titleLabel);
     deleteAndZero (descriptionLabel);
     deleteAndZero (creditsLabel);
@@ -165,23 +124,14 @@ AboutPage::~AboutPage()
     deleteAndZero (juceVersionLabel);
     deleteAndZero (ipAddressLabel);
 
-    //[Destructor]. You can add your own custom destruction code here..
-    //[/Destructor]
 }
 
-//==============================================================================
 void AboutPage::paint (Graphics& g)
 {
-    //[UserPrePaint] Add your own custom painting code here..
-    //[/UserPrePaint]
-
     g.fillAll (Colour (0xffeeece1));
-
-    //[UserPaint] Add your own custom painting code here..
 
 	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
 
-    //[/UserPaint]
 }
 
 void AboutPage::resized()
@@ -195,75 +145,8 @@ void AboutPage::resized()
     versionLabel->setBounds (getWidth() - 154, 0, 150, 24);
     juceVersionLabel->setBounds (getWidth() - 154, 16, 150, 24);
     ipAddressLabel->setBounds (16, 192, getWidth() - 16, 24);
-    //[UserResized] Add your own custom resize handling here..
-    //[/UserResized]
 }
 
-
-
-//[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-//[/MiscUserCode]
-
-
-//==============================================================================
 #if 0
-/*  -- Jucer information section --
 
-    This is where the Jucer puts all of its metadata, so don't change anything in here!
-
-BEGIN_JUCER_METADATA
-
-<JUCER_COMPONENT documentType="Component" className="AboutPage" componentName=""
-                 parentClasses="public Component" constructorParams="const String&amp; ip"
-                 variableInitialisers="ipAddress(ip)" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330000013" fixedSize="0" initialWidth="400"
-                 initialHeight="280">
-  <BACKGROUND backgroundColour="ffeeece1"/>
-  <LABEL name="titleLabel" id="dd6542ae3fcb9b5c" memberName="titleLabel"
-         virtualName="" explicitFocusOrder="0" pos="8 8 208 32" textCol="80000000"
-         edTextCol="ff000000" edBkgCol="0" labelText="Pedalboard 2" editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="32" bold="1" italic="0" justification="33"/>
-  <LABEL name="descriptionLabel" id="de5989d753bc0220" memberName="descriptionLabel"
-         virtualName="" explicitFocusOrder="0" pos="16 48 16M 56" textCol="80000000"
-         edTextCol="ff000000" edBkgCol="0" labelText="A simple plugin host intended for live use, with plugin&#10;parameters easily mapped to MIDI or Open Sound Control inputs."
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="9"/>
-  <LABEL name="creditsLabel" id="b05a22c6f03e6de8" memberName="creditsLabel"
-         virtualName="" explicitFocusOrder="0" pos="16 104 16M 56" textCol="80000000"
-         edTextCol="ff000000" edBkgCol="0" labelText="Written using the JUCE library, with sections taken from&#10;the 'audio plugin host' example code."
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="9"/>
-  <LABEL name="authorLabel" id="2e1803d1a35e2f3" memberName="authorLabel"
-         virtualName="" explicitFocusOrder="0" pos="16 152 16M 40" textCol="80000000"
-         edTextCol="ff000000" edBkgCol="0" labelText="Author: Niall Moody&#10;License: GPL v3"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="9"/>
-  <HYPERLINKBUTTON name="niallmoodyLink" id="6d1145279dcd5cdb" memberName="niallmoodyLink"
-                   virtualName="" explicitFocusOrder="0" pos="50%c 224 150 24" tooltip="http://www.niallmoody.com"
-                   buttonText="niallmoody.com" connectedEdges="0" needsCallback="0"
-                   radioGroupId="0" url="http://www.niallmoody.com"/>
-  <HYPERLINKBUTTON name="juceLink" id="4a2a19a55d5d801b" memberName="juceLink" virtualName=""
-                   explicitFocusOrder="0" pos="50%c 248 252 24" tooltip="http://www.rawmaterialsoftware.com/juce"
-                   buttonText="rawmaterialsoftware.com/juce" connectedEdges="0"
-                   needsCallback="0" radioGroupId="0" url="http://www.rawmaterialsoftware.com/juce"/>
-  <LABEL name="versionLabel" id="7874d6b2fe271548" memberName="versionLabel"
-         virtualName="" explicitFocusOrder="0" pos="154R 0 150 24" textCol="80000000"
-         edTextCol="ff000000" edBkgCol="0" labelText="Version: 2.00" editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="12" bold="0" italic="0" justification="34"/>
-  <LABEL name="juceVersionLabel" id="4488baef6ec2c53b" memberName="juceVersionLabel"
-         virtualName="" explicitFocusOrder="0" pos="154R 16 150 24" textCol="80000000"
-         edTextCol="ff000000" edBkgCol="0" labelText="JUCE Version: 1.5.36"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="12" bold="0" italic="0" justification="34"/>
-  <LABEL name="ipAddressLabel" id="481375ac125b41f8" memberName="ipAddressLabel"
-         virtualName="" explicitFocusOrder="0" pos="16 192 16M 24" textCol="80000000"
-         edTextCol="ff000000" edBkgCol="0" labelText="Current IP Address: 192.168.1.68"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
-</JUCER_COMPONENT>
-
-END_JUCER_METADATA
-*/
 #endif

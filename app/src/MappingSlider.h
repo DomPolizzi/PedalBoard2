@@ -20,7 +20,7 @@
 #ifndef MAPPINGSLIDER_H_
 #define MAPPINGSLIDER_H_
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 ///	A two-tick Slider which can handle inverted values.
 class JUCE_API  MappingSlider  : public Component,
@@ -852,13 +852,13 @@ private:
     bool incDecButtonsSideBySide : 1, sendChangeOnlyOnRelease : 1, popupDisplayEnabled : 1;
     bool menuEnabled : 1, menuShown : 1, mouseWasHidden : 1, incDecDragged : 1;
     bool scrollWheelEnabled : 1, snapsToMousePos : 1;
-    ScopedPointer<Label> valueBox;
-    ScopedPointer<Button> incButton, decButton;
+    std::unique_ptr<Label> valueBox;
+    std::unique_ptr<Button> incButton, decButton;
 
     class PopupDisplayComponent;
     friend class PopupDisplayComponent;
     friend class ScopedPointer <PopupDisplayComponent>;
-    ScopedPointer <PopupDisplayComponent> popupDisplay;
+    std::unique_ptr<PopupDisplayComponent> popupDisplay;
     Component* parentForPopupDisplay;
 
     float getLinearMappingSliderPos (double value);

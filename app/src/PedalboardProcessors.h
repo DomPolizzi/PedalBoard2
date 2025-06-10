@@ -20,7 +20,7 @@
 #ifndef PEDALBOARDPROCESSORS_H_
 #define PEDALBOARDPROCESSORS_H_
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 #include <stdint.h>
 
@@ -241,7 +241,7 @@ class FilePlayerProcessor : public PedalboardProcessor,
 	///	The transport source which plays the file.
 	AudioTransportSource transportSource;
 	///	The actual sound file source.
-	ScopedPointer<AudioFormatReaderSource> soundFileSource;
+	std::unique_ptr<AudioFormatReaderSource> soundFileSource;
 
 	///	The file we're playing.
 	File soundFile;
@@ -663,7 +663,7 @@ class MetronomeProcessor : public PedalboardProcessor,
 	///	The transport sources which play the accent and click files.
 	AudioTransportSource transportSource[2];
 	///	The accent and click sound file sources.
-	ScopedPointer<AudioFormatReaderSource> soundFileSource[2];
+	std::unique_ptr<AudioFormatReaderSource> soundFileSource[2];
 	///	The files we're playing.
 	File files[2];
 
