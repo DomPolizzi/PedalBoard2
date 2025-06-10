@@ -23,7 +23,7 @@
 #define __JUCER_HEADER_LOOPERCONTROL_LOOPERCONTROL_995E972B__
 
 //[Headers]     -- You can add your own extra header files here --
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 #include "WaveformDisplay.h"
 
 class LooperProcessor;
@@ -86,14 +86,14 @@ private:
 	LooperProcessor *processor;
 
 	///	The two drawables we use for the playButton.
-	ScopedPointer<Drawable> playImage;
-	ScopedPointer<Drawable> pauseImage;
+	std::unique_ptr<Drawable> playImage;
+	std::unique_ptr<Drawable> pauseImage;
 	///	Whether the playPauseButton is currently displaying the play icon.
 	bool playing;
 
 	///	The two drawables we use for the recordButton.
-	ScopedPointer<Drawable> recordImage;
-	ScopedPointer<Drawable> stopImage;
+	std::unique_ptr<Drawable> recordImage;
+	std::unique_ptr<Drawable> stopImage;
 	///	Whether the recordButton is currently displaying the record icon.
 	bool recording;
 

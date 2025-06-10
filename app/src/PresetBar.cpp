@@ -68,9 +68,9 @@ PresetBar::PresetBar (PluginComponent *comp)
 	AudioProcessor *proc;
 
 	Colour tempCol = ColourScheme::getInstance().colours[L"Button Colour"];
-	ScopedPointer<Drawable> saveImage(loadSVGFromMemory(Vectors::savebutton_svg,
+	auto saveImage = std::unique_ptr<Drawable>(loadSVGFromMemory(Vectors::savebutton_svg,
 													    Vectors::savebutton_svgSize));
-	ScopedPointer<Drawable> openImage(loadSVGFromMemory(Vectors::openbutton_svg,
+	auto openImage = std::unique_ptr<Drawable>(loadSVGFromMemory(Vectors::openbutton_svg,
 													    Vectors::openbutton_svgSize));
 
 	component = comp;
@@ -279,7 +279,7 @@ Drawable *PresetBar::loadSVGFromMemory(const void *dataToInitialiseFrom,
 
 	MemoryBlock memBlock(dataToInitialiseFrom, sizeInBytes);
 	XmlDocument doc(memBlock.toString());
-	ScopedPointer<XmlElement> svgData(doc.getDocumentElement());
+	auto svgData = std::unique_ptr<XmlElement>(doc.getDocumentElement());
 
 	retval = Drawable::createFromSVG(*svgData);
 

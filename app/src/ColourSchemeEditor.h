@@ -1,47 +1,15 @@
-/*
-  ==============================================================================
-
-  This is an automatically generated file created by the Jucer!
-
-  Creation date:  12 Nov 2011 4:51:55pm
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Jucer version: 1.12
-
-  ------------------------------------------------------------------------------
-
-  The Jucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-6 by Raw Material Software ltd.
-
-  ==============================================================================
-*/
-
 #ifndef __JUCER_HEADER_COLOURSCHEMEEDITOR_COLOURSCHEMEEDITOR_4DDFE783__
 #define __JUCER_HEADER_COLOURSCHEMEEDITOR_COLOURSCHEMEEDITOR_4DDFE783__
 
 //[Headers]     -- You can add your own extra header files here --
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 //[/Headers]
-
-
-
-//==============================================================================
-/**
-                                                                    //[Comments]
-    An auto-generated component, created by the Jucer.
-
-    Describe your class and how it works here!
-                                                                    //[/Comments]
-*/
-class ColourSchemeEditor  : public Component,
-                            public ListBoxModel,
-                            public Button::Listener,
-                            public ChangeListener,
-                            public ChangeBroadcaster,
-                            public ComboBoxListener
+class ColourSchemeEditor  : public juce::Component,
+                            public juce::ListBoxModel,
+                            public juce::Button::Listener,
+                            public juce::ChangeListener,
+                            public juce::ChangeBroadcaster,
+                            public juce::ComboBox::Listener
 {
 public:
     //==============================================================================
@@ -55,52 +23,48 @@ public:
 	int getNumRows();
 	///	Draws the colour selector list.
 	void paintListBoxItem(int rowNumber,
-						  Graphics &g,
+						  juce::Graphics &g,
 						  int width,
 						  int height,
 						  bool rowIsSelected);
 	///	So we know when the user selects a new colour.
-	void listBoxItemClicked(int row, const MouseEvent &e);
+	void listBoxItemClicked(int row, const juce::MouseEvent &e);
 
 	///	Handles the user clicking the save or delete preset buttons.
-	void buttonClicked(Button *button);
+	void buttonClicked(juce::Button *button);
 
 	///	Called when the colour changes.
-	void changeListenerCallback(ChangeBroadcaster *source);
+	void changeListenerCallback(juce::ChangeBroadcaster *source);
 
     //[/UserMethods]
 
-    void paint (Graphics& g);
+    void paint (juce::Graphics& g);
     void resized();
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged);
 
 
 
     //==============================================================================
-    juce_UseDebuggingNewOperator
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ColourSchemeEditor)
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
 	///	Helper method to load an SVG file from a binary chunk of data.
-	Drawable *loadSVGFromMemory(const void *dataToInitialiseFrom, size_t sizeInBytes);
+	juce::Drawable *loadSVGFromMemory(const void *dataToInitialiseFrom, size_t sizeInBytes);
 
     //[/UserVariables]
 
     //==============================================================================
-    ColourSelector* colourEditor;
-    ListBox* colourSelector;
-    ComboBox* presetSelector;
-    DrawableButton* deleteButton;
-    DrawableButton* saveButton;
-    DrawableButton* newButton;
-
+    juce::ColourSelector* colourEditor;
+    juce::ListBox* colourSelector;
+    juce::ComboBox* presetSelector;
+    juce::DrawableButton* deleteButton;
+    juce::DrawableButton* saveButton;
+    juce::DrawableButton* newButton;
 
     //==============================================================================
-    // (prevent copy constructor and operator= being generated..)
-    ColourSchemeEditor (const ColourSchemeEditor&);
-    const ColourSchemeEditor& operator= (const ColourSchemeEditor&);
+    // Copy constructor and operator= are handled by JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR
 };
-
 
 #endif   // __JUCER_HEADER_COLOURSCHEMEEDITOR_COLOURSCHEMEEDITOR_4DDFE783__

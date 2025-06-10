@@ -1,26 +1,3 @@
-/*
-  ==============================================================================
-
-  This is an automatically generated file created by the Jucer!
-
-  Creation date:  19 Oct 2012 11:10:47am
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Jucer version: 1.12
-
-  ------------------------------------------------------------------------------
-
-  The Jucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-6 by Raw Material Software ltd.
-
-  ==============================================================================
-*/
-
-//[Headers] You can add your own extra header files here...
-
 #include "MainPanel.h"
 #include "PropertiesSingleton.h"
 #include "ColourScheme.h"

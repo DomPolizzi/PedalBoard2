@@ -23,7 +23,7 @@
 
 #include "c0xHeaders.h"
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 #include <map>
 

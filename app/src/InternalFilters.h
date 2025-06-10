@@ -34,7 +34,7 @@
 
 #include "FilterGraph.h"
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 using juce::uint32;
 
 

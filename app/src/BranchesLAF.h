@@ -20,10 +20,11 @@
 #ifndef BRANCHESLAF_H_
 #define BRANCHESLAF_H_
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 ///	LookAndFeel class implementing some different buttons.
-class BranchesLAF : public LookAndFeel
+
+class BranchesLAF : public juce::LookAndFeel_V4
 {
   public:
 	///	Constructor.
@@ -32,20 +33,20 @@ class BranchesLAF : public LookAndFeel
 	~BranchesLAF();
 
 	///	Draws the buttons.
-	void drawButtonBackground(Graphics &g,
-							  Button &button,
-							  const Colour &backgroundColour,
+	void drawButtonBackground(juce::Graphics &g,
+							  juce::Button &button,
+							  const juce::Colour &backgroundColour,
 							  bool isMouseOverButton,
 							  bool isButtonDown);
 	///	Draws button text.
-	void drawButtonText(Graphics &g,
-						TextButton &button,
+	void drawButtonText(juce::Graphics &g,
+						juce::TextButton &button,
 						bool isMouseOverButton,
 						bool isButtonDown);
 
 	///	Draws the scrollbar buttons.
-	void drawScrollbarButton(Graphics &g,
-							 ScrollBar &scrollbar,
+	void drawScrollbarButton(juce::Graphics &g,
+							 juce::ScrollBar &scrollbar,
 							 int width,
 							 int height,
 							 int buttonDirection,
@@ -53,8 +54,8 @@ class BranchesLAF : public LookAndFeel
 							 bool isMouseOverButton,
 							 bool isButtonDown);
 	///	Draws the scrollbar.
-	void drawScrollbar(Graphics &g,
-					   ScrollBar &scrollbar,
+	void drawScrollbar(juce::Graphics &g,
+					   juce::ScrollBar &scrollbar,
 					   int x,
 					   int y,
 					   int width,
@@ -66,40 +67,40 @@ class BranchesLAF : public LookAndFeel
 					   bool isMouseDown);
 
 	///	Draws the menubar.
-	void drawMenuBarBackground(Graphics &g,
+	void drawMenuBarBackground(juce::Graphics &g,
 							   int width,
 							   int height,
 							   bool isMouseOverBar,
-							   MenuBarComponent &menuBar);
+							   juce::MenuBarComponent &menuBar);
 	///	Returns the menubar font.
-	Font getMenuBarFont(MenuBarComponent &menuBar,
+	juce::Font getMenuBarFont(juce::MenuBarComponent &menuBar,
 						int itemIndex,
-						const String &itemText);
+						const juce::String &itemText);
 	///	Draws the menubar items.
-	void drawMenuBarItem(Graphics &g,
-						 int width,
-						 int height,
-						 int itemIndex,
-						 const String &itemText,
-						 bool isMouseOverItem,
-						 bool isMenuOpen,
-						 bool isMouseOverBar,
-						 MenuBarComponent &menuBar);
+	void drawMenuBarItem(juce::Graphics &g,
+					 int width,
+					 int height,
+					 int itemIndex,
+					 const juce::String &itemText,
+					 bool isMouseOverItem,
+					 bool isMenuOpen,
+					 bool isMouseOverBar,
+					 juce::MenuBarComponent &menuBar);
 	///	The width of a menubar item.
-	int getMenuBarItemWidth(MenuBarComponent &menuBar,
-							int itemIndex,
-							const String &itemText);
+	int getMenuBarItemWidth(juce::MenuBarComponent &menuBar,
+						int itemIndex,
+						const juce::String &itemText);
 	///	Returns the popup meun font.
-	Font getPopupMenuFont() {return Font(15.0f);};
+	juce::Font getPopupMenuFont() {return juce::Font(15.0f);};
 	///	Draws the popup menu background.
-	void drawPopupMenuBackground(Graphics &g, int width, int height);
+	void drawPopupMenuBackground(juce::Graphics &g, int width, int height);
 	///	Cancels menus' drop shadow.
 	int getMenuWindowFlags() {return 0;};
 
 	///	Returns the image of a folder for the file chooser.
-	const Drawable *getDefaultFolderImage();
+	const juce::Drawable *getDefaultFolderImage();
 	///	Draws a combobox (used in the file chooser).
-	void drawComboBox(Graphics& g,
+	void drawComboBox(juce::Graphics& g,
 					  int width,
 					  int height,
                       bool isButtonDown,
@@ -107,35 +108,35 @@ class BranchesLAF : public LookAndFeel
 					  int buttonY,
                       int buttonW,
 					  int buttonH,
-                      ComboBox& box);
+                      juce::ComboBox& box);
 
 	///	Draws the ProgressBar.
-	void drawProgressBar(Graphics& g,
-						 ProgressBar& progressBar,
+	void drawProgressBar(juce::Graphics& g,
+					 juce::ProgressBar& progressBar,
                          int width,
-						 int height,
-						 double progress,
-						 const String& textToShow);
+					 int height,
+					 double progress,
+					 const juce::String& textToShow);
 
 	///	Draws the KeymapChange button.
-	void drawKeymapChangeButton(Graphics &g,
-								int width,
-								int height,
-								Button &button,
-								const String &keyDescription);
+	void drawKeymapChangeButton(juce::Graphics &g,
+							int width,
+							int height,
+							juce::Button &button,
+							const juce::String &keyDescription);
 
 	///	Draws a Label.
-	void drawLabel(Graphics& g, Label& label);
+	void drawLabel(juce::Graphics& g, juce::Label& label);
 
 	///	Draws a ToggleButton.
-	void drawToggleButton(Graphics& g,
-                          ToggleButton& button,
+	void drawToggleButton(juce::Graphics& g,
+                          juce::ToggleButton& button,
                           bool isMouseOverButton,
                           bool isButtonDown);
 
 	///	Drwas a tick box.
-	void drawTickBox(Graphics& g,
-                     Component& component,
+	void drawTickBox(juce::Graphics& g,
+                     juce::Component& component,
                      float x, float y, float w, float h,
                      bool ticked,
                      bool isEnabled,
@@ -143,16 +144,16 @@ class BranchesLAF : public LookAndFeel
                      bool isButtonDown);
 
 	///	Fills in the TextEditor background.
-	void fillTextEditorBackground(Graphics& g, int width, int height,
-                                  TextEditor& textEditor);
+	void fillTextEditorBackground(juce::Graphics& g, int width, int height,
+                                  juce::TextEditor& textEditor);
 
 	///	Draws the callout box.
-	void drawCallOutBoxBackground(CallOutBox &box,
-								  Graphics &g,
-								  const Path &path,
-								  Image &cachedImage);
+	void drawCallOutBoxBackground(juce::CallOutBox &box,
+						  juce::Graphics &g,
+						  const juce::Path &path,
+						  juce::Image &cachedImage);
 
-	juce_UseDebuggingNewOperator
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(BranchesLAF)
 };
 
 #endif

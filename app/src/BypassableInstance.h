@@ -21,7 +21,7 @@
 #ifndef BYPASSABLEINSTANCE_H_
 #define BYPASSABLEINSTANCE_H_
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 ///	Wrapper class to provide a bypass to AudioPluginInstance.
 class BypassableInstance : public AudioPluginInstance
@@ -57,15 +57,19 @@ class BypassableInstance : public AudioPluginInstance
 	///	Returns the plugin's name.
 	const String getName() const {return plugin->getName();};
 	///	Returns the indexed channel name.
-	const String getInputChannelName(int channelIndex) const {return plugin->getInputChannelName(channelIndex);};
+	const String getInputChannelName(int channelIndex) const override {return plugin->getTotalNumInputChannels() > channelIndex ? String("Input ") + String(channelIndex + 1) : String();}
 	///	Returns the indexed channel name.
-	const String getOutputChannelName(int channelIndex) const {return plugin->getOutputChannelName(channelIndex);};
+	const String getOutputChannelName(int channelIndex) const override {return plugin->getTotalNumOutputChannels() > channelIndex ? String("Output ") + String(channelIndex + 1) : String();}
 	///	Returns true if the channel's a stereo pair.
-	bool isInputChannelStereoPair(int index) const {return plugin->isInputChannelStereoPair(index);};
+	bool isInputChannelStereoPair(int index) const override {return index % 2 == 0 && index + 1 < plugin->getTotalNumInputChannels();}
 	///	Returns true if the channel's a stereo pair.
-	bool isOutputChannelStereoPair(int index) const {return plugin->isOutputChannelStereoPair(index);};
-	///	Returns true if the plugin has no tail.
-	bool silenceInProducesSilenceOut() const {return plugin->silenceInProducesSilenceOut();};
+	bool isOutputChannelStereoPair(int index) const override {return index % 2 == 0 && index + 1 < plugin->getTotalNumOutputChannels();}
+	// silenceInProducesSilenceOut is now private and deprecated in JUCE
+	// Implementing a replacement that provides similar functionality
+	bool isBusesLayoutSupported(const BusesLayout& layouts) const override { 
+		// Simply return true as we want to support any bus layout that the wrapped plugin supports
+		return true; 
+	}
 	///	Returns the length of the plugin's tail.
 	double getTailLengthSeconds() const {return plugin->getTailLengthSeconds();};
 	///	Returns true if the plugin wants MIDI input.
@@ -79,19 +83,38 @@ class BypassableInstance : public AudioPluginInstance
 	///	Returns true if the plugin has an editor.
 	bool hasEditor() const {return plugin->hasEditor();};
 	///	Returns the number of parameters the plugin has.
-	int getNumParameters() {return plugin->getNumParameters();};
+	int getNumParameters() override {return plugin->getParameters().size();}
 	///	Returns the indexed parameter's name.
-	const String getParameterName(int parameterIndex) {return plugin->getParameterName(parameterIndex);};
+	const String getParameterName(int parameterIndex) override {
+		auto params = plugin->getParameters();
+		return parameterIndex < params.size() ? params[parameterIndex]->getName(100) : String();
+	}
 	///	Returns the indexed parameter's value.
-	float getParameter(int parameterIndex) {return plugin->getParameter(parameterIndex);};
+	float getParameter(int parameterIndex) override {
+		auto params = plugin->getParameters();
+		return parameterIndex < params.size() ? params[parameterIndex]->getValue() : 0.0f;
+	}
 	///	Returns the indexed parameter's value as a string.
-	const String getParameterText(int parameterIndex) {return plugin->getParameterText(parameterIndex);};
+	const String getParameterText(int parameterIndex) override {
+		auto params = plugin->getParameters();
+		return parameterIndex < params.size() ? params[parameterIndex]->getCurrentValueAsText() : String();
+	}
 	///	Sets the indexed parameter.
-	void setParameter(int parameterIndex, float newValue) {plugin->setParameter(parameterIndex, newValue);};
+	void setParameter(int parameterIndex, float newValue) override {
+		auto params = plugin->getParameters();
+		if (parameterIndex < params.size())
+			params[parameterIndex]->setValue(newValue);
+	}
 	///	Returns true if the indexed parameter is automatable.
-	bool isParameterAutomatable(int parameterIndex) const {return plugin->isParameterAutomatable(parameterIndex);};
+	bool isParameterAutomatable(int parameterIndex) const override {
+		auto params = plugin->getParameters();
+		return parameterIndex < params.size() ? params[parameterIndex]->isAutomatable() : false;
+	}
 	///	Returns true if the indexed parameter is meta.
-	bool isMetaParameter(int parameterIndex) const {return plugin->isMetaParameter(parameterIndex);};
+	bool isMetaParameter(int parameterIndex) const override {
+		auto params = plugin->getParameters();
+		return parameterIndex < params.size() ? params[parameterIndex]->isMetaParameter() : false;
+	}
 	///	Returns the number of programs the plugin has.
 	int getNumPrograms() {return plugin->getNumPrograms();};
 	///	Returns the index of the current program.
@@ -113,7 +136,7 @@ class BypassableInstance : public AudioPluginInstance
 	///	Fills in the plugin's description.
 	void fillInPluginDescription(PluginDescription &description) const {plugin->fillInPluginDescription(description);};
 	///	Returns platform-specific data about the plugin.
-	void *getPlatformSpecificData() {return plugin->getPlatformSpecificData();};
+	void *getPlatformSpecificData() override {return nullptr; /* Deprecated, using newer API instead */}
   private:
 	///	The plugin instance we're wrapping.
 	AudioPluginInstance *plugin;

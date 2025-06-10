@@ -20,7 +20,7 @@
 #ifndef COLOURSCHEME_H_
 #define COLOURSCHEME_H_
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <JuceHeader.h>
 
 #include <map>
 
@@ -29,22 +29,22 @@ struct ColourScheme
 {
   public:
 	///	The map of all the available colours.
-	std::map<String, Colour> colours;
+	std::map<juce::String, juce::Colour> colours;
 	///	The name of the current colour scheme preset.
-	String presetName;
+	juce::String presetName;
 
 	///	Returns the sole instance of the singleton.
 	static ColourScheme& getInstance();
 
 	///	Returns a StringArray of all the available colour scheme presets.
-	const StringArray getPresets() const;
+	const juce::StringArray getPresets() const;
 	///	Loads a colour scheme preset.
-	void loadPreset(const String& name);
+	void loadPreset(const juce::String& name);
 	///	Saves a colour scheme preset.
-	void savePreset(const String& name);
+	void savePreset(const juce::String& name);
 
 	///	Returns true if colours == the named preset.
-	bool doesColoursMatchPreset(const String& name);
+	bool doesColoursMatchPreset(const juce::String& name);
   private:
 	///	Constructor.
 	ColourScheme();

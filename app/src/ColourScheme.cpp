@@ -38,7 +38,7 @@ const StringArray ColourScheme::getPresets() const
 	StringArray retval;
 	File settingsDir = JuceHelperStuff::getAppDataFolder();
 
-	settingsDir.findChildFiles(files, File::findFiles, false, L"*.colourscheme");
+	settingsDir.findChildFiles(files, File::findFiles, false, "*.colourscheme");
 	for(i=0;i<files.size();++i)
 		retval.add(files[i].getFileNameWithoutExtension());
 
@@ -51,17 +51,17 @@ void ColourScheme::loadPreset(const String& name)
 	String filename;
 	File settingsDir = JuceHelperStuff::getAppDataFolder();
 
-	filename << name << L".colourscheme";
+	filename << name << ".colourscheme";
 
 	File presetFile = settingsDir.getChildFile(filename);
 
 	if(presetFile.existsAsFile())
 	{
-		ScopedPointer<XmlElement> rootXml(XmlDocument::parse(presetFile));
+		std::unique_ptr<XmlElement> rootXml = XmlDocument::parse(presetFile);
 
 		if(rootXml)
 		{
-			if(rootXml->hasTagName(L"Pedalboard2ColourScheme"))
+			if(rootXml->hasTagName("Pedalboard2ColourScheme"))
 			{
 				forEachXmlChildElement(*rootXml, colour)
 				{
@@ -70,9 +70,9 @@ void ColourScheme::loadPreset(const String& name)
 						String colName;
 						String tempstr;
 
-						colName = colour->getStringAttribute(L"name", L"NoName");
-						tempstr = colour->getStringAttribute(L"value", L"FFFFFFFF");
-						if(colName != L"NoName")
+						colName = colour->getStringAttribute("name", "NoName");
+						tempstr = colour->getStringAttribute("value", "FFFFFFFF");
+						if(colName != "NoName")
 							colours[colName] = Colour(tempstr.getHexValue32());
 					}
 				}
@@ -87,25 +87,25 @@ void ColourScheme::savePreset(const String& name)
 {
 	String filename;
 	map<String, Colour>::iterator it;
-	XmlElement rootXml(L"Pedalboard2ColourScheme");
+	XmlElement rootXml("Pedalboard2ColourScheme");
 	File settingsDir = JuceHelperStuff::getAppDataFolder();
 
-	filename << name << L".colourscheme";
+	filename << name << ".colourscheme";
 
 	File presetFile = settingsDir.getChildFile(filename);
 
 	for(it=colours.begin();it!=colours.end();++it)
 	{
-		XmlElement *colour = new XmlElement(L"Colour");
+		XmlElement *colour = new XmlElement("Colour");
 
-		colour->setAttribute(L"name", it->first);
-		colour->setAttribute(L"value", it->second.toString());
+		colour->setAttribute("name", it->first);
+		colour->setAttribute("value", it->second.toString());
 
 		rootXml.addChildElement(colour);
 	}
 
 	presetName = name;
-	rootXml.writeToFile(presetFile, L"");
+	rootXml.writeTo(presetFile);
 }
 
 //------------------------------------------------------------------------------
@@ -121,11 +121,11 @@ bool ColourScheme::doesColoursMatchPreset(const String& name)
 
 	if(presetFile.existsAsFile())
 	{
-		ScopedPointer<XmlElement> rootXml(XmlDocument::parse(presetFile));
+		std::unique_ptr<XmlElement> rootXml = XmlDocument::parse(presetFile);
 
 		if(rootXml)
 		{
-			if(rootXml->hasTagName(L"Pedalboard2ColourScheme"))
+			if(rootXml->hasTagName("Pedalboard2ColourScheme"))
 			{
 				forEachXmlChildElement(*rootXml, colour)
 				{
@@ -134,8 +134,8 @@ bool ColourScheme::doesColoursMatchPreset(const String& name)
 						String colName;
 						String value;
 
-						colName = colour->getStringAttribute(L"name", L"NoName");
-						value = colour->getStringAttribute(L"value", L"FFFFFFFF");
+						colName = colour->getStringAttribute("name", "NoName");
+						value = colour->getStringAttribute("value", "FFFFFFFF");
 
 						if(colours[colName] != Colour(value.getHexValue32()))
 						{
@@ -157,38 +157,38 @@ bool ColourScheme::doesColoursMatchPreset(const String& name)
 //------------------------------------------------------------------------------
 ColourScheme::ColourScheme()
 {
-	File defaultFile = JuceHelperStuff::getAppDataFolder().getChildFile(L"default.colourscheme");
+	File defaultFile = JuceHelperStuff::getAppDataFolder().getChildFile("default.colourscheme");
 
 	if(defaultFile.existsAsFile())
-		loadPreset(L"default");
+		loadPreset("default");
 	else
 	{
-		presetName = L"default";
+		presetName = "default";
 
-		colours[L"Window Background"] = Colour(0xFFEEECE1);
-		colours[L"Field Background"] = Colour(Colour(0xFFEEECE1).brighter(0.5f));
-		colours[L"Text Colour"] = Colour(0xFF000000);
-		colours[L"Plugin Border"] = Colour(0xFFB0B0FF);
-		colours[L"Plugin Background"] = Colour(0xFFFFFFFF);
-		colours[L"Audio Connection"] = Colour(0xFFB0B0FF).darker(0.25f);
-		colours[L"Parameter Connection"] = Colour(0xFFFFD3B3).darker(0.25f);
-		colours[L"Button Colour"] = Colour(0xFFEEECE1);
-		colours[L"Button Highlight"] = Colour(0xB0B0B0FF);
-		colours[L"Text Editor Colour"] = Colour(0xFFFFFFFF);
-		colours[L"Dialog Inner Background"] = Colour(0xFFFFFFFF);
-		colours[L"CPU Meter Colour"] = Colour(0xB0B0B0FF);
-		colours[L"Slider Colour"] = Colour(0xFF9A9181);
-		colours[L"List Selected Colour"] = Colour(0xFFB0B0FF);
-		colours[L"VU Meter Lower Colour"] = Colour(0x7F00BF00);
-		colours[L"VU Meter Upper Colour"] = Colour(0x7FFFFF00);
-		colours[L"VU Meter Over Colour"] = Colour(0x7FFF0000);
-		colours[L"Vector Colour"] = Colour(0x80000000);
-		colours[L"Menu Selection Colour"] = Colour(0x40000000);
-		colours[L"Waveform Colour"] = Colour(0xFFB0B0FF);
-		colours[L"Level Dial Colour"] = Colour(0xFFB0B0FF).darker(0.25f);
-		colours[L"Tick Box Colour"] = Colour(0x809A9181);
+		colours["Window Background"] = Colour(0xFFEEECE1);
+		colours["Field Background"] = Colour(Colour(0xFFEEECE1).brighter(0.5f));
+		colours["Text Colour"] = Colour(0xFF000000);
+		colours["Plugin Border"] = Colour(0xFFB0B0FF);
+		colours["Plugin Background"] = Colour(0xFFFFFFFF);
+		colours["Audio Connection"] = Colour(0xFFB0B0FF).darker(0.25f);
+		colours["Parameter Connection"] = Colour(0xFFFFD3B3).darker(0.25f);
+		colours["Button Colour"] = Colour(0xFFEEECE1);
+		colours["Button Highlight"] = Colour(0xB0B0B0FF);
+		colours["Text Editor Colour"] = Colour(0xFFFFFFFF);
+		colours["Dialog Inner Background"] = Colour(0xFFFFFFFF);
+		colours["CPU Meter Colour"] = Colour(0xB0B0B0FF);
+		colours["Slider Colour"] = Colour(0xFF9A9181);
+		colours["List Selected Colour"] = Colour(0xFFB0B0FF);
+		colours["VU Meter Lower Colour"] = Colour(0x7F00BF00);
+		colours["VU Meter Upper Colour"] = Colour(0x7FFFFF00);
+		colours["VU Meter Over Colour"] = Colour(0x7FFF0000);
+		colours["Vector Colour"] = Colour(0x80000000);
+		colours["Menu Selection Colour"] = Colour(0x40000000);
+		colours["Waveform Colour"] = Colour(0xFFB0B0FF);
+		colours["Level Dial Colour"] = Colour(0xFFB0B0FF).darker(0.25f);
+		colours["Tick Box Colour"] = Colour(0x809A9181);
 
-		savePreset(L"default");
+		savePreset("default");
 	}
 }
 
