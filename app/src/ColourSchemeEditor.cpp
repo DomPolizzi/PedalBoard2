@@ -34,7 +34,7 @@ ColourSchemeEditor::ColourSchemeEditor ()
     addAndMakeVisible (presetSelector = new ComboBox ("presetSelector"));
     presetSelector->setEditableText (true);
     presetSelector->setJustificationType (Justification::centredLeft);
-    presetSelector->setTextWhenNothingSelected (String::empty);
+    presetSelector->setTextWhenNothingSelected (String());
     presetSelector->setTextWhenNoChoicesAvailable ("(no choices)");
     presetSelector->addListener (this);
 
@@ -58,15 +58,15 @@ ColourSchemeEditor::ColourSchemeEditor ()
 	std::unique_ptr<Drawable> deleteImage(loadSVGFromMemory(Vectors::deletebutton_svg,
 									      Vectors::deletebutton_svgSize));
 	
-	newButton->setImages(newImage);
+	newButton->setImages(newImage.get());
 	newButton->setColour(DrawableButton::backgroundColourId, tempCol);
 	newButton->setColour(DrawableButton::backgroundOnColourId, tempCol);
 	newButton->setTooltip("New colour scheme");
-	saveButton->setImages(saveImage);
+	saveButton->setImages(saveImage.get());
 	saveButton->setColour(DrawableButton::backgroundColourId, tempCol);
 	saveButton->setColour(DrawableButton::backgroundOnColourId, tempCol);
 	saveButton->setTooltip("Save current colour scheme");
-	deleteButton->setImages(deleteImage);
+	deleteButton->setImages(deleteImage.get());
 	deleteButton->setColour(DrawableButton::backgroundColourId, tempCol);
 	deleteButton->setColour(DrawableButton::backgroundOnColourId, tempCol);
 	deleteButton->setTooltip("Delete selected colour scheme");
@@ -93,7 +93,7 @@ ColourSchemeEditor::ColourSchemeEditor ()
 
 		presetSelector->addItem(tempstr, i+1);
 		if(tempstr == ColourScheme::getInstance().presetName)
-			presetSelector->setSelectedId(i+1, true);
+			presetSelector->setSelectedId(i+1, juce::dontSendNotification);
 	}
 
 	newButton->addListener(this);
@@ -121,7 +121,8 @@ ColourSchemeEditor::~ColourSchemeEditor()
 										"Save current scheme?",
 										"Yes",
 										"No",
-										getTopLevelComponent()))
+										getTopLevelComponent(),
+										nullptr))
 		{
 			ColourScheme::getInstance().savePreset(presetSelector->getText());
 		}
@@ -375,17 +376,13 @@ void ColourSchemeEditor::changeListenerCallback(ChangeBroadcaster *source)
 
 //------------------------------------------------------------------------------
 Drawable *ColourSchemeEditor::loadSVGFromMemory(const void *dataToInitialiseFrom,
-								    size_t sizeInBytes)
+							    size_t sizeInBytes)
 {
-	Drawable *retval = nullptr;
-
 	MemoryBlock memBlock(dataToInitialiseFrom, sizeInBytes);
 	XmlDocument doc(memBlock.toString());
 	std::unique_ptr<XmlElement> svgData(doc.getDocumentElement());
 
-	retval = Drawable::createFromSVG(*svgData);
-
-	return retval;
+	return Drawable::createFromSVG(*svgData).release();
 }
 
 //[/MiscUserCode]

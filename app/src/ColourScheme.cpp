@@ -1,28 +1,10 @@
 //	ColourScheme.cpp - Singleton struct handling colour schemes.
-//	----------------------------------------------------------------------------
-//	This file is part of Pedalboard2, an audio plugin host.
-//	Copyright (c) 2012 Niall Moody.
-//
-//	This program is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation, either version 3 of the License, or
-//	(at your option) any later version.
-//
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
-//
-//	You should have received a copy of the GNU General Public License
-//	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//	----------------------------------------------------------------------------
-
 #include "ColourScheme.h"
 #include "JuceHelperStuff.h"
 
 using namespace std;
 
-//------------------------------------------------------------------------------
+
 ColourScheme& ColourScheme::getInstance()
 {
 	static ColourScheme retval;
@@ -30,7 +12,6 @@ ColourScheme& ColourScheme::getInstance()
 	return retval;
 }
 
-//------------------------------------------------------------------------------
 const StringArray ColourScheme::getPresets() const
 {
 	int i;
@@ -45,7 +26,6 @@ const StringArray ColourScheme::getPresets() const
 	return retval;
 }
 
-//------------------------------------------------------------------------------
 void ColourScheme::loadPreset(const String& name)
 {
 	String filename;
@@ -63,7 +43,7 @@ void ColourScheme::loadPreset(const String& name)
 		{
 			if(rootXml->hasTagName("Pedalboard2ColourScheme"))
 			{
-				forEachXmlChildElement(*rootXml, colour)
+				for (auto* colour : rootXml->getChildIterator())
 				{
 					if(colour->hasTagName("Colour"))
 					{
@@ -82,7 +62,6 @@ void ColourScheme::loadPreset(const String& name)
 	}
 }
 
-//------------------------------------------------------------------------------
 void ColourScheme::savePreset(const String& name)
 {
 	String filename;
@@ -108,7 +87,6 @@ void ColourScheme::savePreset(const String& name)
 	rootXml.writeTo(presetFile);
 }
 
-//------------------------------------------------------------------------------
 bool ColourScheme::doesColoursMatchPreset(const String& name)
 {
 	String tempstr;
@@ -127,7 +105,7 @@ bool ColourScheme::doesColoursMatchPreset(const String& name)
 		{
 			if(rootXml->hasTagName("Pedalboard2ColourScheme"))
 			{
-				forEachXmlChildElement(*rootXml, colour)
+				for (auto* colour : rootXml->getChildIterator())
 				{
 					if(colour->hasTagName("Colour"))
 					{
@@ -154,7 +132,6 @@ bool ColourScheme::doesColoursMatchPreset(const String& name)
 	return retval;
 }
 
-//------------------------------------------------------------------------------
 ColourScheme::ColourScheme()
 {
 	File defaultFile = JuceHelperStuff::getAppDataFolder().getChildFile("default.colourscheme");
@@ -192,7 +169,6 @@ ColourScheme::ColourScheme()
 	}
 }
 
-//------------------------------------------------------------------------------
 ColourScheme::~ColourScheme()
 {
 
