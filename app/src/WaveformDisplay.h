@@ -6,40 +6,40 @@
 #include <JuceHeader.h>
 
 ///	A component that displays a waveform.
-class WaveformDisplay : public Component,
-						public ChangeListener,
-						public ChangeBroadcaster
+class WaveformDisplay : public juce::Component,
+						public juce::ChangeListener,
+						public juce::ChangeBroadcaster
 {
   public:
 	///	Constructor.
-	WaveformDisplay(AudioThumbnail *thumb = 0, bool deleteThumb = true);
+	WaveformDisplay(juce::AudioThumbnail *thumb = 0, bool deleteThumb = true);
 	///	Destructor.
 	~WaveformDisplay();
 
 	///	Draws the background and the waveform.
-	void paint(Graphics& g);
+	void paint(juce::Graphics& g);
 	///	So we can update the thumbnail as it is loaded.
-	void changeListenerCallback(ChangeBroadcaster *source);
+	void changeListenerCallback(juce::ChangeBroadcaster *source);
 
 	///	So the user can click and drag to move through the sound file.
-	void mouseDown(const MouseEvent &e);
+	void mouseDown(const juce::MouseEvent &e);
 	///	So the user can click and drag to move through the sound file.
-	void mouseDrag(const MouseEvent &e);
+	void mouseDrag(const juce::MouseEvent &e);
 
 	///	Loads an audio file.
-	void setFile(const File& file);
+	void setFile(const juce::File& file);
 	///	Sets the position of the readPointer.
 	void setReadPointer(float val);
 	///	Returns where the user clicked to move the readPointer.
 	float getReadPointer() const {return newReadPointer;};
 
 	///	Sets the background colour.
-	void setBackgroundColour(const Colour& col);
+	void setBackgroundColour(const juce::Colour& col);
 
-	juce_UseDebuggingNewOperator
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WaveformDisplay)
   private:
 	///	The current thumbnail.
-    AudioThumbnail *thumbnail;
+    juce::AudioThumbnail *thumbnail;
 
 	///	The current position of the read pointer.
 	float readPointer;
@@ -47,7 +47,7 @@ class WaveformDisplay : public Component,
 	float newReadPointer;
 
 	///	The background colour.
-	Colour backgroundColour;
+	juce::Colour backgroundColour;
 
 	///	True if we should delete the thumbnail in our constructor.
 	bool deleteThumbnail;
@@ -55,30 +55,30 @@ class WaveformDisplay : public Component,
 
 //------------------------------------------------------------------------------
 ///	A simplified component that displays a waveform.
-class WaveformDisplayLite : public Component,
-							public ChangeListener
+class WaveformDisplayLite : public juce::Component,
+							public juce::ChangeListener
 {
   public:
 	///	Constructor.
-	WaveformDisplayLite(AudioThumbnail& thumb);
+	WaveformDisplayLite(juce::AudioThumbnail& thumb);
 	///	Destructor.
 	~WaveformDisplayLite();
 
 	///	Draws the background and the waveform.
-	void paint(Graphics& g);
+	void paint(juce::Graphics& g);
 	///	So we can update the thumbnail as it is loaded.
-	void changeListenerCallback(ChangeBroadcaster *source);
+	void changeListenerCallback(juce::ChangeBroadcaster *source);
 
 	///	Sets the background colour.
-	void setBackgroundColour(const Colour& col);
+	void setBackgroundColour(const juce::Colour& col);
 
-	juce_UseDebuggingNewOperator
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WaveformDisplayLite)
   private:
 	///	The current thumbnail.
-    AudioThumbnail &thumbnail;
+    juce::AudioThumbnail &thumbnail;
 
 	///	The background colour.
-	Colour backgroundColour;
+	juce::Colour backgroundColour;
 };
 
 #endif

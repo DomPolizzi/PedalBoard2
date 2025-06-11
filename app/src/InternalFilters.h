@@ -73,18 +73,23 @@ public:
 
     void getAllTypes (OwnedArray <PluginDescription>& results);
 
-	bool canScanForPlugins() const {return false;};
+	bool canScanForPlugins() const override { return false; }
+    bool pluginNeedsRescanning(const PluginDescription&) override { return false; }
+    bool isTrivialToScan() const override { return true; }
+    bool requiresUnblockedMessageThreadDuringCreation(const PluginDescription&) const override { return false; }
 
     //==============================================================================
     String getName() const                                { return "Internal"; }
     bool fileMightContainThisPluginType (const String&)           { return false; }
     FileSearchPath getDefaultLocationsToSearch()          { return FileSearchPath(); }
-    void findAllTypesForFile (OwnedArray <PluginDescription>&, const String&)     {}
+    void findAllTypesForFile (OwnedArray <PluginDescription>&, const String&) {}
+    void createPluginInstance (const PluginDescription& desc, double initialSampleRate,
+                              int initialBufferSize, PluginCreationCallback callback) override;
     AudioPluginInstance* createInstanceFromDescription (const PluginDescription& desc);
     String getNameOfPluginFromIdentifier(const String& fileOrIdentifier) {return "Internal";}
     bool doesPluginStillExist (const PluginDescription& desc) {return true;}
     StringArray searchPathsForPlugins (const FileSearchPath& directoriesToSearch,
-                                                     bool recursive) {StringArray retval; return retval;}
+                                       bool recursive, bool) override {StringArray retval; return retval;}
 
     //==============================================================================
     juce_UseDebuggingNewOperator

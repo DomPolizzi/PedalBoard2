@@ -39,13 +39,13 @@ class LooperProcessor;
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class LooperEditor  : public AudioProcessorEditor,
-                      public FilenameComponentListener,
-                      public Timer,
-                      public ChangeListener,
-                      public ButtonListener,
-                      public LabelListener,
-                      public SliderListener
+class LooperEditor  : public juce::AudioProcessorEditor,
+                      public juce::FilenameComponentListener,
+                      public juce::Timer,
+                      public juce::ChangeListener,
+                      public juce::Button::Listener,
+                      public juce::Label::Listener,
+                      public juce::Slider::Listener
 {
 public:
     //==============================================================================
@@ -56,29 +56,29 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
 	///	Used to load a sound file.
-	void filenameComponentChanged(FilenameComponent *filenameComp);
+	void filenameComponentChanged(juce::FilenameComponent *filenameComp);
 	///	Used to update the read position graphic.
 	void timerCallback();
 	///	Used to change the player's read position when the user clicks on the WaveformDisplay.
-	void changeListenerCallback(ChangeBroadcaster *source);
+	void changeListenerCallback(juce::ChangeBroadcaster *source);
 
 	///	Changes the colour of the WaveformDisplay background.
-	void setWaveformBackground(const Colour& col);
+	void setWaveformBackground(const juce::Colour& col);
 	///	Clears the waveform display.
 	void clearDisplay();
 
     //[/UserMethods]
 
-    void paint (Graphics& g);
+    void paint (juce::Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
-    void labelTextChanged (Label* labelThatHasChanged);
-    void sliderValueChanged (Slider* sliderThatWasMoved);
+    void buttonClicked (juce::Button* buttonThatWasClicked);
+    void labelTextChanged (juce::Label* labelThatHasChanged);
+    void sliderValueChanged (juce::Slider* sliderThatWasMoved);
 
 
 
     //==============================================================================
-    juce_UseDebuggingNewOperator
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LooperEditor)
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
@@ -87,14 +87,14 @@ private:
 	LooperProcessor *processor;
 
 	///	The two drawables we use for the playButton.
-	std::unique_ptr<Drawable> playImage;
-	std::unique_ptr<Drawable> pauseImage;
+	std::unique_ptr<juce::Drawable> playImage;
+	std::unique_ptr<juce::Drawable> pauseImage;
 	///	Whether the playPauseButton is currently displaying the play icon.
 	bool playing;
 
 	///	The two drawables we use for the recordButton.
-	std::unique_ptr<Drawable> recordImage;
-	std::unique_ptr<Drawable> stopImage;
+	std::unique_ptr<juce::Drawable> recordImage;
+	std::unique_ptr<juce::Drawable> stopImage;
 	///	Whether the recordButton is currently displaying the record icon.
 	bool recording;
 
@@ -102,21 +102,21 @@ private:
 
     //==============================================================================
     WaveformDisplay* fileDisplay;
-    FilenameComponent* filename;
-    ToggleButton* syncButton;
-    ToggleButton* stopAfterBarButton;
-    DrawableButton* playPauseButton;
-    DrawableButton* rtzButton;
-    DrawableButton* recordButton;
-    ToggleButton* autoPlayButton;
-    Label* barLengthLabel;
-    Label* separatorLabel;
-    Label* numeratorLabel;
-    Label* denominatorLabel;
-    Label* loopLevelLabel;
-    Slider* loopLevelSlider;
-    Label* inputLevelLabel;
-    Slider* inputLevelSlider;
+    juce::FilenameComponent* filename;
+    juce::ToggleButton* syncButton;
+    juce::ToggleButton* stopAfterBarButton;
+    juce::DrawableButton* playPauseButton;
+    juce::DrawableButton* rtzButton;
+    juce::DrawableButton* recordButton;
+    juce::ToggleButton* autoPlayButton;
+    juce::Label* barLengthLabel;
+    juce::Label* separatorLabel;
+    juce::Label* numeratorLabel;
+    juce::Label* denominatorLabel;
+    juce::Label* loopLevelLabel;
+    juce::Slider* loopLevelSlider;
+    juce::Label* inputLevelLabel;
+    juce::Slider* inputLevelSlider;
 
 
     //==============================================================================

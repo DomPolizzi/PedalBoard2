@@ -24,13 +24,20 @@
 Drawable *JuceHelperStuff::loadSVGFromMemory(const void *dataToInitialiseFrom,
 											 size_t sizeInBytes)
 {
-	Drawable *retval = 0;
+	Drawable *retval = nullptr;
 
 	MemoryBlock memBlock(dataToInitialiseFrom, sizeInBytes);
 	XmlDocument doc(memBlock.toString());
-	ScopedPointer<XmlElement> svgData(doc.getDocumentElement());
-
-	retval = Drawable::createFromSVG(*svgData);
+	
+	// In JUCE 7.0.12, getDocumentElement() returns std::unique_ptr<XmlElement>
+	std::unique_ptr<XmlElement> svgData = doc.getDocumentElement();
+	
+	if (svgData != nullptr)
+	{
+	    // In JUCE 7.0.12, createFromSVG returns std::unique_ptr<Drawable>
+	    // We need to release ownership to return a raw pointer
+	    retval = Drawable::createFromSVG(*svgData).release();
+	}
 
 	return retval;
 }
@@ -92,7 +99,24 @@ int JuceHelperStuff::showModalDialog(const String& dialogTitle,
 	dw.getPeer()->setIcon(ImageCache::getFromMemory(Images::icon512_png,
 													Images::icon512_pngSize));
 
-    return dw.runModalLoop();
+    // In JUCE 7.0.12, we need to use a different approach for modal dialogs
+    // Create a modal component result code
+    class ModalCallback : public ModalComponentManager::Callback
+    {
+    public:
+        ModalCallback() : result(0) {}
+        void modalStateFinished(int returnValue) override { result = returnValue; }
+        int result;
+    };
+    
+    ModalCallback callback;
+    dw.enterModalState(true, &callback, true);
+    
+    // Wait for the dialog to finish
+    while (dw.isCurrentlyModal())
+        Thread::sleep(20);
+        
+    return callback.result;
 }
 
 //------------------------------------------------------------------------------

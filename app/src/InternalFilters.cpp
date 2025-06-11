@@ -68,19 +68,85 @@ InternalPluginFormat::InternalPluginFormat()
     }
 }
 
-AudioPluginInstance* InternalPluginFormat::createInstanceFromDescription (const PluginDescription& desc)
+void InternalPluginFormat::createPluginInstance(const PluginDescription& desc, double initialSampleRate,
+                                           int initialBufferSize, PluginCreationCallback callback)
 {
+    AudioPluginInstance* instance = nullptr;
+
     if (desc.name == audioOutDesc.name)
     {
-        return new AudioProcessorGraph::AudioGraphIOProcessor (AudioProcessorGraph::AudioGraphIOProcessor::audioOutputNode);
+        instance = new AudioProcessorGraph::AudioGraphIOProcessor(AudioProcessorGraph::AudioGraphIOProcessor::audioOutputNode);
     }
     else if (desc.name == audioInDesc.name)
     {
-        return new AudioProcessorGraph::AudioGraphIOProcessor (AudioProcessorGraph::AudioGraphIOProcessor::audioInputNode);
+        instance = new AudioProcessorGraph::AudioGraphIOProcessor(AudioProcessorGraph::AudioGraphIOProcessor::audioInputNode);
     }
     else if (desc.name == midiInDesc.name)
     {
-        return new AudioProcessorGraph::AudioGraphIOProcessor (AudioProcessorGraph::AudioGraphIOProcessor::midiInputNode);
+        instance = new AudioProcessorGraph::AudioGraphIOProcessor(AudioProcessorGraph::AudioGraphIOProcessor::midiInputNode);
+    }
+    else if (desc.name == midiInterceptorDesc.name)
+    {
+        instance = new MidiInterceptor();
+    }
+    else if (desc.name == oscInputDesc.name)
+    {
+        instance = new OscInput();
+    }
+    else if (desc.name == levelProcDesc.name)
+    {
+        instance = new LevelProcessor();
+    }
+    else if (desc.name == filePlayerProcDesc.name)
+    {
+        instance = new FilePlayerProcessor();
+    }
+    else if (desc.name == outputToggleProcDesc.name)
+    {
+        instance = new OutputToggleProcessor();
+    }
+    else if (desc.name == vuMeterProcDesc.name)
+    {
+        instance = new VuMeterProcessor();
+    }
+    else if (desc.name == recorderProcDesc.name)
+    {
+        instance = new RecorderProcessor();
+    }
+    else if (desc.name == metronomeProcDesc.name)
+    {
+        instance = new MetronomeProcessor();
+    }
+    else if (desc.name == looperProcDesc.name)
+    {
+        instance = new LooperProcessor();
+    }
+
+    if (instance != nullptr)
+    {
+        // In JUCE 7.0.12, AudioPluginInstance no longer has an initialise method
+        // The plugin is already initialized during construction
+        callback(std::unique_ptr<AudioPluginInstance>(instance), "");
+    }
+    else
+    {
+        callback(nullptr, "Failed to create plugin instance");
+    }
+}
+
+AudioPluginInstance* InternalPluginFormat::createInstanceFromDescription(const PluginDescription& desc)
+{
+    if (desc.name == audioOutDesc.name)
+    {
+        return new AudioProcessorGraph::AudioGraphIOProcessor(AudioProcessorGraph::AudioGraphIOProcessor::audioOutputNode);
+    }
+    else if (desc.name == audioInDesc.name)
+    {
+        return new AudioProcessorGraph::AudioGraphIOProcessor(AudioProcessorGraph::AudioGraphIOProcessor::audioInputNode);
+    }
+    else if (desc.name == midiInDesc.name)
+    {
+        return new AudioProcessorGraph::AudioGraphIOProcessor(AudioProcessorGraph::AudioGraphIOProcessor::midiInputNode);
     }
     else if (desc.name == midiInterceptorDesc.name)
     {
@@ -119,7 +185,7 @@ AudioPluginInstance* InternalPluginFormat::createInstanceFromDescription (const 
         return new LooperProcessor();
     }
 
-    return 0;
+    return nullptr;
 }
 
 const PluginDescription* InternalPluginFormat::getDescriptionFor (const InternalFilterType type)

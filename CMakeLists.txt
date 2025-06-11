@@ -5,14 +5,32 @@ project(PedalBoard2 VERSION 1.0.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Use FetchContent to fetch JUCE automatically
-include(FetchContent)
-FetchContent_Declare(
-    juce
-    GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
-    GIT_TAG        7.0.8 # or your preferred version
-)
-FetchContent_MakeAvailable(juce)
+# Check if JUCE_DIR is defined or if JUCE exists in the expected locations
+# First check in the source directory
+set(JUCE_LOCAL_PATH "${CMAKE_SOURCE_DIR}/JUCE" CACHE PATH "Path to local JUCE installation")
+# Also check one level up from source directory (for Docker container structure)
+set(JUCE_PARENT_PATH "${CMAKE_SOURCE_DIR}/../JUCE")
+
+if(DEFINED JUCE_DIR)
+    message(STATUS "Using JUCE_DIR: ${JUCE_DIR}")
+    add_subdirectory(${JUCE_DIR} JUCE)
+elseif(EXISTS "${JUCE_LOCAL_PATH}/CMakeLists.txt")
+    message(STATUS "Using local JUCE installation at: ${JUCE_LOCAL_PATH}")
+    add_subdirectory(${JUCE_LOCAL_PATH} JUCE)
+elseif(EXISTS "${JUCE_PARENT_PATH}/CMakeLists.txt")
+    message(STATUS "Using JUCE installation from parent directory: ${JUCE_PARENT_PATH}")
+    add_subdirectory(${JUCE_PARENT_PATH} JUCE)
+else()
+    # Fall back to FetchContent if no local JUCE is found
+    message(STATUS "No local JUCE found, fetching from GitHub...")
+    include(FetchContent)
+    FetchContent_Declare(
+        juce
+        GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+        GIT_TAG        7.0.12
+    )
+    FetchContent_MakeAvailable(juce)
+endif()
 
 # === Add app target ===
 juce_add_gui_app(PedalBoard2
@@ -29,6 +47,9 @@ file(GLOB_RECURSE SOURCE_FILES
     "${CMAKE_SOURCE_DIR}/app/src/*.cpp"
     "${CMAKE_SOURCE_DIR}/app/src/*.h"
 )
+
+# Exclude LADSPA plugin format files from the build
+list(FILTER SOURCE_FILES EXCLUDE REGEX ".*LADSPAPluginFormat\.(cpp|h)$")
 
 target_sources(PedalBoard2 PRIVATE ${SOURCE_FILES})
 

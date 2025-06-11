@@ -24,24 +24,24 @@ void LogFile::start()
 {
 	if(!isLogging)
 	{
-		const ScopedLock lock(critSec);
+		const juce::ScopedLock lock(critSec);
 
-		String tempstr;
-		Time timmy(Time::getCurrentTime());
+		juce::String tempstr;
+		juce::Time timmy(juce::Time::getCurrentTime());
 
-		tempstr << "Pedalboard2LogFile-" << String(timmy.getDayOfMonth()).paddedLeft('0', 2) << ".";
-		tempstr << String(timmy.getMonth()).paddedLeft('0', 2) << ".";
+		tempstr << "Pedalboard2LogFile-" << juce::String(timmy.getDayOfMonth()).paddedLeft('0', 2) << ".";
+		tempstr << juce::String(timmy.getMonth()).paddedLeft('0', 2) << ".";
 		tempstr << timmy.getYear() << ".";
-		tempstr << String(timmy.getHours()).paddedLeft('0', 2) << ".";
-		tempstr << String(timmy.getMinutes()).paddedLeft('0', 2) << ".";
-		tempstr << String(timmy.getSeconds()).paddedLeft('0', 2) << ".txt";
-		logFile = new FileOutputStream(File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Pedalboard2").getChildFile(tempstr));
+		tempstr << juce::String(timmy.getHours()).paddedLeft('0', 2) << ".";
+		tempstr << juce::String(timmy.getMinutes()).paddedLeft('0', 2) << ".";
+		tempstr << juce::String(timmy.getSeconds()).paddedLeft('0', 2) << ".txt";
+		logFile = std::make_unique<juce::FileOutputStream>(juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getChildFile("Pedalboard2").getChildFile(tempstr));
 
 		if(logFile->failedToOpen())
 		{
-			AlertWindow::showMessageBox(AlertWindow::WarningIcon,
-										"LogFileError",
-										"Could not open log file for writing");
+			juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon,
+									"LogFileError",
+									"Could not open log file for writing");
 		}
 		else
 			isLogging = true;
@@ -53,9 +53,9 @@ void LogFile::stop()
 {
 	if(isLogging)
 	{
-		const ScopedLock lock(critSec);
+		const juce::ScopedLock lock(critSec);
 
-		FileOutputStream *tempStream;
+		juce::FileOutputStream *tempStream;
 
 		isLogging = false;
 		logFile->flush();
@@ -68,62 +68,62 @@ void LogFile::stop()
 }
 
 //------------------------------------------------------------------------------
-void LogFile::logEvent(const String& eventType, const String& message)
+void LogFile::logEvent(const juce::String& eventType, const juce::String& message)
 {
 	if(isLogging)
 	{
-		Time timmy(Time::getCurrentTime());
+		juce::Time timmy(juce::Time::getCurrentTime());
 		LogEvent tempEv;
 
 		tempEv.eventType = eventType;
 
-		tempEv.typeHash = DefaultHashFunctions::generateHash(eventType, 4096);
+		tempEv.typeHash = juce::DefaultHashFunctions::generateHash(eventType, 4096);
 
 		tempEv.message << timmy.getHours() << ":";
-		tempEv.message << String(timmy.getMinutes()).paddedLeft('0', 2) << ":";
-		tempEv.message << String(timmy.getSeconds()).paddedLeft('0', 2) << ":";
-		tempEv.message << String(timmy.getMilliseconds()).paddedLeft('0', 3) << " ";
+		tempEv.message << juce::String(timmy.getMinutes()).paddedLeft('0', 2) << ":";
+		tempEv.message << juce::String(timmy.getSeconds()).paddedLeft('0', 2) << ":";
+		tempEv.message << juce::String(timmy.getMilliseconds()).paddedLeft('0', 3) << " ";
 		tempEv.message << eventType << ": ";
 		tempEv.message << message;
 
 		{
-			const ScopedLock lock(critSec);
+			const juce::ScopedLock lock(critSec);
 
 			events.insert(std::make_pair(timmy.toMilliseconds(), tempEv));
 
-			(*logFile) << tempEv.message << newLine;
+			(*logFile) << tempEv.message << juce::newLine;
 		}
 		sendChangeMessage();
 	}
 }
 
 //------------------------------------------------------------------------------
-const String& LogFile::getLogContents(const StringArray& eventTypes,
-									  Time& eventsSince)
+const juce::String& LogFile::getLogContents(const juce::StringArray& eventTypes,
+									  juce::Time& eventsSince)
 {
 	int i;
 	std::map<int64, LogEvent>::iterator it;
-	Array<int> typesHash;
+	juce::Array<int> typesHash;
 
-	tempContents = String::empty;
+	tempContents = juce::String();
 
 	for(i=0;i<eventTypes.size();++i)
-		typesHash.add(DefaultHashFunctions::generateHash(eventTypes[i], 4096));
+		typesHash.add(juce::DefaultHashFunctions::generateHash(eventTypes[i], 4096));
 
 	{
-		const ScopedLock lock(critSec);
+		const juce::ScopedLock lock(critSec);
 
 		for(it=events.lower_bound(eventsSince.toMilliseconds());
 			it!=events.end();
 			++it)
 		{
-			eventsSince = Time(it->first);
+			eventsSince = juce::Time(it->first);
 
 			for(i=0;i<typesHash.size();++i)
 			{
 				if(it->second.typeHash == typesHash[i])
 				{
-					tempContents << it->second.message << newLine;
+					tempContents << it->second.message << juce::newLine;
 					break;
 				}
 			}

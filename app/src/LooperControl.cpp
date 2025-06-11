@@ -33,7 +33,7 @@
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 
-File LooperControl::lastDir(File::getSpecialLocation(File::userHomeDirectory));
+juce::File LooperControl::lastDir(juce::File::getSpecialLocation(juce::File::userHomeDirectory));
 
 //[/MiscUserDefs]
 
@@ -51,57 +51,57 @@ LooperControl::LooperControl (LooperProcessor *proc, AudioThumbnail *thumbnail)
     addAndMakeVisible (fileDisplay = new WaveformDisplay (thumbnail, false));
     fileDisplay->setName (L"fileDisplay");
 
-    addAndMakeVisible (filename = new FilenameComponent ("filename", File::nonexistent, true, false, true, "*.wav;*.aif", "", "<no file loaded>"));
+    addAndMakeVisible (filename = new juce::FilenameComponent ("filename", juce::File(), true, false, true, "*.wav;*.aif", "", "<no file loaded>"));
     filename->setName (L"filename");
 
-    addAndMakeVisible (syncButton = new ToggleButton (L"syncButton"));
+    addAndMakeVisible (syncButton = new juce::ToggleButton (L"syncButton"));
     syncButton->setTooltip (L"Sync file playback to the main transport");
     syncButton->setButtonText (L"Sync to main transport");
     syncButton->addListener (this);
 
-    addAndMakeVisible (stopAfterBarButton = new ToggleButton (L"stopAfterBarButton"));
+    addAndMakeVisible (stopAfterBarButton = new juce::ToggleButton (L"stopAfterBarButton"));
     stopAfterBarButton->setTooltip (L"Stop recording after a bar has elapsed.");
     stopAfterBarButton->setButtonText (L"Stop after bar");
     stopAfterBarButton->addListener (this);
 
-    addAndMakeVisible (playPauseButton = new DrawableButton ("playPauseButton", DrawableButton::ImageOnButtonBackground));
+    addAndMakeVisible (playPauseButton = new juce::DrawableButton ("playPauseButton", juce::DrawableButton::ImageOnButtonBackground));
     playPauseButton->setName (L"playPauseButton");
 
-    addAndMakeVisible (rtzButton = new DrawableButton ("rtzButton", DrawableButton::ImageOnButtonBackground));
+    addAndMakeVisible (rtzButton = new juce::DrawableButton ("rtzButton", juce::DrawableButton::ImageOnButtonBackground));
     rtzButton->setName (L"rtzButton");
 
-    addAndMakeVisible (recordButton = new DrawableButton ("recordButton", DrawableButton::ImageOnButtonBackground));
+    addAndMakeVisible (recordButton = new juce::DrawableButton ("recordButton", juce::DrawableButton::ImageOnButtonBackground));
     recordButton->setName (L"recordButton");
 
 
     //[UserPreSize]
-	ScopedPointer<Drawable> rtzImage(JuceHelperStuff::loadSVGFromMemory(Vectors::rtzbutton_svg,
+	std::unique_ptr<juce::Drawable> rtzImage(JuceHelperStuff::loadSVGFromMemory(Vectors::rtzbutton_svg,
 																	    Vectors::rtzbutton_svgSize));
 
 	playing = false;
 
-	playImage = JuceHelperStuff::loadSVGFromMemory(Vectors::playbutton_svg,
-												   Vectors::playbutton_svgSize);
-	pauseImage = JuceHelperStuff::loadSVGFromMemory(Vectors::pausebutton_svg,
-												    Vectors::pausebutton_svgSize);
-	playPauseButton->setImages(playImage);
-	playPauseButton->setColour(DrawableButton::backgroundColourId,
+	playImage.reset(JuceHelperStuff::loadSVGFromMemory(Vectors::playbutton_svg,
+												   Vectors::playbutton_svgSize));
+	pauseImage.reset(JuceHelperStuff::loadSVGFromMemory(Vectors::pausebutton_svg,
+												    Vectors::pausebutton_svgSize));
+	playPauseButton->setImages(playImage.get());
+	playPauseButton->setColour(juce::DrawableButton::backgroundColourId,
 							   ColourScheme::getInstance().colours[L"Button Colour"]);
-	playPauseButton->setColour(DrawableButton::backgroundOnColourId,
+	playPauseButton->setColour(juce::DrawableButton::backgroundOnColourId,
 							   ColourScheme::getInstance().colours[L"Button Colour"]);
 	playPauseButton->addListener(this);
 	playPauseButton->setTooltip(L"Play/pause audio file");
 
 	recording = false;
 
-	recordImage = JuceHelperStuff::loadSVGFromMemory(Vectors::recordbutton_svg,
-													 Vectors::recordbutton_svgSize);
-	stopImage = JuceHelperStuff::loadSVGFromMemory(Vectors::stopbutton_svg,
-												   Vectors::stopbutton_svgSize);
-	recordButton->setImages(recordImage);
-	recordButton->setColour(DrawableButton::backgroundColourId,
+	recordImage.reset(JuceHelperStuff::loadSVGFromMemory(Vectors::recordbutton_svg,
+													 Vectors::recordbutton_svgSize));
+	stopImage.reset(JuceHelperStuff::loadSVGFromMemory(Vectors::stopbutton_svg,
+												   Vectors::stopbutton_svgSize));
+	recordButton->setImages(recordImage.get());
+	recordButton->setColour(juce::DrawableButton::backgroundColourId,
 						    ColourScheme::getInstance().colours[L"Button Colour"]);
-	recordButton->setColour(DrawableButton::backgroundOnColourId,
+	recordButton->setColour(juce::DrawableButton::backgroundOnColourId,
 						    ColourScheme::getInstance().colours[L"Button Colour"]);
 	recordButton->addListener(this);
 	recordButton->setTooltip(L"Record/stop recording a loop");
@@ -109,18 +109,18 @@ LooperControl::LooperControl (LooperProcessor *proc, AudioThumbnail *thumbnail)
 	//Used to make sure we're playing if the processor is already playing.
 	changeListenerCallback(processor);
 
-	rtzButton->setImages(rtzImage);
-	rtzButton->setColour(DrawableButton::backgroundColourId,
+	rtzButton->setImages(rtzImage.get());
+	rtzButton->setColour(juce::DrawableButton::backgroundColourId,
 					     ColourScheme::getInstance().colours[L"Button Colour"]);
-	rtzButton->setColour(DrawableButton::backgroundOnColourId,
+	rtzButton->setColour(juce::DrawableButton::backgroundOnColourId,
 					     ColourScheme::getInstance().colours[L"Button Colour"]);
 	rtzButton->addListener(this);
 	rtzButton->setTooltip(L"Return to the start of the audio file");
 
 	const File& soundFile = processor->getFile();
-	if(soundFile != File::nonexistent)
+	if(soundFile != juce::File())
 	{
-		filename->setCurrentFile(soundFile, true, dontSendNotification);
+		filename->setCurrentFile(soundFile, true, juce::dontSendNotification);
 		fileDisplay->setFile(soundFile);
 		fileDisplay->setReadPointer((float)processor->getReadPosition());
 	}
@@ -155,13 +155,13 @@ LooperControl::~LooperControl()
 
     //[/Destructor_pre]
 
-    deleteAndZero (fileDisplay);
-    deleteAndZero (filename);
-    deleteAndZero (syncButton);
-    deleteAndZero (stopAfterBarButton);
-    deleteAndZero (playPauseButton);
-    deleteAndZero (rtzButton);
-    deleteAndZero (recordButton);
+    delete fileDisplay; fileDisplay = nullptr;
+    delete filename; filename = nullptr;
+    delete syncButton; syncButton = nullptr;
+    delete stopAfterBarButton; stopAfterBarButton = nullptr;
+    delete playPauseButton; playPauseButton = nullptr;
+    delete rtzButton; rtzButton = nullptr;
+    delete recordButton; recordButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -225,7 +225,7 @@ void LooperControl::buttonClicked (Button* buttonThatWasClicked)
 		if(!playing)
 			playPauseButton->setImages(pauseImage);
 		else
-			playPauseButton->setImages(playImage);
+			playPauseButton->setImages(playImage.get());
 		playing = !playing;
 		processor->setParameter(LooperProcessor::Play, 1.0f);
 	}
@@ -243,7 +243,7 @@ void LooperControl::buttonClicked (Button* buttonThatWasClicked)
 			//fileDisplay->setFile(File::nonexistent);
 			if(playing)
 			{
-				playPauseButton->setImages(playImage);
+				playPauseButton->setImages(playImage.get());
 				playing = false;
 				processor->setParameter(LooperProcessor::Play, 1.0f);
 			}
@@ -265,9 +265,9 @@ void LooperControl::buttonClicked (Button* buttonThatWasClicked)
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
 //------------------------------------------------------------------------------
-void LooperControl::filenameComponentChanged(FilenameComponent *filenameComp)
+void LooperControl::filenameComponentChanged(juce::FilenameComponent *filenameComp)
 {
-	File phil = filenameComp->getCurrentFile();
+	juce::File phil = filenameComp->getCurrentFile();
 	fileDisplay->setFile(phil);
 	processor->setFile(phil);
 	lastDir = phil.getParentDirectory();
@@ -284,7 +284,7 @@ void LooperControl::timerCallback()
 }
 
 //------------------------------------------------------------------------------
-void LooperControl::changeListenerCallback(ChangeBroadcaster *source)
+void LooperControl::changeListenerCallback(juce::ChangeBroadcaster *source)
 {
 	if(source == fileDisplay)
 	{
@@ -298,32 +298,32 @@ void LooperControl::changeListenerCallback(ChangeBroadcaster *source)
 			fileDisplay->setFile(processor->getFile());
 
 		if(filename->getCurrentFile() != processor->getFile())
-			filename->setCurrentFile(processor->getFile(), true, dontSendNotification);
+			filename->setCurrentFile(processor->getFile(), true, juce::dontSendNotification);
 
 		if(processor->isRecording())
 		{
-			playPauseButton->setImages(playImage);
+			playPauseButton->setImages(playImage.get());
 			playPauseButton->setEnabled(false);
 
 			if(!recording)
-				fileDisplay->setFile(File::nonexistent);
-			recordButton->setImages(stopImage);
+				fileDisplay->setFile(juce::File());
+			recordButton->setImages(stopImage.get());
 			recording = true;
 		}
 		else
 		{
 			playPauseButton->setEnabled(true);
-			recordButton->setImages(recordImage);
+			recordButton->setImages(recordImage.get());
 			recording = false;
 
 			if(processor->isPlaying())
 			{
-				playPauseButton->setImages(pauseImage);
+				playPauseButton->setImages(pauseImage.get());
 				playing = true;
 			}
 			else
 			{
-				playPauseButton->setImages(playImage);
+				playPauseButton->setImages(playImage.get());
 				playing = false;
 			}
 		}
@@ -334,7 +334,7 @@ void LooperControl::changeListenerCallback(ChangeBroadcaster *source)
 }
 
 //------------------------------------------------------------------------------
-void LooperControl::setWaveformBackground(const Colour& col)
+void LooperControl::setWaveformBackground(const juce::Colour& col)
 {
 	fileDisplay->setBackgroundColour(col);
 }
@@ -342,7 +342,7 @@ void LooperControl::setWaveformBackground(const Colour& col)
 //------------------------------------------------------------------------------
 void LooperControl::clearDisplay()
 {
-	fileDisplay->setFile(File::nonexistent);
+	fileDisplay->setFile(juce::File());
 }
 
 //[/MiscUserCode]

@@ -148,14 +148,14 @@ public:
 
     int getNumFilters() const throw();
     const AudioProcessorGraph::Node::Ptr getNode (const int index) const throw();
-    const AudioProcessorGraph::Node::Ptr getNodeForId (const uint32 uid) const throw();
+    const AudioProcessorGraph::Node::Ptr getNodeForId (const juce::AudioProcessorGraph::NodeID uid) const throw();
 
     void addFilter (const PluginDescription* desc, double x, double y);
 	///	Alternate addFilter method.
 	void addFilter(AudioPluginInstance *plugin, double x, double y);
 
-    void removeFilter (const uint32 filterUID);
-    void disconnectFilter (const uint32 filterUID);
+    void removeFilter (const juce::AudioProcessorGraph::NodeID filterUID);
+    void disconnectFilter (const juce::AudioProcessorGraph::NodeID filterUID);
 
     void removeIllegalConnections();
 
@@ -166,19 +166,19 @@ public:
     int getNumConnections() const throw();
     const AudioProcessorGraph::Connection* getConnection (const int index) const throw();
 
-    const AudioProcessorGraph::Connection* getConnectionBetween (uint32 sourceFilterUID, int sourceFilterChannel,
-                                                                 uint32 destFilterUID, int destFilterChannel) const throw();
+    const AudioProcessorGraph::Connection* getConnectionBetween (juce::AudioProcessorGraph::NodeID sourceFilterUID, int sourceFilterChannel,
+                                                                 juce::AudioProcessorGraph::NodeID destFilterUID, int destFilterChannel) const throw();
 
-    bool canConnect (uint32 sourceFilterUID, int sourceFilterChannel,
-                     uint32 destFilterUID, int destFilterChannel) const throw();
+    bool canConnect (juce::AudioProcessorGraph::NodeID sourceFilterUID, int sourceFilterChannel,
+                     juce::AudioProcessorGraph::NodeID destFilterUID, int destFilterChannel) const throw();
 
-    bool addConnection (uint32 sourceFilterUID, int sourceFilterChannel,
-                        uint32 destFilterUID, int destFilterChannel);
+    bool addConnection (juce::AudioProcessorGraph::NodeID sourceFilterUID, int sourceFilterChannel,
+                        juce::AudioProcessorGraph::NodeID destFilterUID, int destFilterChannel);
 
     void removeConnection (const int index);
 
-    void removeConnection (uint32 sourceFilterUID, int sourceFilterChannel,
-                           uint32 destFilterUID, int destFilterChannel);
+    void removeConnection (juce::AudioProcessorGraph::NodeID sourceFilterUID, int sourceFilterChannel,
+                           juce::AudioProcessorGraph::NodeID destFilterUID, int destFilterChannel);
 
     //void clear(bool addAudioIO = true);
 	void clear(bool addAudioIn = true,
@@ -188,8 +188,10 @@ public:
 
     //==============================================================================
 
+    XmlElement* createNodeXml(AudioProcessorGraph::Node* const node, const OscMappingManager& oscManager);
     XmlElement* createXml(const OscMappingManager& oscManager) const;
     void restoreFromXml(const XmlElement& xml, OscMappingManager& oscManager);
+    void createNodeFromXml(const XmlElement& xml, OscMappingManager& oscManager);
 
     //==============================================================================
     String getDocumentTitle();
@@ -216,8 +218,7 @@ private:
     uint32 lastUID;
     uint32 getNextUID() throw();
 
-    void createNodeFromXml(const XmlElement& xml,
-						   OscMappingManager& oscManager);
+    // Declaration moved to public section
 
     FilterGraph (const FilterGraph&);
     const FilterGraph& operator= (const FilterGraph&);

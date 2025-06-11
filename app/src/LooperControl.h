@@ -39,11 +39,11 @@ class LooperProcessor;
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class LooperControl  : public Component,
-                       public FilenameComponentListener,
-                       public Timer,
-                       public ChangeListener,
-                       public ButtonListener
+class LooperControl  : public juce::Component,
+                       public juce::FilenameComponentListener,
+                       public juce::Timer,
+                       public juce::ChangeListener,
+                       public juce::Button::Listener
 {
 public:
     //==============================================================================
@@ -54,30 +54,30 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
 	///	Used to load a sound file.
-	void filenameComponentChanged(FilenameComponent *filenameComp);
+	void filenameComponentChanged(juce::FilenameComponent *filenameComp);
 	///	Used to update the read position graphic.
 	void timerCallback();
 	///	Used to change the player's read position when the user clicks on the WaveformDisplay.
-	void changeListenerCallback(ChangeBroadcaster *source);
+	void changeListenerCallback(juce::ChangeBroadcaster *source);
 
 	///	Changes the colour of the WaveformDisplay background.
-	void setWaveformBackground(const Colour& col);
+	void setWaveformBackground(const juce::Colour& col);
 	///	Clears the waveform display.
 	void clearDisplay();
 
 	///	Used to keep track of the last directory the user loaded a sound from.
-	static File lastDir;
+	static juce::File lastDir;
 
     //[/UserMethods]
 
-    void paint (Graphics& g);
+    void paint (juce::Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
+    void buttonClicked (juce::Button* buttonThatWasClicked);
 
 
 
     //==============================================================================
-    juce_UseDebuggingNewOperator
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LooperControl)
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
@@ -86,14 +86,14 @@ private:
 	LooperProcessor *processor;
 
 	///	The two drawables we use for the playButton.
-	std::unique_ptr<Drawable> playImage;
-	std::unique_ptr<Drawable> pauseImage;
+	std::unique_ptr<juce::Drawable> playImage;
+	std::unique_ptr<juce::Drawable> pauseImage;
 	///	Whether the playPauseButton is currently displaying the play icon.
 	bool playing;
 
 	///	The two drawables we use for the recordButton.
-	std::unique_ptr<Drawable> recordImage;
-	std::unique_ptr<Drawable> stopImage;
+	std::unique_ptr<juce::Drawable> recordImage;
+	std::unique_ptr<juce::Drawable> stopImage;
 	///	Whether the recordButton is currently displaying the record icon.
 	bool recording;
 
@@ -101,12 +101,12 @@ private:
 
     //==============================================================================
     WaveformDisplay* fileDisplay;
-    FilenameComponent* filename;
-    ToggleButton* syncButton;
-    ToggleButton* stopAfterBarButton;
-    DrawableButton* playPauseButton;
-    DrawableButton* rtzButton;
-    DrawableButton* recordButton;
+    juce::FilenameComponent* filename;
+    juce::ToggleButton* syncButton;
+    juce::ToggleButton* stopAfterBarButton;
+    juce::DrawableButton* playPauseButton;
+    juce::DrawableButton* rtzButton;
+    juce::DrawableButton* recordButton;
 
 
     //==============================================================================

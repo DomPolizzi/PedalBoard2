@@ -36,9 +36,9 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class LogDisplay  : public Component,
-                    public ChangeListener,
-                    public ButtonListener
+class LogDisplay  : public juce::Component,
+                    public juce::ChangeListener,
+                    public juce::Button::Listener
 {
 public:
     //==============================================================================
@@ -49,18 +49,18 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
 	///	Called when the LogFile is updated.
-	void changeListenerCallback(ChangeBroadcaster *source);
+	void changeListenerCallback(juce::ChangeBroadcaster *source);
 
     //[/UserMethods]
 
-    void paint (Graphics& g);
+    void paint (juce::Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
+    void buttonClicked (juce::Button* buttonThatWasClicked);
 
 
 
     //==============================================================================
-    juce_UseDebuggingNewOperator
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LogDisplay)
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
@@ -69,23 +69,17 @@ private:
 	void updateLog(bool fromTheBeginning);
 
 	///	The timestamp of the most recent log event.
-	Time lastEvent;
+	juce::Time lastEvent;
 
     //[/UserVariables]
 
     //==============================================================================
-    TextEditor* logEditor;
-    TextButton* startStopButton;
-    ToggleButton* midiButton;
-    ToggleButton* oscButton;
-    ToggleButton* pedalboardButton;
-    Label* filterLabel;
-
-
-    //==============================================================================
-    // (prevent copy constructor and operator= being generated..)
-    LogDisplay (const LogDisplay&);
-    const LogDisplay& operator= (const LogDisplay&);
+    juce::TextEditor* logEditor;
+    juce::TextButton* startStopButton;
+    juce::ToggleButton* midiButton;
+    juce::ToggleButton* oscButton;
+    juce::ToggleButton* pedalboardButton;
+    juce::Label* filterLabel;
 };
 
 

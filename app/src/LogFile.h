@@ -25,7 +25,7 @@
 #include <map>
 
 ///	Singleton used for logging events.
-class LogFile : public ChangeBroadcaster
+class LogFile : public juce::ChangeBroadcaster
 {
   public:
 	///	Called to start logging (creates a date-stamped file).
@@ -46,7 +46,7 @@ class LogFile : public ChangeBroadcaster
 		\endcode
 		i.e. <time (hrs:mins:secs:millisecs)> <eventType>: <message>
 	 */
-	void logEvent(const String& eventType, const String& message);
+	void logEvent(const juce::String& eventType, const juce::String& message);
 
 	///	Returns the contents of the log file.
 	/*!
@@ -54,12 +54,12 @@ class LogFile : public ChangeBroadcaster
 		you're interested in, and can be used to filter out event types
 		you're not interested in.
 		\param eventsSince This can be used to only return events which have
-		occurred since this time. Just pass in a Time initialised with its
+		occurred since this time. Just pass in a juce::Time initialised with its
 		default constructor if you want to see the entire log. On return this
 		will be set to the time of the latest event in the log.
 	 */
-	const String& getLogContents(const StringArray& eventTypes,
-								 Time& eventsSince);
+	const juce::String& getLogContents(const juce::StringArray& eventTypes,
+									 juce::Time& eventsSince);
 
 	///	Returns the sole instance of the LogFile.
 	static LogFile& getInstance();
@@ -73,7 +73,7 @@ class LogFile : public ChangeBroadcaster
 	struct LogEvent
 	{
 		///	The event's type.
-		String eventType;
+		juce::String eventType;
 		///	The event's type, hashed.
 		/*!
 			So we're not doing tons of String comparisons every time we call
@@ -85,11 +85,11 @@ class LogFile : public ChangeBroadcaster
 			This is the full text, i.e.:
 			<time> <type> <message>
 		 */
-		String message;
+		juce::String message;
 	};
 
 	///	The log file output stream.
-	std::unique_ptr<FileOutputStream> logFile;
+	std::unique_ptr<juce::FileOutputStream> logFile;
 	///	True if we're currently logging events.
 	bool isLogging;
 
@@ -97,10 +97,10 @@ class LogFile : public ChangeBroadcaster
 	std::map<int64, LogEvent> events;
 
 	///	Used to protect events from threading issues.
-	CriticalSection critSec;
+	juce::CriticalSection critSec;
 
 	///	Temporary variable used by getLogContents().
-	String tempContents;
+	juce::String tempContents;
 };
 
 #endif

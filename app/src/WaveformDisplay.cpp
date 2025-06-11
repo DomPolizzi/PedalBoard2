@@ -36,7 +36,7 @@ WaveformDisplay::~WaveformDisplay()
 }
 
 //------------------------------------------------------------------------------
-void WaveformDisplay::paint(Graphics& g)
+void WaveformDisplay::paint(juce::Graphics& g)
 {
 	float x;
 	String tempstr;
@@ -74,13 +74,13 @@ void WaveformDisplay::paint(Graphics& g)
 }
 
 //------------------------------------------------------------------------------
-void WaveformDisplay::changeListenerCallback(ChangeBroadcaster *source)
+void WaveformDisplay::changeListenerCallback(juce::ChangeBroadcaster *source)
 {
 	repaint();
 }
 
 //------------------------------------------------------------------------------
-void WaveformDisplay::mouseDown(const MouseEvent &e)
+void WaveformDisplay::mouseDown(const juce::MouseEvent &e)
 {
 	float x = (float)e.x;
 
@@ -92,7 +92,7 @@ void WaveformDisplay::mouseDown(const MouseEvent &e)
 }
 
 //------------------------------------------------------------------------------
-void WaveformDisplay::mouseDrag(const MouseEvent &e)
+void WaveformDisplay::mouseDrag(const juce::MouseEvent &e)
 {
 	float x = (float)e.x;
 
@@ -104,11 +104,11 @@ void WaveformDisplay::mouseDrag(const MouseEvent &e)
 }
 
 //------------------------------------------------------------------------------
-void WaveformDisplay::setFile(const File& file)
+void WaveformDisplay::setFile(const juce::File& file)
 {
 	AudioThumbnailCacheSingleton::getInstance().clear();
-	thumbnail->setSource(new FileInputSource(file));
-	if(file == File::nonexistent)
+	thumbnail->setSource(new juce::FileInputSource(file));
+	if(file == juce::File())
 		thumbnail->reset(2, 44100.0);
 	readPointer = 0.0f;
 }
@@ -121,7 +121,7 @@ void WaveformDisplay::setReadPointer(float val)
 }
 
 //------------------------------------------------------------------------------
-void WaveformDisplay::setBackgroundColour(const Colour& col)
+void WaveformDisplay::setBackgroundColour(const juce::Colour& col)
 {
 	backgroundColour = col;
 }
@@ -141,7 +141,7 @@ WaveformDisplayLite::~WaveformDisplayLite()
 }
 
 //------------------------------------------------------------------------------
-void WaveformDisplayLite::paint(Graphics& g)
+void WaveformDisplayLite::paint(juce::Graphics& g)
 {
 	String tempstr;
 	const double length = thumbnail.getTotalLength();
@@ -173,13 +173,13 @@ void WaveformDisplayLite::paint(Graphics& g)
 }
 
 //------------------------------------------------------------------------------
-void WaveformDisplayLite::changeListenerCallback(ChangeBroadcaster *source)
+void WaveformDisplayLite::changeListenerCallback(juce::ChangeBroadcaster *source)
 {
 	repaint();
 }
 
 //------------------------------------------------------------------------------
-void WaveformDisplayLite::setBackgroundColour(const Colour& col)
+void WaveformDisplayLite::setBackgroundColour(const juce::Colour& col)
 {
 	backgroundColour = col;
 }

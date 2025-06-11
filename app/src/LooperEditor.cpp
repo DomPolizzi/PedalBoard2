@@ -59,125 +59,125 @@ LooperEditor::LooperEditor (LooperProcessor *proc, AudioThumbnail *thumbnail)
     addAndMakeVisible (fileDisplay = new WaveformDisplay (thumbnail, false));
     fileDisplay->setName (L"fileDisplay");
 
-    addAndMakeVisible (filename = new FilenameComponent ("filename", File::nonexistent, true, false, true, "*.wav;*.aif", "", "<no file loaded>"));
+    addAndMakeVisible (filename = new juce::FilenameComponent ("filename", juce::File(), true, false, true, "*.wav;*.aif", "", "<no file loaded>"));
     filename->setName (L"filename");
 
-    addAndMakeVisible (syncButton = new ToggleButton (L"syncButton"));
+    addAndMakeVisible (syncButton = new juce::ToggleButton (L"syncButton"));
     syncButton->setTooltip (L"Sync file playback to the main transport");
     syncButton->setButtonText (L"Sync to main transport");
     syncButton->addListener (this);
 
-    addAndMakeVisible (stopAfterBarButton = new ToggleButton (L"stopAfterBarButton"));
+    addAndMakeVisible (stopAfterBarButton = new juce::ToggleButton (L"stopAfterBarButton"));
     stopAfterBarButton->setTooltip (L"Stop recording after a bar has elapsed.");
     stopAfterBarButton->setButtonText (L"Stop after bar");
     stopAfterBarButton->addListener (this);
 
-    addAndMakeVisible (playPauseButton = new DrawableButton ("playPauseButton", DrawableButton::ImageOnButtonBackground));
+    addAndMakeVisible (playPauseButton = new juce::DrawableButton ("playPauseButton", juce::DrawableButton::ImageOnButtonBackground));
     playPauseButton->setName (L"playPauseButton");
 
-    addAndMakeVisible (rtzButton = new DrawableButton ("rtzButton", DrawableButton::ImageOnButtonBackground));
+    addAndMakeVisible (rtzButton = new juce::DrawableButton ("rtzButton", juce::DrawableButton::ImageOnButtonBackground));
     rtzButton->setName (L"rtzButton");
 
-    addAndMakeVisible (recordButton = new DrawableButton ("recordButton", DrawableButton::ImageOnButtonBackground));
+    addAndMakeVisible (recordButton = new juce::DrawableButton ("recordButton", juce::DrawableButton::ImageOnButtonBackground));
     recordButton->setName (L"recordButton");
 
-    addAndMakeVisible (autoPlayButton = new ToggleButton (L"autoPlayButton"));
+    addAndMakeVisible (autoPlayButton = new juce::ToggleButton (L"autoPlayButton"));
     autoPlayButton->setButtonText (L"Autoplay");
     autoPlayButton->addListener (this);
 
-    addAndMakeVisible (barLengthLabel = new Label (L"barLengthLabel",
+    addAndMakeVisible (barLengthLabel = new juce::Label (L"barLengthLabel",
                                                    L"Bar length:"));
-    barLengthLabel->setFont (Font (15.0000f, Font::plain));
-    barLengthLabel->setJustificationType (Justification::centredLeft);
+    barLengthLabel->setFont (juce::Font (15.0000f, juce::Font::plain));
+    barLengthLabel->setJustificationType (juce::Justification::centredLeft);
     barLengthLabel->setEditable (false, false, false);
-    barLengthLabel->setColour (TextEditor::textColourId, Colours::black);
-    barLengthLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    barLengthLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    barLengthLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x0));
 
-    addAndMakeVisible (separatorLabel = new Label (L"separatorLabel",
+    addAndMakeVisible (separatorLabel = new juce::Label (L"separatorLabel",
                                                    L"/"));
-    separatorLabel->setFont (Font (105.0000f, Font::bold));
-    separatorLabel->setJustificationType (Justification::centred);
+    separatorLabel->setFont (juce::Font (105.0000f, juce::Font::bold));
+    separatorLabel->setJustificationType (juce::Justification::centred);
     separatorLabel->setEditable (false, false, false);
-    separatorLabel->setColour (TextEditor::textColourId, Colours::black);
-    separatorLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    separatorLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    separatorLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x0));
 
-    addAndMakeVisible (numeratorLabel = new Label (L"numeratorLabel",
+    addAndMakeVisible (numeratorLabel = new juce::Label (L"numeratorLabel",
                                                    L"4"));
-    numeratorLabel->setFont (Font (Font::getDefaultSerifFontName(), 105.0000f, Font::bold));
-    numeratorLabel->setJustificationType (Justification::centred);
+    numeratorLabel->setFont (juce::Font (juce::Font::getDefaultSerifFontName(), 105.0000f, juce::Font::bold));
+    numeratorLabel->setJustificationType (juce::Justification::centred);
     numeratorLabel->setEditable (true, true, false);
-    numeratorLabel->setColour (TextEditor::textColourId, Colours::black);
-    numeratorLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    numeratorLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    numeratorLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x0));
     numeratorLabel->addListener (this);
 
-    addAndMakeVisible (denominatorLabel = new Label (L"denominatorLabel",
+    addAndMakeVisible (denominatorLabel = new juce::Label (L"denominatorLabel",
                                                      L"4"));
-    denominatorLabel->setFont (Font (Font::getDefaultSerifFontName(), 105.0000f, Font::bold));
-    denominatorLabel->setJustificationType (Justification::centred);
+    denominatorLabel->setFont (juce::Font (juce::Font::getDefaultSerifFontName(), 105.0000f, juce::Font::bold));
+    denominatorLabel->setJustificationType (juce::Justification::centred);
     denominatorLabel->setEditable (true, true, false);
-    denominatorLabel->setColour (TextEditor::textColourId, Colours::black);
-    denominatorLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    denominatorLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    denominatorLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x0));
     denominatorLabel->addListener (this);
 
-    addAndMakeVisible (loopLevelLabel = new Label (L"loopLevelLabel",
+    addAndMakeVisible (loopLevelLabel = new juce::Label (L"loopLevelLabel",
                                                    L"Loop level"));
-    loopLevelLabel->setFont (Font (15.0000f, Font::plain));
-    loopLevelLabel->setJustificationType (Justification::centred);
+    loopLevelLabel->setFont (juce::Font (15.0000f, juce::Font::plain));
+    loopLevelLabel->setJustificationType (juce::Justification::centred);
     loopLevelLabel->setEditable (false, false, false);
-    loopLevelLabel->setColour (TextEditor::textColourId, Colours::black);
-    loopLevelLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    loopLevelLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    loopLevelLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x0));
 
-    addAndMakeVisible (loopLevelSlider = new Slider (L"loopLevelSlider"));
+    addAndMakeVisible (loopLevelSlider = new juce::Slider (L"loopLevelSlider"));
     loopLevelSlider->setRange (0, 1, 0);
-    loopLevelSlider->setSliderStyle (Slider::RotaryVerticalDrag);
-    loopLevelSlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    loopLevelSlider->setSliderStyle (juce::Slider::RotaryVerticalDrag);
+    loopLevelSlider->setTextBoxStyle (juce::Slider::NoTextBox, false, 80, 20);
     loopLevelSlider->addListener (this);
 
-    addAndMakeVisible (inputLevelLabel = new Label (L"inputLevelLabel",
+    addAndMakeVisible (inputLevelLabel = new juce::Label (L"inputLevelLabel",
                                                     L"Input level"));
-    inputLevelLabel->setFont (Font (15.0000f, Font::plain));
-    inputLevelLabel->setJustificationType (Justification::centred);
+    inputLevelLabel->setFont (juce::Font (15.0000f, juce::Font::plain));
+    inputLevelLabel->setJustificationType (juce::Justification::centred);
     inputLevelLabel->setEditable (false, false, false);
-    inputLevelLabel->setColour (TextEditor::textColourId, Colours::black);
-    inputLevelLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    inputLevelLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    inputLevelLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x0));
 
-    addAndMakeVisible (inputLevelSlider = new Slider (L"inputLevelSlider"));
+    addAndMakeVisible (inputLevelSlider = new juce::Slider (L"inputLevelSlider"));
     inputLevelSlider->setRange (0, 1, 0);
-    inputLevelSlider->setSliderStyle (Slider::RotaryVerticalDrag);
-    inputLevelSlider->setTextBoxStyle (Slider::NoTextBox, false, 80, 20);
+    inputLevelSlider->setSliderStyle (juce::Slider::RotaryVerticalDrag);
+    inputLevelSlider->setTextBoxStyle (juce::Slider::NoTextBox, false, 80, 20);
     inputLevelSlider->addListener (this);
 
 
     //[UserPreSize]
 
-	String tempstr;
-	ScopedPointer<Drawable> rtzImage(JuceHelperStuff::loadSVGFromMemory(Vectors::rtzbutton_svg,
+	juce::String tempstr;
+	std::unique_ptr<juce::Drawable> rtzImage(JuceHelperStuff::loadSVGFromMemory(Vectors::rtzbutton_svg,
 																	    Vectors::rtzbutton_svgSize));
 
 	playing = false;
 
-	playImage = JuceHelperStuff::loadSVGFromMemory(Vectors::playbutton_svg,
-												   Vectors::playbutton_svgSize);
-	pauseImage = JuceHelperStuff::loadSVGFromMemory(Vectors::pausebutton_svg,
-												    Vectors::pausebutton_svgSize);
-	playPauseButton->setImages(playImage);
-	playPauseButton->setColour(DrawableButton::backgroundColourId,
+	playImage.reset(JuceHelperStuff::loadSVGFromMemory(Vectors::playbutton_svg,
+												   Vectors::playbutton_svgSize));
+	pauseImage.reset(JuceHelperStuff::loadSVGFromMemory(Vectors::pausebutton_svg,
+												    Vectors::pausebutton_svgSize));
+	playPauseButton->setImages(playImage.get());
+	playPauseButton->setColour(juce::DrawableButton::backgroundColourId,
 							   ColourScheme::getInstance().colours[L"Button Colour"]);
-	playPauseButton->setColour(DrawableButton::backgroundOnColourId,
+	playPauseButton->setColour(juce::DrawableButton::backgroundOnColourId,
 							   ColourScheme::getInstance().colours[L"Button Colour"]);
 	playPauseButton->addListener(this);
 	playPauseButton->setTooltip(L"Play/pause audio file");
 
 	recording = false;
 
-	recordImage = JuceHelperStuff::loadSVGFromMemory(Vectors::recordbutton_svg,
-													 Vectors::recordbutton_svgSize);
-	stopImage = JuceHelperStuff::loadSVGFromMemory(Vectors::stopbutton_svg,
-												   Vectors::stopbutton_svgSize);
-	recordButton->setImages(recordImage);
-	recordButton->setColour(DrawableButton::backgroundColourId,
+	recordImage.reset(JuceHelperStuff::loadSVGFromMemory(Vectors::recordbutton_svg,
+													 Vectors::recordbutton_svgSize));
+	stopImage.reset(JuceHelperStuff::loadSVGFromMemory(Vectors::stopbutton_svg,
+												   Vectors::stopbutton_svgSize));
+	recordButton->setImages(recordImage.get());
+	recordButton->setColour(juce::DrawableButton::backgroundColourId,
 						    ColourScheme::getInstance().colours[L"Button Colour"]);
-	recordButton->setColour(DrawableButton::backgroundOnColourId,
+	recordButton->setColour(juce::DrawableButton::backgroundOnColourId,
 						    ColourScheme::getInstance().colours[L"Button Colour"]);
 	recordButton->addListener(this);
 	recordButton->setTooltip(L"Record/stop recording a loop");
@@ -185,18 +185,18 @@ LooperEditor::LooperEditor (LooperProcessor *proc, AudioThumbnail *thumbnail)
 	//Used to make sure we're playing if the processor is already playing.
 	changeListenerCallback(processor);
 
-	rtzButton->setImages(rtzImage);
-	rtzButton->setColour(DrawableButton::backgroundColourId,
+	rtzButton->setImages(rtzImage.get());
+	rtzButton->setColour(juce::DrawableButton::backgroundColourId,
 					     ColourScheme::getInstance().colours[L"Button Colour"]);
-	rtzButton->setColour(DrawableButton::backgroundOnColourId,
+	rtzButton->setColour(juce::DrawableButton::backgroundOnColourId,
 					     ColourScheme::getInstance().colours[L"Button Colour"]);
 	rtzButton->addListener(this);
 	rtzButton->setTooltip(L"Return to the start of the audio file");
 
-	const File& soundFile = processor->getFile();
-	if(soundFile != File::nonexistent)
+	const juce::File& soundFile = processor->getFile();
+	if(soundFile != juce::File())
 	{
-		filename->setCurrentFile(soundFile, true, dontSendNotification);
+		filename->setCurrentFile(soundFile, true, juce::dontSendNotification);
 		fileDisplay->setReadPointer((float)processor->getReadPosition());
 	}
 	else
@@ -247,22 +247,22 @@ LooperEditor::~LooperEditor()
 
     //[/Destructor_pre]
 
-    deleteAndZero (fileDisplay);
-    deleteAndZero (filename);
-    deleteAndZero (syncButton);
-    deleteAndZero (stopAfterBarButton);
-    deleteAndZero (playPauseButton);
-    deleteAndZero (rtzButton);
-    deleteAndZero (recordButton);
-    deleteAndZero (autoPlayButton);
-    deleteAndZero (barLengthLabel);
-    deleteAndZero (separatorLabel);
-    deleteAndZero (numeratorLabel);
-    deleteAndZero (denominatorLabel);
-    deleteAndZero (loopLevelLabel);
-    deleteAndZero (loopLevelSlider);
-    deleteAndZero (inputLevelLabel);
-    deleteAndZero (inputLevelSlider);
+    delete fileDisplay; fileDisplay = nullptr;
+    delete filename; filename = nullptr;
+    delete syncButton; syncButton = nullptr;
+    delete stopAfterBarButton; stopAfterBarButton = nullptr;
+    delete playPauseButton; playPauseButton = nullptr;
+    delete rtzButton; rtzButton = nullptr;
+    delete recordButton; recordButton = nullptr;
+    delete autoPlayButton; autoPlayButton = nullptr;
+    delete barLengthLabel; barLengthLabel = nullptr;
+    delete separatorLabel; separatorLabel = nullptr;
+    delete numeratorLabel; numeratorLabel = nullptr;
+    delete denominatorLabel; denominatorLabel = nullptr;
+    delete loopLevelLabel; loopLevelLabel = nullptr;
+    delete loopLevelSlider; loopLevelSlider = nullptr;
+    delete inputLevelLabel; inputLevelLabel = nullptr;
+    delete inputLevelSlider; inputLevelSlider = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -270,7 +270,7 @@ LooperEditor::~LooperEditor()
 }
 
 //==============================================================================
-void LooperEditor::paint (Graphics& g)
+void LooperEditor::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -344,9 +344,9 @@ void LooperEditor::buttonClicked (Button* buttonThatWasClicked)
 	else if(buttonThatWasClicked == playPauseButton)
 	{
 		if(!playing)
-			playPauseButton->setImages(pauseImage);
+			playPauseButton->setImages(pauseImage.get());
 		else
-			playPauseButton->setImages(playImage);
+			playPauseButton->setImages(playImage.get());
 		playing = !playing;
 		processor->setParameter(LooperProcessor::Play, 1.0f);
 	}
@@ -361,10 +361,10 @@ void LooperEditor::buttonClicked (Button* buttonThatWasClicked)
 
 		if(recording)
 		{
-			//fileDisplay->setFile(File::nonexistent);
+			//fileDisplay->setFile(juce::File());
 			if(playing)
 			{
-				playPauseButton->setImages(playImage);
+				playPauseButton->setImages(playImage.get());
 				playing = false;
 				processor->setParameter(LooperProcessor::Play, 1.0f);
 			}
@@ -446,9 +446,9 @@ void LooperEditor::sliderValueChanged (Slider* sliderThatWasMoved)
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
 //------------------------------------------------------------------------------
-void LooperEditor::filenameComponentChanged(FilenameComponent *filenameComp)
+void LooperEditor::filenameComponentChanged(juce::FilenameComponent *filenameComp)
 {
-	File phil = filenameComp->getCurrentFile();
+	juce::File phil = filenameComp->getCurrentFile();
 	fileDisplay->setFile(phil);
 	processor->setFile(phil);
 	LooperControl::lastDir = phil.getParentDirectory();
@@ -465,7 +465,7 @@ void LooperEditor::timerCallback()
 }
 
 //------------------------------------------------------------------------------
-void LooperEditor::changeListenerCallback(ChangeBroadcaster *source)
+void LooperEditor::changeListenerCallback(juce::ChangeBroadcaster *source)
 {
 	if(source == fileDisplay)
 	{
@@ -479,31 +479,31 @@ void LooperEditor::changeListenerCallback(ChangeBroadcaster *source)
 			fileDisplay->setFile(processor->getFile());
 
 		if(filename->getCurrentFile() != processor->getFile())
-			filename->setCurrentFile(processor->getFile(), true, dontSendNotification);
+			filename->setCurrentFile(processor->getFile(), true, juce::dontSendNotification);
 
 		if(processor->isRecording())
 		{
 			playPauseButton->setEnabled(false);
 
 			if(!recording)
-				fileDisplay->setFile(File::nonexistent);
-			recordButton->setImages(stopImage);
+				fileDisplay->setFile(juce::File());
+			recordButton->setImages(stopImage.get());
 			recording = true;
 		}
 		else
 		{
 			playPauseButton->setEnabled(true);
-			recordButton->setImages(recordImage);
+			recordButton->setImages(recordImage.get());
 			recording = false;
 
 			if(processor->isPlaying())
 			{
-				playPauseButton->setImages(pauseImage);
+				playPauseButton->setImages(pauseImage.get());
 				playing = true;
 			}
 			else
 			{
-				playPauseButton->setImages(playImage);
+				playPauseButton->setImages(playImage.get());
 				playing = false;
 			}
 		}
@@ -514,7 +514,7 @@ void LooperEditor::changeListenerCallback(ChangeBroadcaster *source)
 }
 
 //------------------------------------------------------------------------------
-void LooperEditor::setWaveformBackground(const Colour& col)
+void LooperEditor::setWaveformBackground(const juce::Colour& col)
 {
 	fileDisplay->setBackgroundColour(col);
 }
@@ -522,7 +522,7 @@ void LooperEditor::setWaveformBackground(const Colour& col)
 //------------------------------------------------------------------------------
 void LooperEditor::clearDisplay()
 {
-	fileDisplay->setFile(File::nonexistent);
+	fileDisplay->setFile(juce::File());
 }
 
 //[/MiscUserCode]

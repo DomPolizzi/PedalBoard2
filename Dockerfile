@@ -35,6 +35,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   libssl-dev \
   ca-certificates \
   libgtkmm-3.0-dev \
+  ladspa-sdk \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables to help find GTK
