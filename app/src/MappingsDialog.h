@@ -49,8 +49,8 @@ class MappingsDialog  : public Component,
                         public TextEditor::Listener,
                         public MidiMappingManager::MidiLearnCallback,
                         public AsyncUpdater,
-                        public ButtonListener,
-                        public ComboBoxListener
+                        public Button::Listener,
+                        public ComboBox::Listener
 {
 public:
     //==============================================================================

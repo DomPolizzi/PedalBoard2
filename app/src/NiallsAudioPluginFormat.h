@@ -85,34 +85,38 @@ class NAPInstance : public AudioPluginInstance
 	void processBlock(AudioSampleBuffer& buffer, MidiBuffer& midiMessages);
 
 	///	Returns the name of the indexed input channel.
-	const String getInputChannelName(int channelIndex) const;
+	const String getInputChannelName(int channelIndex) const override;
 	///	Returns the name of the indexed output channel.
-	const String getOutputChannelName(int channelIndex) const;
-	///	Returns false.
-	bool isInputChannelStereoPair(int index) const {return false;};
-	///	Returns false.
-	bool isOutputChannelStereoPair(int index) const {return false;};
+	const String getOutputChannelName(int channelIndex) const override;
+
+	///	Returns whether this plugin can create an editor component.
+	bool hasEditor() const override;
+	///	Creates an editor for this plugin.
+	AudioProcessorEditor* createEditor() override;
+
+	///	Returns the number of parameters this plugin has.
+	int getNumParameters() override;
+	///	Returns the name of the indexed parameter.
+	const String getParameterName(int parameterIndex) override;
+	///	Returns the value of the indexed parameter.
+	float getParameter(int parameterIndex) override;
+	///	Returns the value of the indexed parameter as text.
+	const String getParameterText(int parameterIndex) override;
+	///	Sets the value of the indexed parameter.
+	void setParameter(int parameterIndex, float newValue) override;
+
+	///	Saves the plugin's state.
+	void getStateInformation(MemoryBlock &destData) override;
+	///	Restores the plugin's state.
+	void setStateInformation(const void *data, int sizeInBytes) override;
+
+	///	Returns the tail length in seconds (required by JUCE 7).
+	double getTailLengthSeconds() const override;
 
 	///	Returns false.
 	bool acceptsMidi() const {return false;};
 	///	Returns false.
 	bool producesMidi() const {return false;};
-
-	///	Creates the plugin's editor.
-	AudioProcessorEditor *createEditor();
-	///	Returns true if the plugin has an editor.
-	bool hasEditor() const;
-
-	///	Returns the number of parameters.
-	int getNumParameters();
-	///	Returns the indexed parameter's name.
-	const String getParameterName(int parameterIndex);
-	///	Returns the value of the indexed parameter.
-	float getParameter(int parameterIndex);
-	///	Returns the value of the indexed parameter as a string.
-	const String getParameterText(int parameterIndex);
-	///	Sets the indexed parameter.
-	void setParameter(int parameterIndex, float newValue);
 
 	///	Returns 1.
 	int getNumPrograms() {return 1;};
@@ -121,14 +125,9 @@ class NAPInstance : public AudioPluginInstance
 	///	Does nothing.
 	void setCurrentProgram(int index) {};
 	///	Returns nothing.
-	const String getProgramName(int index) {return L"";};
+	const String getProgramName(int index) {return "";};
 	///	Does nothing.
 	void changeProgramName(int index, const String &newName) {};
-
-	///	Saves the plugin's state.
-	void getStateInformation(MemoryBlock &destData);
-	///	Loads the plugin's state.
-	void setStateInformation(const void *data, int sizeInBytes);
 
 	///	Returns whether the plugin was loaded or not.
 	bool getPluginLoadedOkay() const {return plugin != 0;};
@@ -167,7 +166,7 @@ class NAPModuleHandle : public ReferenceCountedObject
     juce_UseDebuggingNewOperator
   public:
 	///	The library file.
-    File file;
+    File pluginFile;
     ///	The name of the plugin.
     String pluginName;
 
@@ -175,10 +174,9 @@ class NAPModuleHandle : public ReferenceCountedObject
     NAPCreatePlugin pluginCreator;
 
 	///	Pointer to the module.
-    void* hModule;
+    juce::DynamicLibrary hModule;
     ///	Path to the parent directory.
     String fullParentDirectoryPathName;
 };
 
 #endif
-

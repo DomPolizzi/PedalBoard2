@@ -94,7 +94,7 @@ bool ColourScheme::doesColoursMatchPreset(const String& name)
 	bool retval = true;
 	File settingsDir = JuceHelperStuff::getAppDataFolder();
 
-	tempstr << name << L".colourscheme";
+	tempstr << name << ".colourscheme";
 	presetFile = settingsDir.getChildFile(tempstr);
 
 	if(presetFile.existsAsFile())

@@ -35,7 +35,7 @@ class PropertiesSingleton
 	 */
 	static void killInstance();
 
-	juce_UseDebuggingNewOperator
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PropertiesSingleton)
   private:
 	///	Constructor.
 	PropertiesSingleton();

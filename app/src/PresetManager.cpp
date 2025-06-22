@@ -3,7 +3,7 @@
 
 PresetManager::PresetManager()
 {
-	File presetDir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(L"Pedalboard2").getChildFile(L"presets");
+	File presetDir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Pedalboard2").getChildFile("presets");
 
 	if(!presetDir.exists())
 		presetDir.createDirectory();
@@ -33,7 +33,7 @@ void PresetManager::importPreset(const String& presetName,
 {
 	File presetPath;
 
-	presetPath = getPluginPresetDir(plugin->getName()).getChildFile(presetName).withFileExtension(L"fxp");
+	presetPath = getPluginPresetDir(plugin->getName()).getChildFile(presetName).withFileExtension("fxp");
 	importPreset(presetPath, plugin);
 }
 
@@ -47,7 +47,7 @@ void PresetManager::savePreset(const MemoryBlock& block,
 	if(!presetDir.exists())
 		presetDir.createDirectory();
 
-	FileOutputStream outStream(presetDir.getChildFile(presetName).withFileExtension(L".fxp"));
+	FileOutputStream outStream(presetDir.getChildFile(presetName).withFileExtension(".fxp"));
 
 	outStream.write(block.getData(), block.getSize());
 }
@@ -71,5 +71,5 @@ void PresetManager::getListOfUserPresets(const String& pluginName,
 //------------------------------------------------------------------------------
 File PresetManager::getPluginPresetDir(const String& pluginName)
 {
-	return File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(L"Pedalboard2").getChildFile(L"presets").getChildFile(pluginName);
+	return File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Pedalboard2").getChildFile("presets").getChildFile(pluginName);
 }

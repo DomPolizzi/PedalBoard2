@@ -47,7 +47,7 @@ void NiallsAudioPluginFormat::findAllTypesForFile(OwnedArray<PluginDescription>&
 
 	PluginDescription desc;
 	desc.fileOrIdentifier = fileOrIdentifier;
-	desc.uid = 0;
+	// desc.uid = 0; // uid member removed in JUCE 7
 
 	NAPInstance* instance = dynamic_cast<NAPInstance*>(createInstanceFromDescription(desc));
 
@@ -84,7 +84,7 @@ AudioPluginInstance *NiallsAudioPluginFormat::createInstanceFromDescription(cons
 
 		const ReferenceCountedObjectPtr<NAPModuleHandle> module(NAPModuleHandle::findOrCreateModule(file));
 
-		if(module != 0)
+		if(module != nullptr)
 		{
 			result = new NAPInstance(module);
 
@@ -109,11 +109,11 @@ bool NiallsAudioPluginFormat::fileMightContainThisPluginType(const String& fileO
 {
 	const File f (fileOrIdentifier);
 
-	return f.existsAsFile() && f.hasFileExtension(T(".so"));
+	return f.existsAsFile() && f.hasFileExtension(".so");
 }
 
 //------------------------------------------------------------------------------
-const String NiallsAudioPluginFormat::getNameOfPluginFromIdentifier(const String& fileOrIdentifier)
+String NiallsAudioPluginFormat::getNameOfPluginFromIdentifier(const String& fileOrIdentifier)
 {
 	return fileOrIdentifier;
 }
@@ -125,7 +125,7 @@ bool NiallsAudioPluginFormat::doesPluginStillExist(const PluginDescription& desc
 }
 
 //------------------------------------------------------------------------------
-const StringArray NiallsAudioPluginFormat::searchPathsForPlugins(const FileSearchPath& directoriesToSearch,
+StringArray NiallsAudioPluginFormat::searchPathsForPlugins(const FileSearchPath& directoriesToSearch,
 																 const bool recursive)
 {
 	int j;
@@ -138,7 +138,7 @@ const StringArray NiallsAudioPluginFormat::searchPathsForPlugins(const FileSearc
 }
 
 //------------------------------------------------------------------------------
-const FileSearchPath NiallsAudioPluginFormat::getDefaultLocationsToSearch()
+FileSearchPath NiallsAudioPluginFormat::getDefaultLocationsToSearch()
 {
 	return FileSearchPath ("/usr/lib/nap;/usr/local/lib/nap");
 }
@@ -148,11 +148,9 @@ void NiallsAudioPluginFormat::recursiveFileSearch(StringArray& results,
 												  const File& dir, 
 												  const bool recursive)
 {
-	DirectoryIterator iter(dir, false, "*", File::findFilesAndDirectories);
-
-	while(iter.next())
+	for (juce::RangedDirectoryIterator iter(dir, false, "*", juce::File::findFilesAndDirectories); iter != juce::RangedDirectoryIterator{}; ++iter)
 	{
-		const File f(iter.getFile());
+		File f = iter->getFile();
 		bool isPlugin = false;
 
 		if(fileMightContainThisPluginType(f.getFullPathName()))
@@ -225,25 +223,18 @@ NAPInstance::~NAPInstance()
 //------------------------------------------------------------------------------
 void NAPInstance::fillInPluginDescription(PluginDescription& description) const
 {
-	description.name = name;
-	description.pluginFormatName = T("NAP");
-	description.category = T("effect");
-	description.manufacturerName = T("Niall");
-	description.version = T("1.0");
-	description.fileOrIdentifier = module->file.getFullPathName();
-	description.lastFileModTime = module->file.getLastModificationTime();
-	description.uid = 0;
-	description.isInstrument = false;
-	if(plugin)
+	if(module != nullptr)
 	{
-		description.numInputChannels = plugin->getNumAudioInputs() +
-									   plugin->getNumParameters();
-		description.numOutputChannels = plugin->getNumAudioOutputs();
-	}
-	else
-	{
-		description.numInputChannels = 0;
-		description.numOutputChannels = 0;
+		description.name = module->pluginName;
+		description.fileOrIdentifier = module->pluginFile.getFullPathName();
+		description.lastFileModTime = module->pluginFile.getLastModificationTime();
+		description.pluginFormatName = "NAP";
+		description.category = "Effect";
+		description.manufacturerName = "Niall Moody";
+		description.version = "1.0";
+		description.numInputChannels = getTotalNumInputChannels();
+		description.numOutputChannels = getTotalNumOutputChannels();
+		description.isInstrument = false;
 	}
 }
 
@@ -271,111 +262,94 @@ void NAPInstance::processBlock(AudioSampleBuffer& buffer,
 {
 	if(plugin)
 	{
-		plugin->processAudio(buffer.getArrayOfChannels(),
-							 buffer.getArrayOfChannels(),
+		// Cast away const to match the plugin interface
+		plugin->processAudio(const_cast<float**>(buffer.getArrayOfWritePointers()),
+							 const_cast<float**>(buffer.getArrayOfReadPointers()),
 							 buffer.getNumSamples());
 	}
 }
 
 //------------------------------------------------------------------------------
-const String NAPInstance::getInputChannelName(const int channelIndex) const
+const String NAPInstance::getInputChannelName(int channelIndex) const
 {
-	String retval;
-
-	if(plugin)
-	{
-		if(channelIndex < plugin->getNumAudioInputs())
-			retval = plugin->getInputName(channelIndex).c_str();
-		else
-			retval = plugin->getParameterName(channelIndex - plugin->getNumAudioInputs()).c_str();
-	}
-
-	return retval;
+	return "Input " + String(channelIndex + 1);
 }
 
 //------------------------------------------------------------------------------
-const String NAPInstance::getOutputChannelName(const int channelIndex) const
+const String NAPInstance::getOutputChannelName(int channelIndex) const
 {
-	String retval;
-
-	if(plugin)
-		retval = plugin->getOutputName(channelIndex).c_str();
-
-	return retval;
-}
-
-//------------------------------------------------------------------------------
-AudioProcessorEditor *NAPInstance::createEditor()
-{
-	AudioProcessorEditor *retval = 0;
-
-	if(plugin)
-		retval = plugin->createEditor();
-
-	return retval;
+	return "Output " + String(channelIndex + 1);
 }
 
 //------------------------------------------------------------------------------
 bool NAPInstance::hasEditor() const
 {
-	bool retval = false;
+	return false;
+}
 
-	if(plugin)
-		retval = plugin->hasEditor();
-
-	return retval;
+//------------------------------------------------------------------------------
+AudioProcessorEditor* NAPInstance::createEditor()
+{
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
 int NAPInstance::getNumParameters()
 {
-	int retval = 0;
-
 	if(plugin)
-		retval = plugin->getNumParameters();
-
-	return retval;
+		return plugin->getNumParameters();
+	return 0;
 }
 
 //------------------------------------------------------------------------------
 const String NAPInstance::getParameterName(int parameterIndex)
 {
-	String retval;
-
 	if(plugin)
-		retval = plugin->getParameterName(parameterIndex).c_str();
-
-	return retval;
+		return plugin->getParameterName(parameterIndex);
+	return "";
 }
 
 //------------------------------------------------------------------------------
 float NAPInstance::getParameter(int parameterIndex)
 {
+	// NiallsAudioPlugin doesn't have getParameter method
+	// Return default value
 	return 0.0f;
 }
 
 //------------------------------------------------------------------------------
 const String NAPInstance::getParameterText(int parameterIndex)
 {
-	return T("");
+	// NiallsAudioPlugin doesn't have getParameterText method
+	// Return parameter name if available
+	if(plugin && parameterIndex < plugin->getNumParameters())
+		return plugin->getParameterName(parameterIndex).c_str();
+	return "";
 }
 
 //------------------------------------------------------------------------------
 void NAPInstance::setParameter(int parameterIndex, float newValue)
 {
-	
+	// NiallsAudioPlugin doesn't have setParameter method
+	// This is a no-op for now
 }
 
 //------------------------------------------------------------------------------
 void NAPInstance::getStateInformation(MemoryBlock &destData)
 {
-	
+	// Implementation for saving plugin state
 }
 
 //------------------------------------------------------------------------------
 void NAPInstance::setStateInformation(const void *data, int sizeInBytes)
 {
-	
+	// Implementation for loading plugin state
+}
+
+//------------------------------------------------------------------------------
+double NAPInstance::getTailLengthSeconds() const
+{
+	return 0.0;
 }
 
 //------------------------------------------------------------------------------
@@ -384,21 +358,21 @@ void NAPInstance::setStateInformation(const void *data, int sizeInBytes)
 static Array<NAPModuleHandle *> activeNAPModules;
 
 //------------------------------------------------------------------------------
-NAPModuleHandle::NAPModuleHandle(const File& file_):
-ReferenceCountedObject(),
-file(file_),
-pluginCreator(0),
-hModule(0)
+NAPModuleHandle::NAPModuleHandle(const File& file) :
+	pluginFile(file),
+	pluginCreator(nullptr),
+	pluginName(""),
+	hModule()  // Default construct DynamicLibrary
 {
 	activeNAPModules.add(this);
 
-	fullParentDirectoryPathName = file_.getParentDirectory().getFullPathName();
+	fullParentDirectoryPathName = file.getParentDirectory().getFullPathName();
 }
 
 //------------------------------------------------------------------------------
 NAPModuleHandle::~NAPModuleHandle()
 {
-	activeNAPModules.removeValue(this);
+	activeNAPModules.removeFirstMatchingValue(this);
 
 	close();
 }
@@ -406,24 +380,24 @@ NAPModuleHandle::~NAPModuleHandle()
 //------------------------------------------------------------------------------
 bool NAPModuleHandle::open()
 {
-	pluginName = file.getFileNameWithoutExtension();
-
-	hModule = PlatformUtilities::loadDynamicLibrary(file.getFullPathName());
-
-	if(hModule)
+	if(hModule.open(pluginFile.getFullPathName()))
 	{
-		pluginCreator = (NAPCreatePlugin)PlatformUtilities::getProcedureEntryPoint(hModule,
-																				   "createPlugin");
+		pluginCreator = (NAPCreatePlugin)hModule.getFunction("createPlugin");
+		if(pluginCreator != nullptr)
+		{
+			return true;
+		}
 	}
-
-	return pluginCreator != 0;
+	return false;
 }
 
 //------------------------------------------------------------------------------
 void NAPModuleHandle::close()
 {
-	if(hModule)
-		PlatformUtilities::freeDynamicLibrary(hModule);
+	if(hModule.getNativeHandle() != nullptr)
+	{
+		hModule.close();
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -435,7 +409,7 @@ NAPModuleHandle *NAPModuleHandle::findOrCreateModule(const File& file)
 	{
 		NAPModuleHandle* const module = (NAPModuleHandle *)activeNAPModules.getUnchecked(i);
 
-		if(module->file == file)
+		if(module->pluginFile == file)
 			return module;
 	}
 
@@ -456,4 +430,3 @@ NAPModuleHandle *NAPModuleHandle::findOrCreateModule(const File& file)
 
 	return m;
 }
-

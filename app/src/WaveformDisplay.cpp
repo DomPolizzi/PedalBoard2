@@ -11,7 +11,7 @@ WaveformDisplay::WaveformDisplay(AudioThumbnail *thumb, bool deleteThumb):
 		  AudioThumbnailCacheSingleton::getInstance()),*/
 readPointer(0.0f),
 newReadPointer(0.0f),
-backgroundColour(ColourScheme::getInstance().colours[L"Window Background"]),
+backgroundColour(ColourScheme::getInstance().colours["Window Background"]),
 deleteThumbnail(deleteThumb)
 {
 	if(thumb)
@@ -43,7 +43,7 @@ void WaveformDisplay::paint(juce::Graphics& g)
 	const double length = thumbnail->getTotalLength();
 	const Rectangle<int> tempRect(1, 1, getWidth()-2, getHeight()-2);
 
-	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+	g.fillAll(ColourScheme::getInstance().colours["Window Background"]);
 
 	g.setColour(Colours::black.withAlpha(0.25f));
 	g.drawRect(0, 0, getWidth(), getHeight());
@@ -51,16 +51,16 @@ void WaveformDisplay::paint(juce::Graphics& g)
 	if(length > 0)
 	{
 		//Draw the thumbnail.
-		g.setColour(ColourScheme::getInstance().colours[L"Waveform Colour"]);
+		g.setColour(ColourScheme::getInstance().colours["Waveform Colour"]);
 		thumbnail->drawChannels(g, tempRect, 0.0, length, 1.0f);
 
 		//Draw the readPointer.
-		g.setColour(ColourScheme::getInstance().colours[L"Text Colour"].withAlpha(0.25f));
+		g.setColour(ColourScheme::getInstance().colours["Text Colour"].withAlpha(0.25f));
 		x = 1.0f + (readPointer * (float)(getWidth()-2));
 		g.drawLine(x, 1.0f, x, (float)(getHeight()-1), 1.0f);
 
 		//Draw the length of the file.
-		g.setColour(ColourScheme::getInstance().colours[L"Text Colour"].withAlpha(0.25f));
+		g.setColour(ColourScheme::getInstance().colours["Text Colour"].withAlpha(0.25f));
 		g.setFont(10.0f);
 		tempstr << (int)(length/60.0) << ":" << String(((int)length)%60).paddedLeft('0', 2);
 		g.drawText(tempstr,
@@ -129,7 +129,7 @@ void WaveformDisplay::setBackgroundColour(const juce::Colour& col)
 
 WaveformDisplayLite::WaveformDisplayLite(AudioThumbnail& thumb):
 thumbnail(thumb),
-backgroundColour(ColourScheme::getInstance().colours[L"Window Background"])
+backgroundColour(ColourScheme::getInstance().colours["Window Background"])
 {
 	thumbnail.addChangeListener(this);
 }
@@ -147,7 +147,7 @@ void WaveformDisplayLite::paint(juce::Graphics& g)
 	const double length = thumbnail.getTotalLength();
 	const Rectangle<int> tempRect(1, 1, getWidth()-2, getHeight()-2);
 
-	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+	g.fillAll(ColourScheme::getInstance().colours["Window Background"]);
 
 	g.setColour(Colours::black.withAlpha(0.25f));
 	g.drawRect(0, 0, getWidth(), getHeight());
@@ -155,11 +155,11 @@ void WaveformDisplayLite::paint(juce::Graphics& g)
 	if(length > 0)
 	{
 		//Draw the thumbnail.
-		g.setColour(ColourScheme::getInstance().colours[L"Waveform Colour"]);
+		g.setColour(ColourScheme::getInstance().colours["Waveform Colour"]);
 		thumbnail.drawChannels(g, tempRect, 0.0, length, 1.0f);
 
 		//Draw the length of the file.
-		g.setColour(ColourScheme::getInstance().colours[L"Text Colour"].withAlpha(0.25f));
+		g.setColour(ColourScheme::getInstance().colours["Text Colour"].withAlpha(0.25f));
 		g.setFont(10.0f);
 		tempstr << (int)(length/60.0) << ":" << String(((int)length)%60).paddedLeft('0', 2);
 		g.drawText(tempstr,
@@ -183,3 +183,4 @@ void WaveformDisplayLite::setBackgroundColour(const juce::Colour& col)
 {
 	backgroundColour = col;
 }
+

@@ -36,137 +36,137 @@ PreferencesDialog::PreferencesDialog (MainPanel *panel, const String& port, cons
       fixedSizeButton (0),
       pdlAudioSettingsButton (0)
 {
-    addAndMakeVisible (oscPortLabel = new Label (L"oscPortLabel",
-                                                 L"OSC Port:"));
+    addAndMakeVisible (oscPortLabel = new Label ("oscPortLabe",
+                                                  "OSC Port:"));
     oscPortLabel->setFont (Font (15.0000f, Font::plain));
     oscPortLabel->setJustificationType (Justification::centredLeft);
     oscPortLabel->setEditable (false, false, false);
-    oscPortLabel->setColour (TextEditor::textColourId, Colours::black);
-    oscPortLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    oscPortLabel->setColour (juce::Label::textColourId, Colours::black);
+    oscPortLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (oscPortEditor = new TextEditor (L"oscPortEditor"));
+    addAndMakeVisible (oscPortEditor = new TextEditor ("oscPortEditor"));
     oscPortEditor->setMultiLine (false);
     oscPortEditor->setReturnKeyStartsNewLine (false);
     oscPortEditor->setReadOnly (false);
     oscPortEditor->setScrollbarsShown (true);
     oscPortEditor->setCaretVisible (true);
     oscPortEditor->setPopupMenuEnabled (true);
-    oscPortEditor->setText (L"5678");
+    oscPortEditor->setText ("5678");
 
-    addAndMakeVisible (oscLabel = new Label (L"oscLabel",
-                                             L"Open Sound Control Options"));
+    addAndMakeVisible (oscLabel = new Label ("oscLabe",
+                                              "Open Sound Control Options"));
     oscLabel->setFont (Font (15.0000f, Font::bold));
     oscLabel->setJustificationType (Justification::centredLeft);
     oscLabel->setEditable (false, false, false);
-    oscLabel->setColour (TextEditor::textColourId, Colours::black);
-    oscLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    oscLabel->setColour (juce::Label::textColourId, Colours::black);
+    oscLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (oscMulticastLabel = new Label (L"oscMulticastLabel",
-                                                      L"OSC Multicast Address:"));
+    addAndMakeVisible (oscMulticastLabel = new Label ("oscMulticastLabe",
+                                                       "OSC Multicast Address:"));
     oscMulticastLabel->setFont (Font (15.0000f, Font::plain));
     oscMulticastLabel->setJustificationType (Justification::centredLeft);
     oscMulticastLabel->setEditable (false, false, false);
-    oscMulticastLabel->setColour (TextEditor::textColourId, Colours::black);
-    oscMulticastLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    oscMulticastLabel->setColour (juce::Label::textColourId, Colours::black);
+    oscMulticastLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (oscMulticastEditor = new TextEditor (L"oscMulticastEditor"));
+    addAndMakeVisible (oscMulticastEditor = new TextEditor ("oscMulticastEditor"));
     oscMulticastEditor->setMultiLine (false);
     oscMulticastEditor->setReturnKeyStartsNewLine (false);
     oscMulticastEditor->setReadOnly (false);
     oscMulticastEditor->setScrollbarsShown (true);
     oscMulticastEditor->setCaretVisible (true);
     oscMulticastEditor->setPopupMenuEnabled (true);
-    oscMulticastEditor->setText (String::empty);
+    oscMulticastEditor->setText (juce::String());
 
-    addAndMakeVisible (multicastHintLabel = new Label (L"multicastHintLabel",
-                                                       L"(leave blank for a one-to-one connection)"));
+    addAndMakeVisible (multicastHintLabel = new Label ("multicastHintLabe",
+                                                        "(leave blank for a one-to-one connection)"));
     multicastHintLabel->setFont (Font (15.0000f, Font::plain));
     multicastHintLabel->setJustificationType (Justification::centredLeft);
     multicastHintLabel->setEditable (false, false, false);
     multicastHintLabel->setColour (Label::textColourId, Colour (0x80000000));
-    multicastHintLabel->setColour (TextEditor::textColourId, Colours::black);
-    multicastHintLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    multicastHintLabel->setColour (juce::Label::textColourId, Colours::black);
+    multicastHintLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (ioOptionsLabel = new Label (L"ioOptionsLabel",
-                                                   L"Visible I/O Nodes"));
+    addAndMakeVisible (ioOptionsLabel = new Label ("ioOptionsLabe",
+                                                    "Visible I/O Nodes"));
     ioOptionsLabel->setFont (Font (15.0000f, Font::bold));
     ioOptionsLabel->setJustificationType (Justification::centredLeft);
     ioOptionsLabel->setEditable (false, false, false);
-    ioOptionsLabel->setColour (TextEditor::textColourId, Colours::black);
-    ioOptionsLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    ioOptionsLabel->setColour (juce::Label::textColourId, Colours::black);
+    ioOptionsLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (audioInputButton = new ToggleButton (L"audioInputButton"));
-    audioInputButton->setButtonText (L"Audio Input");
+    addAndMakeVisible (audioInputButton = new ToggleButton ("audioInputButton"));
+    audioInputButton->setButtonText ("Audio Input");
     audioInputButton->addListener (this);
-    audioInputButton->setToggleState (true, false);
+    audioInputButton->setToggleState (true, juce::NotificationType::dontSendNotification);
 
-    addAndMakeVisible (midiInputButton = new ToggleButton (L"midiInputButton"));
-    midiInputButton->setButtonText (L"Midi Input");
+    addAndMakeVisible (midiInputButton = new ToggleButton ("midiInputButton"));
+    midiInputButton->setButtonText ("Midi Input");
     midiInputButton->addListener (this);
-    midiInputButton->setToggleState (true, false);
+    midiInputButton->setToggleState (true, juce::NotificationType::dontSendNotification);
 
-    addAndMakeVisible (oscInputButton = new ToggleButton (L"oscInputButton"));
-    oscInputButton->setButtonText (L"OSC Input");
+    addAndMakeVisible (oscInputButton = new ToggleButton ("oscInputButton"));
+    oscInputButton->setButtonText ("OSC Input");
     oscInputButton->addListener (this);
-    oscInputButton->setToggleState (true, false);
+    oscInputButton->setToggleState (true, juce::NotificationType::dontSendNotification);
 
-    addAndMakeVisible (otherLabel = new Label (L"otherLabel",
-                                               L"Other Options"));
+    addAndMakeVisible (otherLabel = new Label ("otherLabe",
+                                               "Other Options"));
     otherLabel->setFont (Font (15.0000f, Font::bold));
     otherLabel->setJustificationType (Justification::centredLeft);
     otherLabel->setEditable (false, false, false);
-    otherLabel->setColour (TextEditor::textColourId, Colours::black);
-    otherLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    otherLabel->setColour (juce::Label::textColourId, Colours::black);
+    otherLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (mappingsWindowButton = new ToggleButton (L"mappingsWindowButton"));
-    mappingsWindowButton->setButtonText (L"Open mappings window on successful param connection");
+    addAndMakeVisible (mappingsWindowButton = new ToggleButton ("mappingsWindowButton"));
+    mappingsWindowButton->setButtonText ("Open mappings window on successful param connection");
     mappingsWindowButton->addListener (this);
-    mappingsWindowButton->setToggleState (true, false);
+    mappingsWindowButton->setToggleState (true, juce::NotificationType::dontSendNotification);
 
-    addAndMakeVisible (loopPatchesButton = new ToggleButton (L"loopPatchesButton"));
-    loopPatchesButton->setButtonText (L"Loop next/prev patch action");
+    addAndMakeVisible (loopPatchesButton = new ToggleButton ("loopPatchesButton"));
+    loopPatchesButton->setButtonText ("Loop next/prev patch action");
     loopPatchesButton->addListener (this);
-    loopPatchesButton->setToggleState (true, false);
+    loopPatchesButton->setToggleState (true, juce::NotificationType::dontSendNotification);
 
-    addAndMakeVisible (windowsOnTopButton = new ToggleButton (L"windowsOnTopButton"));
-    windowsOnTopButton->setButtonText (L"Set plugin windows Always On Top");
+    addAndMakeVisible (windowsOnTopButton = new ToggleButton ("windowsOnTopButton"));
+    windowsOnTopButton->setButtonText ("Set plugin windows Always On Top");
     windowsOnTopButton->addListener (this);
 
-    addAndMakeVisible (ignorePinNamesButton = new ToggleButton (L"ignorePinNamesButton"));
-    ignorePinNamesButton->setButtonText (L"Ignore plugin pin names");
+    addAndMakeVisible (ignorePinNamesButton = new ToggleButton ("ignorePinNamesButton"));
+    ignorePinNamesButton->setButtonText ("Ignore plugin pin names");
     ignorePinNamesButton->addListener (this);
 
-    addAndMakeVisible (midiLabel = new Label (L"midiLabel",
-                                              L"Midi Options"));
+    addAndMakeVisible (midiLabel = new Label ("midiLabe",
+                                              "Midi Options"));
     midiLabel->setFont (Font (15.0000f, Font::bold));
     midiLabel->setJustificationType (Justification::centredLeft);
     midiLabel->setEditable (false, false, false);
-    midiLabel->setColour (TextEditor::textColourId, Colours::black);
-    midiLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    midiLabel->setColour (juce::Label::textColourId, Colours::black);
+    midiLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (midiProgramChangeButton = new ToggleButton (L"midiProgramChangeButton"));
-    midiProgramChangeButton->setButtonText (L"Program Change messages switch patches");
+    addAndMakeVisible (midiProgramChangeButton = new ToggleButton ("midiProgramChangeButton"));
+    midiProgramChangeButton->setButtonText ("Program Change messages switch patches");
     midiProgramChangeButton->addListener (this);
 
-    addAndMakeVisible (mmcTransportButton = new ToggleButton (L"mmcTransportButton"));
-    mmcTransportButton->setButtonText (L"Main transport responds to MMC");
+    addAndMakeVisible (mmcTransportButton = new ToggleButton ("mmcTransportButton"));
+    mmcTransportButton->setButtonText ("Main transport responds to MMC");
     mmcTransportButton->addListener (this);
 
-    addAndMakeVisible (useTrayIconButton = new ToggleButton (L"useTrayIconButton"));
-    useTrayIconButton->setButtonText (L"Display tray icon (not OSX)");
+    addAndMakeVisible (useTrayIconButton = new ToggleButton ("useTrayIconButton"));
+    useTrayIconButton->setButtonText ("Display tray icon (not OSX)");
     useTrayIconButton->addListener (this);
 
-    addAndMakeVisible (startInTrayButton = new ToggleButton (L"startInTrayButton"));
-    startInTrayButton->setButtonText (L"Start in tray (not OSX)");
+    addAndMakeVisible (startInTrayButton = new ToggleButton ("startInTrayButton"));
+    startInTrayButton->setButtonText ("Start in tray (not OSX)");
     startInTrayButton->addListener (this);
 
-    addAndMakeVisible (fixedSizeButton = new ToggleButton (L"fixedSizeButton"));
-    fixedSizeButton->setButtonText (L"Force fixed-size plugin windows");
+    addAndMakeVisible (fixedSizeButton = new ToggleButton ("fixedSizeButton"));
+    fixedSizeButton->setButtonText ("Force fixed-size plugin windows");
     fixedSizeButton->addListener (this);
-    fixedSizeButton->setToggleState (true, false);
+    fixedSizeButton->setToggleState (true, juce::NotificationType::dontSendNotification);
 
-    addAndMakeVisible (pdlAudioSettingsButton = new ToggleButton (L"pdlAudioSettingsButton"));
-    pdlAudioSettingsButton->setButtonText (L"Save audio settings in .pdl files");
+    addAndMakeVisible (pdlAudioSettingsButton = new ToggleButton ("pdlAudioSettingsButton"));
+    pdlAudioSettingsButton->setButtonText ("Save audio settings in .pdl files");
     pdlAudioSettingsButton->addListener (this);
 
 
@@ -184,27 +184,27 @@ PreferencesDialog::PreferencesDialog (MainPanel *panel, const String& port, cons
 	oscPortEditor->addListener(this);
 	oscMulticastEditor->addListener(this);
 
-	audioInputButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("AudioInput", true), false);
-	midiInputButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("MidiInput", true), false);
-	oscInputButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("OscInput", true), false);
+	audioInputButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("AudioInput", true), juce::NotificationType::dontSendNotification);
+	midiInputButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("MidiInput", true), juce::NotificationType::dontSendNotification);
+	oscInputButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("OscInput", true), juce::NotificationType::dontSendNotification);
 
-	midiProgramChangeButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("midiProgramChange", false), false);
-	mmcTransportButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("mmcTransport", false), false);
+	midiProgramChangeButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("midiProgramChange", false), juce::NotificationType::dontSendNotification);
+	mmcTransportButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("mmcTransport", false), juce::NotificationType::dontSendNotification);
 
-	mappingsWindowButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("AutoMappingsWindow", true), false);
-	loopPatchesButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("LoopPatches", true), false);
-	windowsOnTopButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("WindowsOnTop", false), false);
-	ignorePinNamesButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("IgnorePinNames", false), false);
+	mappingsWindowButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("AutoMappingsWindow", true), juce::NotificationType::dontSendNotification);
+	loopPatchesButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("LoopPatches", true), juce::NotificationType::dontSendNotification);
+	windowsOnTopButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("WindowsOnTop", false), juce::NotificationType::dontSendNotification);
+	ignorePinNamesButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("IgnorePinNames", false), juce::NotificationType::dontSendNotification);
 
-	fixedSizeButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("fixedSizeWindows", true), false);
+	fixedSizeButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("fixedSizeWindows", true), juce::NotificationType::dontSendNotification);
 
-	pdlAudioSettingsButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("pdlAudioSettings", false), false);
+	pdlAudioSettingsButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("pdlAudioSettings", false), juce::NotificationType::dontSendNotification);
 
 #ifndef __APPLE__
 	useTrayIcon = PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("useTrayIcon", false);
-	useTrayIconButton->setToggleState(useTrayIcon, false);
+	useTrayIconButton->setToggleState(useTrayIcon, juce::NotificationType::dontSendNotification);
 	if(useTrayIcon)
-		startInTrayButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("startInTray", false), false);
+		startInTrayButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("startInTray", false), juce::NotificationType::dontSendNotification);
 	else
 	{
 		startInTrayButton->setToggleState(false, false);
@@ -215,18 +215,18 @@ PreferencesDialog::PreferencesDialog (MainPanel *panel, const String& port, cons
 	startInTrayButton->setEnabled(false);
 #endif
 
-	oscPortLabel->setColour(TextEditor::textColourId,
-							ColourScheme::getInstance().colours[L"Text Colour"]);
-	oscLabel->setColour(TextEditor::textColourId,
-						ColourScheme::getInstance().colours[L"Text Colour"]);
-	oscMulticastLabel->setColour(TextEditor::textColourId,
-								 ColourScheme::getInstance().colours[L"Text Colour"]);
-	multicastHintLabel->setColour(TextEditor::textColourId,
-								  ColourScheme::getInstance().colours[L"Text Colour"]);
-	ioOptionsLabel->setColour(TextEditor::textColourId,
-							  ColourScheme::getInstance().colours[L"Text Colour"]);
-	otherLabel->setColour(TextEditor::textColourId,
-						  ColourScheme::getInstance().colours[L"Text Colour"]);
+	oscPortLabel->setColour(juce::Label::textColourId,
+						ColourScheme::getInstance().colours["Text Colour"]);
+	oscLabel->setColour(juce::Label::textColourId,
+					ColourScheme::getInstance().colours["Text Colour"]);
+	oscMulticastLabel->setColour(juce::Label::textColourId,
+						 ColourScheme::getInstance().colours["Text Colour"]);
+	multicastHintLabel->setColour(juce::Label::textColourId,
+						  ColourScheme::getInstance().colours["Text Colour"]);
+	ioOptionsLabel->setColour(juce::Label::textColourId,
+					  ColourScheme::getInstance().colours["Text Colour"]);
+	otherLabel->setColour(juce::Label::textColourId,
+					  ColourScheme::getInstance().colours["Text Colour"]);
 
     //[/UserPreSize]
 
@@ -286,9 +286,9 @@ void PreferencesDialog::paint (Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 
-	g.fillAll (ColourScheme::getInstance().colours[L"Window Background"]);
+	g.fillAll (ColourScheme::getInstance().colours["Window Background"]);
 
-    g.setColour (ColourScheme::getInstance().colours[L"Dialog Inner Background"]);
+    g.setColour (ColourScheme::getInstance().colours["Dialog Inner Background"]);
     g.fillRect (12, 132, getWidth() - 24, 82);
 
     g.setColour (Colour (0x40000000));
@@ -521,7 +521,7 @@ BEGIN_JUCER_METADATA
     <RECT pos="12 132 24M 82" fill="solid: ffffffff" hasStroke="1" stroke="1, mitered, butt"
           strokeColour="solid: 40000000"/>
   </BACKGROUND>
-  <LABEL name="oscPortLabel" id="25a7e3b1bb323992" memberName="oscPortLabel"
+  <LABEL name="oscPortLabe" id="25a7e3b1bb323992" memberName="oscPortLabe"
          virtualName="" explicitFocusOrder="0" pos="8 40 72 24" edTextCol="ff000000"
          edBkgCol="0" labelText="OSC Port:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
@@ -530,12 +530,12 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="80 40 64 24" initialText="5678"
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
-  <LABEL name="oscLabel" id="b47f1edc63447709" memberName="oscLabel" virtualName=""
+  <LABEL name="oscLabe" id="b47f1edc63447709" memberName="oscLabe" virtualName=""
          explicitFocusOrder="0" pos="0 8 208 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Open Sound Control Options" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="1" italic="0" justification="33"/>
-  <LABEL name="oscMulticastLabel" id="591f82ca7e2ff8d" memberName="oscMulticastLabel"
+  <LABEL name="oscMulticastLabe" id="591f82ca7e2ff8d" memberName="oscMulticastLabe"
          virtualName="" explicitFocusOrder="0" pos="8 72 160 24" edTextCol="ff000000"
          edBkgCol="0" labelText="OSC Multicast Address:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
@@ -544,12 +544,12 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="168 72 112 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
-  <LABEL name="multicastHintLabel" id="b799cdf5320811b0" memberName="multicastHintLabel"
+  <LABEL name="multicastHintLabe" id="b799cdf5320811b0" memberName="multicastHintLabe"
          virtualName="" explicitFocusOrder="0" pos="280 72 272 24" textCol="80000000"
          edTextCol="ff000000" edBkgCol="0" labelText="(leave blank for a one-to-one connection)"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
-  <LABEL name="ioOptionsLabel" id="2926986b1304b84f" memberName="ioOptionsLabel"
+  <LABEL name="ioOptionsLabe" id="2926986b1304b84f" memberName="ioOptionsLabe"
          virtualName="" explicitFocusOrder="0" pos="0 104 136 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Visible I/O Nodes" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
@@ -563,7 +563,7 @@ BEGIN_JUCER_METADATA
   <TOGGLEBUTTON name="oscInputButton" id="55b04d19b16b9942" memberName="oscInputButton"
                 virtualName="" explicitFocusOrder="0" pos="16 184 88 24" buttonText="OSC Input"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
-  <LABEL name="otherLabel" id="202db8c3e9a34bc7" memberName="otherLabel"
+  <LABEL name="otherLabe" id="202db8c3e9a34bc7" memberName="otherLabe"
          virtualName="" explicitFocusOrder="0" pos="0 304 150 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Other Options" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
@@ -580,7 +580,7 @@ BEGIN_JUCER_METADATA
   <TOGGLEBUTTON name="ignorePinNamesButton" id="431bd0e29682e3d8" memberName="ignorePinNamesButton"
                 virtualName="" explicitFocusOrder="0" pos="16 400 176 24" buttonText="Ignore plugin pin names"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <LABEL name="midiLabel" id="f7b44c527444165d" memberName="midiLabel"
+  <LABEL name="midiLabe" id="f7b44c527444165d" memberName="midiLabe"
          virtualName="" explicitFocusOrder="0" pos="0 224 104 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Midi Options" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
@@ -608,3 +608,4 @@ BEGIN_JUCER_METADATA
 END_JUCER_METADATA
 */
 #endif
+

@@ -1,31 +1,29 @@
 #ifndef __JUCER_HEADER_USERPRESETWINDOW_USERPRESETWINDOW_525C7B3E__
 #define __JUCER_HEADER_USERPRESETWINDOW_USERPRESETWINDOW_525C7B3E__
 
-#include "ColourScheme.h"
 #include <JuceHeader.h>
+#include <memory>
+#include "ColourScheme.h"
 
-class UserPresetWindow  : public Component,
-                          public ButtonListener
+class UserPresetWindow  : public juce::Component,
+                          public juce::Button::Listener
 {
 public:
-    //==========================================================================
-    UserPresetWindow (KnownPluginList *knownPlugins);
+    UserPresetWindow (juce::KnownPluginList *knownPlugins);
     ~UserPresetWindow();
 
-    void paint (Graphics& g);
+    void paint (juce::Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
-
-
+    void buttonClicked (juce::Button* buttonThatWasClicked);
 
 private:
-	JUCE_LEAK_DETECTOR(UserPresetWindow)
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UserPresetWindow)
 
-	class PresetItem : public TreeViewItem
+	class PresetItem : public juce::TreeViewItem
 	{
 	  public:
 		///	Constructor.
-		PresetItem(const File& preset):
+		PresetItem(const juce::File& preset):
 		name(preset.getFileNameWithoutExtension()),
 		presetFile(preset)
 		{
@@ -42,8 +40,8 @@ private:
 		{
 			if(isSelected())
 			{
-				Colour highlight = ColourScheme::getInstance().colours[L"List Selected Colour"];
-				ColourGradient basil(highlight.brighter(0.4f),
+				juce::Colour highlight = ColourScheme::getInstance().colours["List Selected Colour"];
+				juce::ColourGradient basil(highlight.brighter(0.4f),
 									 0.0f,
 									 0.0f,
 									 highlight.darker(0.125f),
@@ -61,27 +59,27 @@ private:
 									   4.0f);
 			}
 
-			g.setColour(ColourScheme::getInstance().colours[L"Text Colour"]);
+			g.setColour(ColourScheme::getInstance().colours["Text Colour"]);
 			g.setFont(16.0f);
-			g.drawText(name, 4, 0, width, height, Justification::centredLeft, false);
+			g.drawText(name, 4, 0, width, height, juce::Justification::centredLeft, false);
 		};
 
 		///	Returns this preset's file.
-		File& getFile() {return presetFile;};
+		juce::File& getFile() {return presetFile;};
 
 	  private:
 		///	The name of this preset.
-		String name;
+		juce::String name;
 
 		///	This preset's file.
-		File presetFile;
+		juce::File presetFile;
 	};
 	///	The plugin item for the TreeView.
-	class PluginItem : public TreeViewItem
+	class PluginItem : public juce::TreeViewItem
 	{
 	  public:
 		///	Constructor.
-		PluginItem(const File& plugin):
+		PluginItem(const juce::File& plugin):
 		name(plugin.getFileName()),
 		pluginDir(plugin)
 		{
@@ -100,11 +98,11 @@ private:
 		void itemOpennessChanged(bool isNowOpen)
 		{
 			int i;
-			Array<File> presets;
+			juce::Array<juce::File> presets;
 
 			clearSubItems();
 
-			pluginDir.findChildFiles(presets, File::findFiles, false, L"*.fxp");
+			pluginDir.findChildFiles(presets, juce::File::findFiles, false, "*.fxp");
 			for(i=0;i<presets.size();++i)
 				addSubItem(new PresetItem(presets[i]));
 		};
@@ -112,19 +110,19 @@ private:
 		///	Draws the item.
 		void paintItem(Graphics &g, int width, int height)
 		{
-			g.setColour(ColourScheme::getInstance().colours[L"Text Colour"]);
-			g.setFont(Font(16.0f, Font::bold));
-			g.drawText(name, 0, 0, width, height, Justification::centredLeft, false);
+			g.setColour(ColourScheme::getInstance().colours["Text Colour"]);
+			g.setFont(juce::Font(16.0f, juce::Font::bold));
+			g.drawText(name, 0, 0, width, height, juce::Justification::centredLeft, false);
 		};
 	  private:
 		///	The name of this plugin.
-		String name;
+		juce::String name;
 
 		///	This plugin's preset directory.
-		File pluginDir;
+		juce::File pluginDir;
 	};
 	///	The root item in the mappingsTree.
-	class RootItem : public TreeViewItem
+	class RootItem : public juce::TreeViewItem
 	{
 	  public:
 		///	Constructor.
@@ -143,12 +141,12 @@ private:
 		void itemOpennessChanged(bool isNowOpen)
 		{
 			int i;
-			File presetDir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile(L"Pedalboard2").getChildFile(L"presets");
-			Array<File> pluginDirs;
+			juce::File presetDir = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory).getChildFile("Pedalboard2").getChildFile("presets");
+			juce::Array<juce::File> pluginDirs;
 
 			clearSubItems();
 
-			presetDir.findChildFiles(pluginDirs, File::findDirectories, false);
+			presetDir.findChildFiles(pluginDirs, juce::File::findDirectories, false);
 			for(i=0;i<pluginDirs.size();++i)
 				addSubItem(new PluginItem(pluginDirs[i]));
 		};
@@ -158,23 +156,14 @@ private:
 	RootItem treeRoot;
 
 	///	Used by the Import... button.
-	KnownPluginList *knownPluginList;
+	juce::KnownPluginList *knownPluginList;
 
-    //[/UserVariables]
-
-    //==========================================================================
-    TreeView* presetList;
-    TextButton* copyButton;
-    TextButton* removeButton;
-    TextButton* importButton;
-    TextButton* exportButton;
-    TextButton* renameButton;
-
-
-    //==========================================================================
-    // (prevent copy constructor and operator= being generated..)
-    UserPresetWindow (const UserPresetWindow&);
-    const UserPresetWindow& operator= (const UserPresetWindow&);
+    juce::TreeView* presetList;
+    juce::TextButton* copyButton;
+    juce::TextButton* removeButton;
+    juce::TextButton* importButton;
+    juce::TextButton* exportButton;
+    juce::TextButton* renameButton;
 };
 
 

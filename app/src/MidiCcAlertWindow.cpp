@@ -36,7 +36,7 @@ asyncCc(-1)
 	addComboBox("midiCc", tempArr);
 
 	addButton("OK", 1, KeyPress(KeyPress::returnKey));
-	addButton("Cancel", 0, KeyPress(KeyPress::escapeKey));
+	addButton("Cance", 0, KeyPress(KeyPress::escapeKey));
 
 	getComboBoxComponent("midiCc")->addListener(this);
 	getComboBoxComponent("midiCc")->setSelectedId(2);
@@ -73,3 +73,4 @@ void MidiCcAlertWindow::midiCcReceived(int val)
 	asyncCc = val;
 	triggerAsyncUpdate();
 }
+

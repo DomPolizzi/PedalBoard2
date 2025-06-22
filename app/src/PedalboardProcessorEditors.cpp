@@ -45,7 +45,7 @@ processor(proc)
 	slider->setTopLeftPosition(0, 0);
 	slider->setSize(64, 64);
 	slider->setColour(Slider::rotarySliderFillColourId,
-					  ColourScheme::getInstance().colours[L"Level Dial Colour"]);
+					  ColourScheme::getInstance().colours["Level Dial Colour"]);
 	addAndMakeVisible(slider);
 
 	startTimer(60);
@@ -90,7 +90,7 @@ setPos(false)
 	slider->setTopLeftPosition(0, 0);
 	slider->setSize(192, 192);
 	slider->setColour(Slider::rotarySliderFillColourId,
-					  ColourScheme::getInstance().colours[L"Level Dial Colour"]);
+					  ColourScheme::getInstance().colours["Level Dial Colour"]);
 	addAndMakeVisible(slider);
 
 	setSize(192, 192);
@@ -138,7 +138,7 @@ void LevelEditor::resized()
 //------------------------------------------------------------------------------
 void LevelEditor::paint(Graphics& g)
 {
-	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+	g.fillAll(ColourScheme::getInstance().colours["Window Background"]);
 }
 
 //------------------------------------------------------------------------------
@@ -154,11 +154,7 @@ void LevelEditor::timerCallback()
 			setPos = true;
 		else if(peer)
 		{
-			peer->setBounds(parentBounds.getX(),
-							parentBounds.getY(),
-							parentBounds.getWidth(),
-							parentBounds.getHeight(),
-							false);
+			peer->setBounds(parentBounds, false);
 			setPos = true;
 		}
 	}
@@ -214,7 +210,7 @@ void FilePlayerEditor::resized()
 //------------------------------------------------------------------------------
 void FilePlayerEditor::paint(Graphics& g)
 {
-	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+	g.fillAll(ColourScheme::getInstance().colours["Window Background"]);
 }
 
 //------------------------------------------------------------------------------
@@ -228,11 +224,7 @@ void FilePlayerEditor::timerCallback()
 			setPos = true;
 		else if(peer)
 		{
-			peer->setBounds(parentBounds.getX(),
-							parentBounds.getY(),
-							parentBounds.getWidth(),
-							parentBounds.getHeight(),
-							false);
+			peer->setBounds(parentBounds, false);
 			setPos = true;
 			stopTimer();
 		}
@@ -244,14 +236,14 @@ void FilePlayerEditor::timerCallback()
 OutputToggleControl::OutputToggleControl(OutputToggleProcessor *proc):
 processor(proc)
 {
-	ScopedPointer<Drawable> im1(JuceHelperStuff::loadSVGFromMemory(Vectors::outputtoggle1_svg,
+	std::unique_ptr<Drawable> im1(JuceHelperStuff::loadSVGFromMemory(Vectors::outputtoggle1_svg,
 																   Vectors::outputtoggle1_svgSize));
-	ScopedPointer<Drawable> im2(JuceHelperStuff::loadSVGFromMemory(Vectors::outputtoggle2_svg,
+	std::unique_ptr<Drawable> im2(JuceHelperStuff::loadSVGFromMemory(Vectors::outputtoggle2_svg,
 																   Vectors::outputtoggle2_svgSize));
 
 	toggleButton = new DrawableButton("toggleButton",
 									  DrawableButton::ImageFitted);
-	toggleButton->setImages(im1, 0, 0, 0, im2);
+	toggleButton->setImages(im1.get(), 0, 0, 0, im2.get());
 	toggleButton->setColour(DrawableButton::backgroundColourId,
 							Colours::transparentBlack);
 	toggleButton->setColour(DrawableButton::backgroundOnColourId,
@@ -276,7 +268,7 @@ OutputToggleControl::~OutputToggleControl()
 //------------------------------------------------------------------------------
 void OutputToggleControl::timerCallback()
 {
-	toggleButton->setToggleState(processor->getParameter(0) > 0.5f, false);
+	toggleButton->setToggleState(processor->getParameter(0) > 0.5f, juce::NotificationType::dontSendNotification);
 }
 
 //------------------------------------------------------------------------------
@@ -293,14 +285,14 @@ AudioProcessorEditor(processor),
 parentBounds(windowBounds),
 setPos(false)
 {
-	ScopedPointer<Drawable> im1(JuceHelperStuff::loadSVGFromMemory(Vectors::outputtoggle1_svg,
+	std::unique_ptr<Drawable> im1(JuceHelperStuff::loadSVGFromMemory(Vectors::outputtoggle1_svg,
 																   Vectors::outputtoggle1_svgSize));
-	ScopedPointer<Drawable> im2(JuceHelperStuff::loadSVGFromMemory(Vectors::outputtoggle2_svg,
+	std::unique_ptr<Drawable> im2(JuceHelperStuff::loadSVGFromMemory(Vectors::outputtoggle2_svg,
 																   Vectors::outputtoggle2_svgSize));
 
 	toggleButton = new DrawableButton("toggleButton",
 									  DrawableButton::ImageFitted);
-	toggleButton->setImages(im1, 0, 0, 0, im2);
+	toggleButton->setImages(im1.get(), 0, 0, 0, im2.get());
 	toggleButton->setColour(DrawableButton::backgroundColourId,
 							Colours::transparentBlack);
 	toggleButton->setColour(DrawableButton::backgroundOnColourId,
@@ -341,13 +333,13 @@ void OutputToggleEditor::resized()
 //------------------------------------------------------------------------------
 void OutputToggleEditor::paint(Graphics& g)
 {
-	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+	g.fillAll(ColourScheme::getInstance().colours["Window Background"]);
 }
 
 //------------------------------------------------------------------------------
 void OutputToggleEditor::timerCallback()
 {
-	toggleButton->setToggleState(getAudioProcessor()->getParameter(0) > 0.5f, false);
+	toggleButton->setToggleState(getAudioProcessor()->getParameter(0) > 0.5f, juce::NotificationType::dontSendNotification);
 
 	if(!setPos)
 	{
@@ -357,11 +349,7 @@ void OutputToggleEditor::timerCallback()
 			setPos = true;
 		else if(peer)
 		{
-			peer->setBounds(parentBounds.getX(),
-							parentBounds.getY(),
-							parentBounds.getWidth(),
-							parentBounds.getHeight(),
-							false);
+			peer->setBounds(parentBounds, false);
 			setPos = true;
 		}
 	}
@@ -417,9 +405,9 @@ void VuMeterControl::paint(Graphics& g)
 					  (uint8)((255 * levRight) + (191 * (1.0f-levRight))),
 					  (uint8)((0 * levRight) + (0 * (1.0f-levRight))),
 					  (uint8)(127 * levRight));*/
-	Colour topColour1 = colours[L"VU Meter Upper Colour"].withMultipliedBrightness(levLeft);
-	Colour topColour2 = colours[L"VU Meter Upper Colour"].withMultipliedBrightness(levRight);
-	Colour bottomColour = colours[L"VU Meter Lower Colour"];
+	Colour topColour1 = colours["VU Meter Upper Colour"].withMultipliedBrightness(levLeft);
+	Colour topColour2 = colours["VU Meter Upper Colour"].withMultipliedBrightness(levRight);
+	Colour bottomColour = colours["VU Meter Lower Colour"];
 	ColourGradient grad1(topColour1,
 						 0,
 						 0,
@@ -437,7 +425,7 @@ void VuMeterControl::paint(Graphics& g)
 
 	if(levelLeft >= 0.0f)
 	{
-		g.setColour(colours[L"VU Meter Over Colour"]);
+		g.setColour(colours["VU Meter Over Colour"]);
 
 		g.fillRect(0.0f, 0.0f, (width*0.5f)-2.0f, redSize);
 	}
@@ -452,7 +440,7 @@ void VuMeterControl::paint(Graphics& g)
 
 	if(levelRight >= 0.0f)
 	{
-		g.setColour(colours[L"VU Meter Over Colour"]);
+		g.setColour(colours["VU Meter Over Colour"]);
 
 		g.fillRect((width*0.5f)+2.0f, 0.0f, (width*0.5f)-2.0f, redSize);
 	}
@@ -465,7 +453,7 @@ void VuMeterControl::paint(Graphics& g)
 				   heightRight);
 	}
 
-	g.setColour(colours[L"Text Colour"].withAlpha(0.25f));
+	g.setColour(colours["Text Colour"].withAlpha(0.25f));
 	g.drawLine(0.0f, redSize, width, redSize);
 	g.drawLine(0.0f, sixDb, width, sixDb);
 	g.drawLine(0.0f, twelveDb, width, twelveDb);
@@ -479,36 +467,36 @@ void VuMeterControl::paint(Graphics& g)
 	else
 		textSize = width/8.0f;
 	g.setFont(textSize);
-	g.setColour(colours[L"Text Colour"].withAlpha(0.5f));
-	g.drawText(L"0dB",
+	g.setColour(colours["Text Colour"].withAlpha(0.5f));
+	g.drawText("0dB",
 			   (int)((width/2)-textSize),
 			   (int)(redSize-textSize),
 			   (int)(textSize*2),
 			   (int)(textSize*2),
 			   Justification(Justification::centred),
 			   false);
-	g.drawText(L"6dB",
+	g.drawText("6dB",
 			   (int)((width/2)-textSize),
 			   (int)(sixDb-textSize),
 			   (int)(textSize*2),
 			   (int)(textSize*2),
 			   Justification(Justification::centred),
 			   false);
-	g.drawText(L"12dB",
+	g.drawText("12dB",
 			   (int)((width/2)-(textSize*2)),
 			   (int)(twelveDb-textSize),
 			   (int)(textSize*4),
 			   (int)(textSize*2),
 			   Justification(Justification::centred),
 			   false);
-	g.drawText(L"24dB",
+	g.drawText("24dB",
 			   (int)((width/2)-(textSize*2)),
 			   (int)(twentyFourDb-textSize),
 			   (int)(textSize*4),
 			   (int)(textSize*2),
 			   Justification(Justification::centred),
 			   false);
-	g.drawText(L"48dB",
+	g.drawText("48dB",
 			   (int)((width/2)-(textSize*2)),
 			   (int)(fortyEightDb-textSize),
 			   (int)(textSize*4),
@@ -585,7 +573,7 @@ void VuMeterEditor::resized()
 //------------------------------------------------------------------------------
 void VuMeterEditor::paint(Graphics& g)
 {
-	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+	g.fillAll(ColourScheme::getInstance().colours["Window Background"]);
 }
 
 //------------------------------------------------------------------------------
@@ -633,7 +621,7 @@ void AudioRecorderEditor::resized()
 //------------------------------------------------------------------------------
 void AudioRecorderEditor::paint(Graphics& g)
 {
-	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+	g.fillAll(ColourScheme::getInstance().colours["Window Background"]);
 }
 
 //------------------------------------------------------------------------------
@@ -647,11 +635,7 @@ void AudioRecorderEditor::timerCallback()
 			setPos = true;
 		else if(peer)
 		{
-			peer->setBounds(parentBounds.getX(),
-							parentBounds.getY(),
-							parentBounds.getWidth(),
-							parentBounds.getHeight(),
-							false);
+			peer->setBounds(parentBounds, false);
 			setPos = true;
 			stopTimer();
 		}
@@ -701,7 +685,7 @@ void MetronomeEditor::resized()
 //------------------------------------------------------------------------------
 void MetronomeEditor::paint(Graphics& g)
 {
-	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+	g.fillAll(ColourScheme::getInstance().colours["Window Background"]);
 }
 
 //------------------------------------------------------------------------------
@@ -715,11 +699,7 @@ void MetronomeEditor::timerCallback()
 			setPos = true;
 		else if(peer)
 		{
-			peer->setBounds(parentBounds.getX(),
-							parentBounds.getY(),
-							parentBounds.getWidth(),
-							parentBounds.getHeight(),
-							false);
+			peer->setBounds(parentBounds, false);
 			setPos = true;
 			stopTimer();
 		}

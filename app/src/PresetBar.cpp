@@ -41,33 +41,33 @@ PresetBar::PresetBar (PluginComponent *comp)
       importButton (0),
       saveButton (0)
 {
-    addAndMakeVisible (presetsComboBox = new ComboBox (L"presetsComboBox"));
+    addAndMakeVisible (presetsComboBox = new ComboBox ("presetsComboBox"));
     presetsComboBox->setEditableText (true);
     presetsComboBox->setJustificationType (Justification::centredLeft);
-    presetsComboBox->setTextWhenNothingSelected (String::empty);
-    presetsComboBox->setTextWhenNoChoicesAvailable (L"(no choices)");
+    presetsComboBox->setTextWhenNothingSelected (juce::String());
+    presetsComboBox->setTextWhenNoChoicesAvailable ("(no choices)");
     presetsComboBox->addListener (this);
 
-    addAndMakeVisible (presetsLabel = new Label (L"presetsLabel",
-                                                 L"Presets:"));
+    addAndMakeVisible (presetsLabel = new Label ("presetsLabe",
+                                                 "Presets:"));
     presetsLabel->setFont (Font (15.0000f, Font::plain));
     presetsLabel->setJustificationType (Justification::centredLeft);
     presetsLabel->setEditable (false, false, false);
-    presetsLabel->setColour (TextEditor::textColourId, Colours::black);
-    presetsLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    presetsLabel->setColour (juce::Label::textColourId, Colours::black);
+    presetsLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (importButton = new DrawableButton (L"importButton", DrawableButton::ImageOnButtonBackground));
-    importButton->setName (L"importButton");
+    addAndMakeVisible (importButton = new DrawableButton ("importButton", DrawableButton::ImageOnButtonBackground));
+    importButton->setName ("importButton");
 
-    addAndMakeVisible (saveButton = new DrawableButton (L"saveButton", DrawableButton::ImageOnButtonBackground));
-    saveButton->setName (L"saveButton");
+    addAndMakeVisible (saveButton = new DrawableButton ("saveButton", DrawableButton::ImageOnButtonBackground));
+    saveButton->setName ("saveButton");
 
 
     //[UserPreSize]
 
 	AudioProcessor *proc;
 
-	Colour tempCol = ColourScheme::getInstance().colours[L"Button Colour"];
+	Colour tempCol = ColourScheme::getInstance().colours["Button Colour"];
 	auto saveImage = std::unique_ptr<Drawable>(loadSVGFromMemory(Vectors::savebutton_svg,
 													    Vectors::savebutton_svgSize));
 	auto openImage = std::unique_ptr<Drawable>(loadSVGFromMemory(Vectors::openbutton_svg,
@@ -76,19 +76,19 @@ PresetBar::PresetBar (PluginComponent *comp)
 	component = comp;
 	proc = component->getNode()->getProcessor();
 
-	saveButton->setImages(saveImage);
+	saveButton->setImages(saveImage.get());
 	saveButton->setColour(DrawableButton::backgroundColourId, tempCol);
 	saveButton->setColour(DrawableButton::backgroundOnColourId, tempCol);
-	saveButton->setTooltip(L"Save current preset");
+	saveButton->setTooltip("Save current preset");
 	saveButton->addListener(this);
-	importButton->setImages(openImage);
+	importButton->setImages(openImage.get());
 	importButton->setColour(DrawableButton::backgroundColourId, tempCol);
 	importButton->setColour(DrawableButton::backgroundOnColourId, tempCol);
-	importButton->setTooltip(L"Import preset from .fxp file");
+	importButton->setTooltip("Import preset from .fxp file");
 	importButton->addListener(this);
 
 	fillOutComboBox();
-	presetsComboBox->setSelectedId(proc->getCurrentProgram()+1, true);
+	presetsComboBox->setSelectedId(proc->getCurrentProgram()+1, juce::NotificationType::sendNotification);
 	lastComboBox = presetsComboBox->getSelectedId();
 
     //[/UserPreSize]
@@ -215,9 +215,9 @@ void PresetBar::buttonClicked(Button *button)
 {
 	if(button == importButton)
 	{
-		FileChooser dlg(L"Select an .fxp file to import...",
-						File::nonexistent,
-						L"*.fxp");
+		FileChooser dlg("Select an .fxp file to import...",
+						juce::File(),
+						"*.fxp");
 
 		if(dlg.browseForFileToOpen())
 		{
@@ -241,7 +241,7 @@ void PresetBar::buttonClicked(Button *button)
 
 		currentId = presetsComboBox->getSelectedId();
 		fillOutComboBox();
-		presetsComboBox->setSelectedId(currentId, true);
+		presetsComboBox->setSelectedId(currentId, juce::NotificationType::sendNotification);
 	}
 }
 
@@ -259,8 +259,8 @@ void PresetBar::fillOutComboBox()
 	for(i=0;i<proc->getNumPrograms();++i,++j)
 	{
 		String tempstr = proc->getProgramName(i);
-		if(tempstr == String::empty)
-			tempstr = L" ";
+		if(tempstr == juce::String())
+			tempstr = " ";
 		presetsComboBox->addItem(tempstr, j);
 	}
 
@@ -309,7 +309,7 @@ BEGIN_JUCER_METADATA
   <COMBOBOX name="presetsComboBox" id="c6c86dda7c641998" memberName="presetsComboBox"
             virtualName="" explicitFocusOrder="0" pos="64 4 272 24" editable="1"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
-  <LABEL name="presetsLabel" id="1313b0aafdbc5e32" memberName="presetsLabel"
+  <LABEL name="presetsLabe" id="1313b0aafdbc5e32" memberName="presetsLabe"
          virtualName="" explicitFocusOrder="0" pos="0 4 64 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Presets:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"

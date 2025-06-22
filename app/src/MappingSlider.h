@@ -26,9 +26,9 @@
 class JUCE_API  MappingSlider  : public Component,
                           public SettableTooltipClient,
                           public AsyncUpdater,
-                          public ButtonListener,  // (can't use Button::Listener due to idiotic VC2005 bug)
-                          public LabelListener,
-                          public ValueListener
+                          public Button::Listener,
+                          public Label::Listener,
+                          public Value::Listener
 {
 public:
     //==============================================================================
@@ -37,7 +37,7 @@ public:
         When created, you'll need to set up the slider's style and range with setMappingSliderStyle(),
         setRange(), etc.
     */
-    explicit MappingSlider (const String& componentName = String::empty);
+    explicit MappingSlider (const String& componentName = juce::String());
 
     /** Destructor. */
     ~MappingSlider();
@@ -310,8 +310,8 @@ public:
         want to handle it.
 
         @param newValue                 the new value to set - this will be restricted by the
-                                        minimum and maximum range, and will be snapped to the
-                                        nearest interval if one has been set
+                                        minimum and maximum range, and will be snapped to the nearest
+                                        interval if one has been set
         @param sendUpdateMessage        if false, a change to the value will not trigger a call to
                                         any MappingSlider::Listeners or the valueChanged() method
         @param sendMessageSynchronously if true, then a call to the MappingSlider::Listeners will be made
@@ -386,7 +386,7 @@ public:
 
         @param newValue                 the new value to set - this will be restricted by the
                                         minimum and maximum range, and will be snapped to the nearest
-                                        interval if one has been set.
+                                        interval if one has been set
         @param sendUpdateMessage        if false, a change to the value will not trigger a call to
                                         any MappingSlider::Listeners or the valueChanged() method
         @param sendMessageSynchronously if true, then a call to the MappingSlider::Listeners will be made
@@ -395,12 +395,14 @@ public:
                                         max value (in a two-value slider) or the mid value (in a three-value
                                         slider). If false, then if this value goes beyond those values,
                                         it will push them along with it.
+        @param notificationType         the type of notification to send to listeners
         @see getMinValue, setMaxValue, setValue
     */
     void setMinValue (double newValue,
-                      bool sendUpdateMessage = true,
-                      bool sendMessageSynchronously = false,
-                      bool allowNudgingOfOtherValues = false);
+                      const bool sendUpdateMessage = true,
+                      const bool sendMessageSynchronously = false,
+                      const bool allowNudgingOfOtherValues = false,
+                      const juce::NotificationType notificationType = juce::NotificationType::sendNotification);
 
     /** For a slider with two or three thumbs, this returns the higher of its values.
 
@@ -437,12 +439,14 @@ public:
                                         min value (in a two-value slider) or the mid value (in a three-value
                                         slider). If false, then if this value goes beyond those values,
                                         it will push them along with it.
+        @param notificationType         the type of notification to send to listeners
         @see getMaxValue, setMinValue, setValue
     */
     void setMaxValue (double newValue,
-                      bool sendUpdateMessage = true,
-                      bool sendMessageSynchronously = false,
-                      bool allowNudgingOfOtherValues = false);
+                      const bool sendUpdateMessage = true,
+                      const bool sendMessageSynchronously = false,
+                      const bool allowNudgingOfOtherValues = false,
+                      const juce::NotificationType notificationType = juce::NotificationType::sendNotification);
 
     /** For a slider with two or three thumbs, this sets the minimum and maximum thumb positions.
 
@@ -705,7 +709,6 @@ public:
     */
     virtual double snapValue (double attemptedValue, bool userIsDragging);
 
-
     //==============================================================================
     /** This can be called to force the text box to update its contents.
 
@@ -713,6 +716,10 @@ public:
     */
     void updateText();
 
+    /** Returns the best number of decimal places to use when displaying numbers.
+        This is calculated from the slider's interval setting.
+    */
+    int getNumDecimalPlacesToDisplay() const noexcept       { return numDecimalPlaces; }
 
     /** True if the slider moves horizontally. */
     bool isHorizontal() const;
@@ -743,88 +750,6 @@ public:
     };
 
 protected:
-    //==============================================================================
-    /** @internal */
-    void labelTextChanged (Label*);
-    /** @internal */
-    void paint (Graphics& g);
-    /** @internal */
-    void resized();
-    /** @internal */
-    void mouseDown (const MouseEvent& e);
-    /** @internal */
-    void mouseUp (const MouseEvent& e);
-    /** @internal */
-    void mouseDrag (const MouseEvent& e);
-    /** @internal */
-    void mouseDoubleClick (const MouseEvent& e);
-    /** @internal */
-    void mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel);
-    /** @internal */
-    void modifierKeysChanged (const ModifierKeys& modifiers);
-    /** @internal */
-    void buttonClicked (Button* button);
-    /** @internal */
-    void lookAndFeelChanged();
-    /** @internal */
-    void enablementChanged();
-    /** @internal */
-    void focusOfChildComponentChanged (FocusChangeType cause);
-    /** @internal */
-    void handleAsyncUpdate();
-    /** @internal */
-    void colourChanged();
-    /** @internal */
-    void valueChanged (Value& value);
-
-    /** Returns the best number of decimal places to use when displaying numbers.
-        This is calculated from the slider's interval setting.
-    */
-    int getNumDecimalPlacesToDisplay() const noexcept       { return numDecimalPlaces; }
-
-private:
-	Label* createMappingSliderTextBox (MappingSlider& slider);
-	Button* createMappingSliderButton (const bool isIncrement);
-	ImageEffectFilter* getMappingSliderEffect() {return nullptr;};
-	void drawRotaryMappingSlider (Graphics& g,
-                                    int x, int y,
-                                    int width, int height,
-                                    float sliderPos,
-                                    const float rotaryStartAngle,
-                                    const float rotaryEndAngle,
-                                    MappingSlider& slider);
-	void drawLinearMappingSlider (Graphics& g,
-                                    int x, int y,
-                                    int width, int height,
-                                    float sliderPos,
-                                    float minSliderPos,
-                                    float maxSliderPos,
-                                    const MappingSlider::MappingSliderStyle style,
-                                    MappingSlider& slider);
-	void drawLinearMappingSliderBackground (Graphics& g,
-                                              int x, int y,
-                                              int width, int height,
-                                              float sliderPos,
-                                              float minSliderPos,
-                                              float maxSliderPos,
-                                              const MappingSlider::MappingSliderStyle style,
-                                              MappingSlider& slider);
-	int getMappingSliderThumbRadius (MappingSlider& slider)
-{
-    return jmin (7,
-                 slider.getHeight() / 2,
-                 slider.getWidth() / 2) + 2;
-}
-	void drawLinearMappingSliderThumb (Graphics& g,
-                                         int x, int y,
-                                         int width, int height,
-                                         float sliderPos,
-                                         float minSliderPos,
-                                         float maxSliderPos,
-                                         const MappingSlider::MappingSliderStyle style,
-                                         MappingSlider& slider);
-
-    //==============================================================================
     ListenerList <Listener> listeners;
     Value currentValue, valueMin, valueMax;
     double lastCurrentValue, lastValueMin, lastValueMax;
@@ -857,7 +782,6 @@ private:
 
     class PopupDisplayComponent;
     friend class PopupDisplayComponent;
-    friend class ScopedPointer <PopupDisplayComponent>;
     std::unique_ptr<PopupDisplayComponent> popupDisplay;
     Component* parentForPopupDisplay;
 
@@ -869,8 +793,69 @@ private:
     void triggerChangeMessage (bool synchronous);
     bool incDecDragDirectionIsHorizontal() const;
 
+    void colourChanged();
+    void valueChanged (Value& value);
+
+private:
+    Label* createMappingSliderTextBox (MappingSlider& slider);
+    Button* createMappingSliderButton (const bool isIncrement);
+    ImageEffectFilter* getMappingSliderEffect() {return nullptr;};
+    void drawRotaryMappingSlider (Graphics& g,
+                                    int x, int y,
+                                    int width, int height,
+                                    float sliderPos,
+                                    const float rotaryStartAngle,
+                                    const float rotaryEndAngle,
+                                    MappingSlider& slider);
+    void drawLinearMappingSlider (Graphics& g,
+                                    int x, int y,
+                                    int width, int height,
+                                    float sliderPos,
+                                    float minSliderPos,
+                                    float maxSliderPos,
+                                    const MappingSlider::MappingSliderStyle style,
+                                    MappingSlider& slider);
+    void drawLinearMappingSliderBackground (Graphics& g,
+                                              int x, int y,
+                                              int width, int height,
+                                              float sliderPos,
+                                              float minSliderPos,
+                                              float maxSliderPos,
+                                              const MappingSlider::MappingSliderStyle style,
+                                              MappingSlider& slider);
+    void drawLinearMappingSliderThumb (Graphics& g,
+                                         int x, int y,
+                                         int width, int height,
+                                         float sliderPos,
+                                         float minSliderPos,
+                                         float maxSliderPos,
+                                         const MappingSlider::MappingSliderStyle style,
+                                         MappingSlider& slider);
+
+    void labelTextChanged (Label*);
+    void paint (Graphics& g);
+    void resized();
+    void mouseDown (const MouseEvent& e);
+    void mouseUp (const MouseEvent& e);
+    void mouseDrag (const MouseEvent& e);
+    void mouseDoubleClick (const MouseEvent& e);
+    void mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel);
+    void modifierKeysChanged (const ModifierKeys& modifiers);
+    void buttonClicked (Button* button);
+    void lookAndFeelChanged();
+    void enablementChanged();
+    void focusOfChildComponentChanged (FocusChangeType cause);
+    void handleAsyncUpdate();
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MappingSlider);
 };
+
+int getMappingSliderThumbRadius (MappingSlider& slider)
+{
+    return jmin (7,
+                 slider.getHeight() / 2,
+                 slider.getWidth() / 2) + 2;
+}
 
 /** This typedef is just for compatibility with old code - newer code should use the MappingSlider::Listener class directly. */
 typedef MappingSlider::Listener MappingSliderListener;

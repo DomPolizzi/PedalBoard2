@@ -48,78 +48,78 @@ MetronomeControl::MetronomeControl (MetronomeProcessor *proc, bool editors)
       denominatorLabel (0),
       separatorLabel (0)
 {
-    addAndMakeVisible (syncButton = new ToggleButton (L"syncButton"));
-    syncButton->setTooltip (L"Sync metronome playback to the main transport");
-    syncButton->setButtonText (L"Sync to main transport");
+    addAndMakeVisible (syncButton = new ToggleButton ("syncButton"));
+    syncButton->setTooltip ("Sync metronome playback to the main transport");
+    syncButton->setButtonText ("Sync to main transport");
     syncButton->addListener (this);
 
     addAndMakeVisible (playPauseButton = new DrawableButton ("playPauseButton", DrawableButton::ImageOnButtonBackground));
-    playPauseButton->setName (L"playPauseButton");
+    playPauseButton->setName ("playPauseButton");
 
-    addAndMakeVisible (accentFile = new FilenameComponent ("accentFile", File::nonexistent, true, false, false, "*.wav;*.aif", "", "<no file loaded>"));
-    accentFile->setName (L"accentFile");
+    addAndMakeVisible (accentFile = new FilenameComponent ("accentFile", juce::File(), true, false, false, "*.wav;*.aif", "", "<no file loaded>"));
+    accentFile->setName ("accentFile");
 
-    addAndMakeVisible (accentLabel = new Label (L"accentLabel",
-                                                L"Accent:"));
+    addAndMakeVisible (accentLabel = new Label ("accentLabel",
+                                                "Accent:"));
     accentLabel->setFont (Font (15.0000f, Font::plain));
     accentLabel->setJustificationType (Justification::centredLeft);
     accentLabel->setEditable (false, false, false);
-    accentLabel->setColour (TextEditor::textColourId, Colours::black);
-    accentLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    accentLabel->setColour (juce::Label::textColourId, Colours::black);
+    accentLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (clickFile = new FilenameComponent ("clickFile", File::nonexistent, true, false, false, "*.wav;*.aif", "", "<no file loaded>"));
-    clickFile->setName (L"clickFile");
+    addAndMakeVisible (clickFile = new FilenameComponent ("clickFile", juce::File(), true, false, false, "*.wav;*.aif", "", "<no file loaded>"));
+    clickFile->setName ("clickFile");
 
-    addAndMakeVisible (clickLabel = new Label (L"clickLabel",
-                                               L"Click:"));
+    addAndMakeVisible (clickLabel = new Label ("clickLabel",
+                                               "Click:"));
     clickLabel->setFont (Font (15.0000f, Font::plain));
     clickLabel->setJustificationType (Justification::centredLeft);
     clickLabel->setEditable (false, false, false);
-    clickLabel->setColour (TextEditor::textColourId, Colours::black);
-    clickLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    clickLabel->setColour (juce::Label::textColourId, Colours::black);
+    clickLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (numeratorLabel = new Label (L"numeratorLabel",
-                                                   L"4"));
+    addAndMakeVisible (numeratorLabel = new Label ("numeratorLabel",
+                                                   "4"));
     numeratorLabel->setFont (Font (Font::getDefaultSerifFontName(), 250.0000f, Font::bold));
     numeratorLabel->setJustificationType (Justification::centred);
     numeratorLabel->setEditable (true, true, false);
-    numeratorLabel->setColour (TextEditor::textColourId, Colours::black);
-    numeratorLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    numeratorLabel->setColour (juce::Label::textColourId, Colours::black);
+    numeratorLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
     numeratorLabel->addListener (this);
 
-    addAndMakeVisible (denominatorLabel = new Label (L"denominatorLabel",
-                                                     L"4"));
+    addAndMakeVisible (denominatorLabel = new Label ("denominatorLabel",
+                                                     "4"));
     denominatorLabel->setFont (Font (Font::getDefaultSerifFontName(), 250.0000f, Font::bold));
     denominatorLabel->setJustificationType (Justification::centred);
     denominatorLabel->setEditable (true, true, false);
-    denominatorLabel->setColour (TextEditor::textColourId, Colours::black);
-    denominatorLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    denominatorLabel->setColour (juce::Label::textColourId, Colours::black);
+    denominatorLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
     denominatorLabel->addListener (this);
 
-    addAndMakeVisible (separatorLabel = new Label (L"separatorLabel",
-                                                   L"/"));
+    addAndMakeVisible (separatorLabel = new Label ("separatorLabel",
+                                                   "/"));
     separatorLabel->setFont (Font (Font::getDefaultSerifFontName(), 250.0000f, Font::bold));
     separatorLabel->setJustificationType (Justification::centred);
     separatorLabel->setEditable (false, false, false);
-    separatorLabel->setColour (TextEditor::textColourId, Colours::black);
-    separatorLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    separatorLabel->setColour (juce::Label::textColourId, Colours::black);
+    separatorLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
 
     //[UserPreSize]
 
 	String tempstr;
 
-	playImage = loadSVGFromMemory(Vectors::playbutton_svg,
-								  Vectors::playbutton_svgSize);
-	pauseImage = loadSVGFromMemory(Vectors::pausebutton_svg,
-								   Vectors::pausebutton_svgSize);
-	playPauseButton->setImages(playImage);
+	playImage.reset(loadSVGFromMemory(Vectors::playbutton_svg,
+								  Vectors::playbutton_svgSize));
+	pauseImage.reset(loadSVGFromMemory(Vectors::pausebutton_svg,
+								   Vectors::pausebutton_svgSize));
+	playPauseButton->setImages(playImage.get());
 	playPauseButton->setColour(DrawableButton::backgroundColourId,
-							   ColourScheme::getInstance().colours[L"Button Colour"]);
+							   ColourScheme::getInstance().colours["Button Colour"]);
 	playPauseButton->setColour(DrawableButton::backgroundOnColourId,
-							   ColourScheme::getInstance().colours[L"Button Colour"]);
+							   ColourScheme::getInstance().colours["Button Colour"]);
 	playPauseButton->addListener(this);
-	playPauseButton->setTooltip(L"Play/pause metronome");
+	playPauseButton->setTooltip("Play/pause metronome");
 
 	clickFile->addListener(this);
 	accentFile->addListener(this);
@@ -127,7 +127,7 @@ MetronomeControl::MetronomeControl (MetronomeProcessor *proc, bool editors)
 
 	tempstr << (int)processor->getParameter(MetronomeProcessor::Numerator);
 	numeratorLabel->setText(tempstr, dontSendNotification);
-	tempstr = L"";
+	tempstr = "";
 	tempstr << (int)processor->getParameter(MetronomeProcessor::Denominator);
 	denominatorLabel->setText(tempstr, dontSendNotification);
 
@@ -212,16 +212,15 @@ void MetronomeControl::resized()
 		separatorLabel->setBounds (proportionOfWidth(0.4301f), 24, proportionOfWidth(0.1399f), getHeight() - 48);
 	}
 
-	//Set controls according to the processor's state.
 	{
 		String tempstr;
 
 		tempstr << (int)(processor->getParameter(MetronomeProcessor::Numerator));
 		numeratorLabel->setText(tempstr, dontSendNotification);
-		tempstr = L"";
+		tempstr = "";
 		tempstr << (int)(processor->getParameter(MetronomeProcessor::Denominator));
 		denominatorLabel->setText(tempstr, dontSendNotification);
-		syncButton->setToggleState(processor->getParameter(MetronomeProcessor::SyncToMainTransport) > 0.5f, false);
+		syncButton->setToggleState(processor->getParameter(MetronomeProcessor::SyncToMainTransport) > 0.5f, juce::dontSendNotification);
 	}
 
     //[/UserResized]
@@ -248,9 +247,9 @@ void MetronomeControl::buttonClicked (Button* buttonThatWasClicked)
 	else if(buttonThatWasClicked == playPauseButton)
 	{
 		if(!playing)
-			playPauseButton->setImages(pauseImage);
+			playPauseButton->setImages(pauseImage.get());
 		else
-			playPauseButton->setImages(playImage);
+			playPauseButton->setImages(playImage.get());
 		playing = !playing;
 		processor->setParameter(MetronomeProcessor::Play, 1.0f);
 	}
@@ -311,21 +310,21 @@ void MetronomeControl::changeListenerCallback(ChangeBroadcaster *source)
 
 		if(processor->isPlaying())
 		{
-			playPauseButton->setImages(pauseImage);
+			playPauseButton->setImages(pauseImage.get());
 			playing = true;
 		}
 		else
 		{
-			playPauseButton->setImages(playImage);
+			playPauseButton->setImages(playImage.get());
 			playing = false;
 		}
 
 		tempstr << (int)(processor->getParameter(MetronomeProcessor::Numerator));
 		numeratorLabel->setText(tempstr, dontSendNotification);
-		tempstr = L"";
+		tempstr = "";
 		tempstr << (int)(processor->getParameter(MetronomeProcessor::Denominator));
 		denominatorLabel->setText(tempstr, dontSendNotification);
-		syncButton->setToggleState(processor->getParameter(MetronomeProcessor::SyncToMainTransport) > 0.5f, false);
+		syncButton->setToggleState(processor->getParameter(MetronomeProcessor::SyncToMainTransport) > 0.5f, juce::dontSendNotification);
 	}
 }
 
@@ -337,9 +336,9 @@ Drawable *MetronomeControl::loadSVGFromMemory(const void *dataToInitialiseFrom,
 
 	MemoryBlock memBlock(dataToInitialiseFrom, sizeInBytes);
 	XmlDocument doc(memBlock.toString());
-	ScopedPointer<XmlElement> svgData(doc.getDocumentElement());
+	std::unique_ptr<XmlElement> svgData(doc.getDocumentElement());
 
-	retval = Drawable::createFromSVG(*svgData);
+	retval = Drawable::createFromSVG(*svgData).release();
 
 	return retval;
 }
@@ -355,7 +354,7 @@ Drawable *MetronomeControl::loadSVGFromMemory(const void *dataToInitialiseFrom,
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="MetronomeControl" componentName=""
+<JUCER_COMPONENT documentType="Component" className="MetronomeContro" componentName=""
                  parentClasses="public Component, public FilenameComponentListener, public ChangeListener"
                  constructorParams="MetronomeProcessor *proc, bool editors" variableInitialisers="processor(proc),&#10;showFileEditors(editors),&#10;playing(false)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330000013"
@@ -370,31 +369,31 @@ BEGIN_JUCER_METADATA
                     params="&quot;playPauseButton&quot;, DrawableButton::ImageOnButtonBackground"/>
   <GENERICCOMPONENT name="accentFile" id="f1e80797e31ff742" memberName="accentFile"
                     virtualName="" explicitFocusOrder="0" pos="56 24 58M 24" class="FilenameComponent"
-                    params="&quot;accentFile&quot;, File::nonexistent, true, false, false, &quot;*.wav;*.aif&quot;, &quot;&quot;, &quot;&lt;no file loaded&gt;&quot;"/>
-  <LABEL name="accentLabel" id="9472b17c180344c3" memberName="accentLabel"
+                    params="&quot;accentFile&quot;, juce::File(), true, false, false, &quot;*.wav;*.aif&quot;, &quot;&quot;, &quot;&lt;no file loaded&gt;&quot;"/>
+  <LABEL name="accentLabe" id="9472b17c180344c3" memberName="accentLabe"
          virtualName="" explicitFocusOrder="0" pos="0 24 64 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Accent:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <GENERICCOMPONENT name="clickFile" id="ac1e462a1246a2f2" memberName="clickFile"
                     virtualName="" explicitFocusOrder="0" pos="56 0 84M 24" class="FilenameComponent"
-                    params="&quot;clickFile&quot;, File::nonexistent, true, false, false, &quot;*.wav;*.aif&quot;, &quot;&quot;, &quot;&lt;no file loaded&gt;&quot;"/>
-  <LABEL name="clickLabel" id="e6e80ff93426bdf4" memberName="clickLabel"
+                    params="&quot;clickFile&quot;, juce::File(), true, false, false, &quot;*.wav;*.aif&quot;, &quot;&quot;, &quot;&lt;no file loaded&gt;&quot;"/>
+  <LABEL name="clickLabe" id="e6e80ff93426bdf4" memberName="clickLabe"
          virtualName="" explicitFocusOrder="0" pos="0 0 48 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Click:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
-  <LABEL name="numeratorLabel" id="9e2ccd063dfc55d" memberName="numeratorLabel"
+  <LABEL name="numeratorLabe" id="9e2ccd063dfc55d" memberName="numeratorLabe"
          virtualName="" explicitFocusOrder="0" pos="0 48 48.96% 71M" edTextCol="ff000000"
          edBkgCol="0" labelText="4" editableSingleClick="1" editableDoubleClick="1"
          focusDiscardsChanges="0" fontname="Default serif font" fontsize="250"
          bold="1" italic="0" justification="36"/>
-  <LABEL name="denominatorLabel" id="b7a03711249e2ce1" memberName="denominatorLabel"
+  <LABEL name="denominatorLabe" id="b7a03711249e2ce1" memberName="denominatorLabe"
          virtualName="" explicitFocusOrder="0" pos="51.04% 48 48.96% 71M"
          edTextCol="ff000000" edBkgCol="0" labelText="4" editableSingleClick="1"
          editableDoubleClick="1" focusDiscardsChanges="0" fontname="Default serif font"
          fontsize="250" bold="1" italic="0" justification="36"/>
-  <LABEL name="separatorLabel" id="76de549e03ecf3ff" memberName="separatorLabel"
+  <LABEL name="separatorLabe" id="76de549e03ecf3ff" memberName="separatorLabe"
          virtualName="" explicitFocusOrder="0" pos="43.006% 48 13.989% 71M"
          edTextCol="ff000000" edBkgCol="0" labelText="/" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default serif font"

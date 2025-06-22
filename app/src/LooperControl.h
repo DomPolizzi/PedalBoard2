@@ -110,9 +110,6 @@ private:
 
 
     //==============================================================================
-    // (prevent copy constructor and operator= being generated..)
-    LooperControl (const LooperControl&);
-    const LooperControl& operator= (const LooperControl&);
 };
 
 

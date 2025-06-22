@@ -22,95 +22,57 @@
 #ifndef __JUCER_HEADER_PREFERENCESDIALOG_PREFERENCESDIALOG_3C07F714__
 #define __JUCER_HEADER_PREFERENCESDIALOG_PREFERENCESDIALOG_3C07F714__
 
-//[Headers]     -- You can add your own extra header files here --
+
 #include <JuceHeader.h>
+#include <memory>
+
+using namespace juce;
 
 class MainPanel;
-//[/Headers]
 
-
-
-//==============================================================================
-/**
-                                                                    //[Comments]
-    An auto-generated component, created by the Jucer.
-
-    Describe your class and how it works here!
-                                                                    //[/Comments]
-*/
-class PreferencesDialog  : public Component,
-                           public TextEditor::Listener,
-                           public ButtonListener
+class PreferencesDialog  : public juce::Component,
+                           public juce::TextEditor::Listener,
+                           public juce::Button::Listener
 {
 public:
-    //==============================================================================
-    PreferencesDialog (MainPanel *panel, const String& port, const String& multicastAddress);
+    PreferencesDialog (MainPanel *panel, const juce::String& port, const juce::String& multicastAddress);
     ~PreferencesDialog();
-
-    //==============================================================================
-    //[UserMethods]     -- You can add your own custom methods in this section.
-
-	///	Not used.
-	void textEditorTextChanged(TextEditor &editor) {};
-	///	Used to update the mapping's OSC address.
-	void textEditorReturnKeyPressed(TextEditor &editor);
-	///	Used to revert any changes the user made.
-	void textEditorEscapeKeyPressed(TextEditor &editor);
-	///	Used to update the mapping's OSC address.
-	void textEditorFocusLost(TextEditor &editor);
-
-    //[/UserMethods]
-
-    void paint (Graphics& g);
+	void textEditorTextChanged(juce::TextEditor &editor) {};
+	void textEditorReturnKeyPressed(juce::TextEditor &editor);
+	void textEditorEscapeKeyPressed(juce::TextEditor &editor);
+	void textEditorFocusLost(juce::TextEditor &editor);
+    void paint (juce::Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
+    void buttonClicked (juce::Button* buttonThatWasClicked);
 
-
-
-    //==============================================================================
-    juce_UseDebuggingNewOperator
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PreferencesDialog)
 
 private:
-    //[UserVariables]   -- You can add your own custom variables in this section.
-
-	///	The app's MainPanel.
 	MainPanel *mainPanel;
-	///	The current port to listen on.
-	String currentPort;
-	///	The current multicast address to listen on.
-	String currentMulticast;
-
-    //[/UserVariables]
-
-    //==============================================================================
-    Label* oscPortLabel;
-    TextEditor* oscPortEditor;
-    Label* oscLabel;
-    Label* oscMulticastLabel;
-    TextEditor* oscMulticastEditor;
-    Label* multicastHintLabel;
-    Label* ioOptionsLabel;
-    ToggleButton* audioInputButton;
-    ToggleButton* midiInputButton;
-    ToggleButton* oscInputButton;
-    Label* otherLabel;
-    ToggleButton* mappingsWindowButton;
-    ToggleButton* loopPatchesButton;
-    ToggleButton* windowsOnTopButton;
-    ToggleButton* ignorePinNamesButton;
-    Label* midiLabel;
-    ToggleButton* midiProgramChangeButton;
-    ToggleButton* mmcTransportButton;
-    ToggleButton* useTrayIconButton;
-    ToggleButton* startInTrayButton;
-    ToggleButton* fixedSizeButton;
-    ToggleButton* pdlAudioSettingsButton;
-
-
-    //==============================================================================
-    // (prevent copy constructor and operator= being generated..)
-    PreferencesDialog (const PreferencesDialog&);
-    const PreferencesDialog& operator= (const PreferencesDialog&);
+	juce::String currentPort;
+	juce::String currentMulticast;
+    juce::Label* oscPortLabel;
+    juce::TextEditor* oscPortEditor;
+    juce::Label* oscLabel;
+    juce::Label* oscMulticastLabel;
+    juce::TextEditor* oscMulticastEditor;
+    juce::Label* multicastHintLabel;
+    juce::Label* ioOptionsLabel;
+    juce::ToggleButton* audioInputButton;
+    juce::ToggleButton* midiInputButton;
+    juce::ToggleButton* oscInputButton;
+    juce::Label* otherLabel;
+    juce::ToggleButton* mappingsWindowButton;
+    juce::ToggleButton* loopPatchesButton;
+    juce::ToggleButton* windowsOnTopButton;
+    juce::ToggleButton* ignorePinNamesButton;
+    juce::Label* midiLabel;
+    juce::ToggleButton* midiProgramChangeButton;
+    juce::ToggleButton* mmcTransportButton;
+    juce::ToggleButton* useTrayIconButton;
+    juce::ToggleButton* startInTrayButton;
+    juce::ToggleButton* fixedSizeButton;
+    juce::ToggleButton* pdlAudioSettingsButton;
 };
 
 

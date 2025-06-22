@@ -247,8 +247,8 @@ const AudioProcessorGraph::Connection* FilterGraph::getConnection (const int ind
 const AudioProcessorGraph::Connection* FilterGraph::getConnectionBetween (juce::AudioProcessorGraph::NodeID sourceFilterUID, int sourceFilterChannel,
                                                                           juce::AudioProcessorGraph::NodeID destFilterUID, int destFilterChannel) const throw()
 {
-    AudioProcessorGraph::Connection connection = {{sourceFilterUID, static_cast<uint32>(sourceFilterChannel)},
-                                                  {destFilterUID, static_cast<uint32>(destFilterChannel)}};
+    AudioProcessorGraph::Connection connection = {{sourceFilterUID, static_cast<int>(sourceFilterChannel)},
+                                                  {destFilterUID, static_cast<int>(destFilterChannel)}};
     
     auto connections = graph.getConnections();
     for (const auto& conn : connections)
@@ -341,7 +341,7 @@ Result FilterGraph::loadDocument (const File& file)
     /*XmlDocument doc (file);
     XmlElement* xml = doc.getDocumentElement();
 
-    if (xml == 0 || ! xml->hasTagName (L"FILTERGRAPH"))
+    if (xml == 0 || ! xml->hasTagName ("FILTERGRAPH"))
     {
         delete xml;
 		return Result::fail("Not a valid filter graph file");
@@ -392,7 +392,7 @@ void FilterGraph::createNodeFromXml(const XmlElement& xml,
 {
     PluginDescription pd;
     
-    forEachXmlChildElement (xml, e)
+    for (auto* e : xml.getChildWithTagNameIterator("*"))
     {
         if (e->hasTagName ("PLUGIN"))
         {
@@ -506,9 +506,9 @@ XmlElement* FilterGraph::createXml(const OscMappingManager& oscManager) const
         XmlElement* e = new XmlElement ("CONNECTION");
 
         e->setAttribute (juce::Identifier("srcFilter"), (int) connection.source.nodeID.uid);
-        e->setAttribute (juce::Identifier("srcChannel"), (int) connection.source.channelIndex);
+        e->setAttribute (juce::Identifier("srcChanne"), (int) connection.source.channelIndex);
         e->setAttribute (juce::Identifier("dstFilter"), (int) connection.destination.nodeID.uid);
-        e->setAttribute (juce::Identifier("dstChannel"), (int) connection.destination.channelIndex);
+        e->setAttribute (juce::Identifier("dstChanne"), (int) connection.destination.channelIndex);
 
         xml->addChildElement (e);
     }
@@ -529,10 +529,11 @@ void FilterGraph::restoreFromXml(const XmlElement& xml,
     for (auto* e : xml.getChildWithTagNameIterator("CONNECTION"))
     {
         addConnection (juce::AudioProcessorGraph::NodeID(e->getIntAttribute("srcFilter")),
-                       e->getIntAttribute("srcChannel"),
+                       e->getIntAttribute("srcChanne"),
                        juce::AudioProcessorGraph::NodeID(e->getIntAttribute("dstFilter")),
                        e->getIntAttribute("dstChannel"));
     }
 
     graph.removeIllegalConnections();
 }
+

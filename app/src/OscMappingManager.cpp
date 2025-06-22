@@ -171,7 +171,7 @@ OscMappingManager::~OscMappingManager()
 void OscMappingManager::messageReceived(OSC::Message *message)
 {
 	int i;
-	ScopedPointer<MidiMessage> tempMess;
+	std::unique_ptr<MidiMessage> tempMess;
 	String address(message->getAddress().c_str());
 	multimap<String, BypassableInstance *>::iterator it;
 
@@ -226,21 +226,21 @@ void OscMappingManager::messageReceived(OSC::Message *message)
 		{
 			OSC::MIDIMessage tempMess2 = message->getMIDI(0);
 
-			tempMess = new MidiMessage(tempMess2.bytes.byte1,
+			tempMess.reset(new MidiMessage(tempMess2.bytes.byte1,
 									   tempMess2.bytes.byte2,
-									   tempMess2.bytes.byte3);
+									   tempMess2.bytes.byte3));
 		}
 		else if(message->getNumInts() > 2)
 		{
-			tempMess = new MidiMessage(message->getInt(0),
+			tempMess.reset(new MidiMessage(message->getInt(0),
 									   message->getInt(1),
-									   message->getInt(2));
+									   message->getInt(2)));
 		}
 		else if(message->getNumFloats() > 2)
 		{
-			tempMess = new MidiMessage((int)message->getFloat(0),
+			tempMess.reset(new MidiMessage((int)message->getFloat(0),
 									   (int)message->getFloat(1),
-									   (int)message->getFloat(2));
+									   (int)message->getFloat(2)));
 		}
 	}
 
@@ -450,13 +450,13 @@ OscInput::~OscInput()
 //------------------------------------------------------------------------------
 void OscInput::fillInPluginDescription(PluginDescription &description) const
 {
-	description.name = L"OSC Input";
-	description.descriptiveName = L"Dummy AudioProcessor so we can see at a glance which plugins have OSC mappings.";
-	description.pluginFormatName = L"Internal";
-	description.category = L"Internal";
-	description.manufacturerName = L"Niall Moody";
-	description.version = L"1.00";
-	description.uid = description.name.hashCode();
+	description.name = "OSC Input";
+	description.descriptiveName = "Dummy AudioProcessor so we can see at a glance which plugins have OSC mappings.";
+	description.pluginFormatName = "Internal";
+	description.category = "Internal";
+	description.manufacturerName = "Niall Moody";
+	description.version = "1.00";
+	// description.uid = description.name.hashCode(); // uid member removed in JUCE 7
 	description.isInstrument = false; //?
 	description.numInputChannels = 0;
 	description.numOutputChannels = 0;

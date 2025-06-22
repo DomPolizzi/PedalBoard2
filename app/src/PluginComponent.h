@@ -35,7 +35,7 @@ class PluginPinComponent;
 ///	Component representing a plugin/filter in the PluginField.
 class PluginComponent : public Component,
 					    public ChangeBroadcaster,
-						public ButtonListener,
+						public Button::Listener,
 						public Label::Listener
 {
   public:

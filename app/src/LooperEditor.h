@@ -120,9 +120,7 @@ private:
 
 
     //==============================================================================
-    // (prevent copy constructor and operator= being generated..)
-    LooperEditor (const LooperEditor&);
-    const LooperEditor& operator= (const LooperEditor&);
+    // Note: Copy constructor and operator= are handled by JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR
 };
 
 

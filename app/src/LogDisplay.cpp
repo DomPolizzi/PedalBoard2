@@ -37,13 +37,13 @@ LogDisplay::LogDisplay ()
     pedalboardButton->addListener (this);
     pedalboardButton->setToggleState (true, juce::NotificationType::dontSendNotification);
 
-    addAndMakeVisible (filterLabel = new juce::Label ("filterLabel",
+    addAndMakeVisible (filterLabel = new juce::Label ("filterLabe",
                                                  "Filter:"));
     filterLabel->setFont (juce::Font (15.0000f, juce::Font::plain));
     filterLabel->setJustificationType (juce::Justification::centredLeft);
     filterLabel->setEditable (false, false, false);
-    filterLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    filterLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x0));
+    filterLabel->setColour (juce::Label::textColourId, juce::Colours::black);
+    filterLabel->setColour (juce::Label::backgroundColourId, juce::Colour (0x0));
 
 
 	if(LogFile::getInstance().getIsLogging())
@@ -192,7 +192,7 @@ BEGIN_JUCER_METADATA
   <TOGGLEBUTTON name="pedalboardButton" id="8a2bcea281961e69" memberName="pedalboardButton"
                 virtualName="" explicitFocusOrder="0" pos="320 28R 96 24" buttonText="Pedalboard"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
-  <LABEL name="filterLabel" id="c15fff90957c7ab0" memberName="filterLabel"
+  <LABEL name="filterLabe" id="c15fff90957c7ab0" memberName="filterLabe"
          virtualName="" explicitFocusOrder="0" pos="164 28R 48 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Filter:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
@@ -202,3 +202,4 @@ BEGIN_JUCER_METADATA
 END_JUCER_METADATA
 */
 #endif
+

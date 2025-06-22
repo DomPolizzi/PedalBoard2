@@ -82,18 +82,18 @@ MappingSlider::MappingSlider (const String& name)
     velocityModeSensitivity (1.0),
     velocityModeOffset (0.0),
     velocityModeThreshold (1),
-    rotaryStart (float_Pi * 1.2f),
-    rotaryEnd (float_Pi * 2.8f),
+    rotaryStart (juce::MathConstants<float>::pi * 1.2f),
+    rotaryEnd (juce::MathConstants<float>::pi * 2.8f),
     numDecimalPlaces (7),
     sliderRegionStart (0),
     sliderRegionSize (1),
     sliderBeingDragged (-1),
     pixelsForFullDragExtent (250),
-    style (TwoValueHorizontal),
-    textBoxPos (TextBoxLeft),
+    style (MappingSlider::TwoValueHorizontal),
+    textBoxPos (MappingSlider::TextBoxLeft),
     textBoxWidth (80),
     textBoxHeight (20),
-    incDecButtonMode (incDecButtonsNotDraggable),
+    incDecButtonMode (MappingSlider::incDecButtonsNotDraggable),
     editableText (true),
     doubleClickToValue (false),
     isVelocityBased (false),
@@ -166,7 +166,7 @@ void MappingSlider::removeListener (MappingSliderListener* const listener)
 }
 
 //==============================================================================
-void MappingSlider::setMappingSliderStyle (const MappingSliderStyle newStyle)
+void MappingSlider::setMappingSliderStyle (const MappingSlider::MappingSliderStyle newStyle)
 {
     if (style != newStyle)
     {
@@ -182,7 +182,7 @@ void MappingSlider::setRotaryParameters (const float startAngleRadians,
 {
     // make sure the values are sensible..
     jassert (rotaryStart >= 0 && rotaryEnd >= 0);
-    jassert (rotaryStart < float_Pi * 4.0f && rotaryEnd < float_Pi * 4.0f);
+    jassert (rotaryStart < juce::MathConstants<float>::pi * 4.0f && rotaryEnd < juce::MathConstants<float>::pi * 4.0f);
     jassert (rotaryStart < rotaryEnd);
 
     rotaryStart = startAngleRadians;
@@ -229,7 +229,7 @@ void MappingSlider::setMouseDragSensitivity (const int distanceForFullScaleDrag)
     pixelsForFullDragExtent = distanceForFullScaleDrag;
 }
 
-void MappingSlider::setIncDecButtonsMode (const IncDecButtonMode mode)
+void MappingSlider::setIncDecButtonsMode (const MappingSlider::IncDecButtonMode mode)
 {
     if (incDecButtonMode != mode)
     {
@@ -238,7 +238,7 @@ void MappingSlider::setIncDecButtonsMode (const IncDecButtonMode mode)
     }
 }
 
-void MappingSlider::setTextBoxStyle (const TextEntryBoxPosition newPosition,
+void MappingSlider::setTextBoxStyle (const MappingSlider::TextEntryBoxPosition newPosition,
                               const bool isReadOnly,
                               const int textEntryBoxWidth,
                               const int textEntryBoxHeight)
@@ -312,13 +312,15 @@ void MappingSlider::lookAndFeelChanged()
 {
     //LookAndFeel& lf = getLookAndFeel();
 
-    if (textBoxPos != NoTextBox)
+    if (textBoxPos != MappingSlider::NoTextBox)
     {
         const String previousTextBoxContent (valueBox != nullptr ? valueBox->getText()
                                                                  : getTextFromValue (currentValue.getValue()));
 
-        valueBox = nullptr;
-        addAndMakeVisible (valueBox = createMappingSliderTextBox (*this));
+        valueBox.reset();
+        valueBox.reset(createMappingSliderTextBox (*this));
+
+        addAndMakeVisible (valueBox.get());
 
         valueBox->setWantsKeyboardFocus (false);
         valueBox->setText (previousTextBoxContent, dontSendNotification);
@@ -328,25 +330,27 @@ void MappingSlider::lookAndFeelChanged()
 
         valueBox->addListener (this);
 
-        if (style == LinearBar)
+        if (style == MappingSlider::LinearBar)
             valueBox->addMouseListener (this, false);
 
         valueBox->setTooltip (getTooltip());
     }
     else
     {
-        valueBox = nullptr;
+        valueBox.reset();
     }
 
-    if (style == IncDecButtons)
+    if (style == MappingSlider::IncDecButtons)
     {
-        addAndMakeVisible (incButton = createMappingSliderButton (true));
+        incButton.reset(createMappingSliderButton (true));
+        addAndMakeVisible (incButton.get());
         incButton->addListener (this);
 
-        addAndMakeVisible (decButton = createMappingSliderButton (false));
+        decButton.reset(createMappingSliderButton (false));
+        addAndMakeVisible (decButton.get());
         decButton->addListener (this);
 
-        if (incDecButtonMode != incDecButtonsNotDraggable)
+        if (incDecButtonMode != MappingSlider::incDecButtonsNotDraggable)
         {
             incButton->addMouseListener (this, false);
             decButton->addMouseListener (this, false);
@@ -354,10 +358,10 @@ void MappingSlider::lookAndFeelChanged()
         else
         {
             incButton->setRepeatSpeed (300, 100, 20);
-            incButton->addMouseListener (decButton, false);
+            incButton->addMouseListener (decButton.get(), false);
 
             decButton->setRepeatSpeed (300, 100, 20);
-            decButton->addMouseListener (incButton, false);
+            decButton->addMouseListener (incButton.get(), false);
         }
 
         incButton->setTooltip (getTooltip());
@@ -365,8 +369,8 @@ void MappingSlider::lookAndFeelChanged()
     }
     else
     {
-        incButton = nullptr;
-        decButton = nullptr;
+        incButton.reset();
+        decButton.reset();
     }
 
     setComponentEffect (getMappingSliderEffect());
@@ -404,14 +408,14 @@ void MappingSlider::setRange (const double newMin,
         }
 
         // keep the current values inside the new range..
-        if (style != TwoValueHorizontal && style != TwoValueVertical)
+        if (style != MappingSlider::TwoValueHorizontal && style != MappingSlider::TwoValueVertical)
         {
             setValue (getValue(), false, false);
         }
         else
         {
-            setMinValue (getMinValue(), false, false);
-            setMaxValue (getMaxValue(), false, false);
+            setMinValue (getMinValue(), false, false, juce::NotificationType::sendNotification);
+            setMaxValue (getMaxValue(), false, false, juce::NotificationType::sendNotification);
         }
 
         updateText();
@@ -432,20 +436,20 @@ void MappingSlider::valueChanged (Value& value)
 {
     if (value.refersToSameSourceAs (currentValue))
     {
-        if (style != TwoValueHorizontal && style != TwoValueVertical)
+        if (style != MappingSlider::TwoValueHorizontal && style != MappingSlider::TwoValueVertical)
             setValue (currentValue.getValue(), false, false);
     }
     else if (value.refersToSameSourceAs (valueMin))
-        setMinValue (valueMin.getValue(), false, false, true);
+        setMinValue (valueMin.getValue(), false, false, juce::NotificationType::sendNotification);
     else if (value.refersToSameSourceAs (valueMax))
-        setMaxValue (valueMax.getValue(), false, false, true);
+        setMaxValue (valueMax.getValue(), false, false, juce::NotificationType::sendNotification);
 }
 
 double MappingSlider::getValue() const
 {
     // for a two-value style slider, you should use the getMinValue() and getMaxValue()
     // methods to get the two values.
-    jassert (style != TwoValueHorizontal && style != TwoValueVertical);
+    jassert (style != MappingSlider::TwoValueHorizontal && style != MappingSlider::TwoValueVertical);
 
     return currentValue.getValue();
 }
@@ -456,11 +460,11 @@ void MappingSlider::setValue (double newValue,
 {
     // for a two-value style slider, you should use the setMinValue() and setMaxValue()
     // methods to set the two values.
-    jassert (style != TwoValueHorizontal && style != TwoValueVertical);
+    jassert (style != MappingSlider::TwoValueHorizontal && style != MappingSlider::TwoValueVertical);
 
     newValue = constrainedValue (newValue);
 
-    if (style == ThreeValueHorizontal || style == ThreeValueVertical)
+    if (style == MappingSlider::ThreeValueHorizontal || style == MappingSlider::ThreeValueVertical)
     {
         jassert ((double) valueMin.getValue() <= (double) valueMax.getValue());
 
@@ -495,8 +499,8 @@ void MappingSlider::setValue (double newValue,
 double MappingSlider::getMinValue() const
 {
     // The minimum value only applies to sliders that are in two- or three-value mode.
-    jassert (style == TwoValueHorizontal || style == TwoValueVertical
-              || style == ThreeValueHorizontal || style == ThreeValueVertical);
+    jassert (style == MappingSlider::TwoValueHorizontal || style == MappingSlider::TwoValueVertical
+              || style == MappingSlider::ThreeValueHorizontal || style == MappingSlider::ThreeValueVertical);
 
     return valueMin.getValue();
 }
@@ -504,21 +508,21 @@ double MappingSlider::getMinValue() const
 double MappingSlider::getMaxValue() const
 {
     // The maximum value only applies to sliders that are in two- or three-value mode.
-    jassert (style == TwoValueHorizontal || style == TwoValueVertical
-              || style == ThreeValueHorizontal || style == ThreeValueVertical);
+    jassert (style == MappingSlider::TwoValueHorizontal || style == MappingSlider::TwoValueVertical
+              || style == MappingSlider::ThreeValueHorizontal || style == MappingSlider::ThreeValueVertical);
 
     return valueMax.getValue();
 }
 
-void MappingSlider::setMinValue (double newValue, const bool sendUpdateMessage, const bool sendMessageSynchronously, const bool allowNudgingOfOtherValues)
+void MappingSlider::setMinValue (double newValue, const bool sendUpdateMessage, const bool sendMessageSynchronously, const bool allowNudgingOfOtherValues, const juce::NotificationType notificationType)
 {
     // The minimum value only applies to sliders that are in two- or three-value mode.
-    jassert (style == TwoValueHorizontal || style == TwoValueVertical
-              || style == ThreeValueHorizontal || style == ThreeValueVertical);
+    jassert (style == MappingSlider::TwoValueHorizontal || style == MappingSlider::TwoValueVertical
+              || style == MappingSlider::ThreeValueHorizontal || style == MappingSlider::ThreeValueVertical);
 
     newValue = constrainedValue (newValue);
 
-    /*if (style == TwoValueHorizontal || style == TwoValueVertical)
+    if (style == MappingSlider::TwoValueHorizontal || style == MappingSlider::TwoValueVertical)
     {
         if (allowNudgingOfOtherValues && newValue > (double) valueMax.getValue())
             setMaxValue (newValue, sendUpdateMessage, sendMessageSynchronously);
@@ -531,7 +535,7 @@ void MappingSlider::setMinValue (double newValue, const bool sendUpdateMessage, 
             setValue (newValue, sendUpdateMessage, sendMessageSynchronously);
 
         newValue = jmin (lastCurrentValue, newValue);
-    }*/
+    }
 
     if (lastValueMin != newValue)
     {
@@ -547,15 +551,15 @@ void MappingSlider::setMinValue (double newValue, const bool sendUpdateMessage, 
     }
 }
 
-void MappingSlider::setMaxValue (double newValue, const bool sendUpdateMessage, const bool sendMessageSynchronously, const bool allowNudgingOfOtherValues)
+void MappingSlider::setMaxValue (double newValue, const bool sendUpdateMessage, const bool sendMessageSynchronously, const bool allowNudgingOfOtherValues, const juce::NotificationType notificationType)
 {
     // The maximum value only applies to sliders that are in two- or three-value mode.
-    jassert (style == TwoValueHorizontal || style == TwoValueVertical
-              || style == ThreeValueHorizontal || style == ThreeValueVertical);
+    jassert (style == MappingSlider::TwoValueHorizontal || style == MappingSlider::TwoValueVertical
+              || style == MappingSlider::ThreeValueHorizontal || style == MappingSlider::ThreeValueVertical);
 
     newValue = constrainedValue (newValue);
 
-    /*if (style == TwoValueHorizontal || style == TwoValueVertical)
+    if (style == MappingSlider::TwoValueHorizontal || style == MappingSlider::TwoValueVertical)
     {
         if (allowNudgingOfOtherValues && newValue < (double) valueMin.getValue())
             setMinValue (newValue, sendUpdateMessage, sendMessageSynchronously);
@@ -568,7 +572,7 @@ void MappingSlider::setMaxValue (double newValue, const bool sendUpdateMessage, 
             setValue (newValue, sendUpdateMessage, sendMessageSynchronously);
 
         newValue = jmax (lastCurrentValue, newValue);
-    }*/
+    }
 
     if (lastValueMax != newValue)
     {
@@ -587,8 +591,8 @@ void MappingSlider::setMaxValue (double newValue, const bool sendUpdateMessage, 
 void MappingSlider::setMinAndMaxValues (double newMinValue, double newMaxValue, bool sendUpdateMessage, bool sendMessageSynchronously)
 {
     // The maximum value only applies to sliders that are in two- or three-value mode.
-    jassert (style == TwoValueHorizontal || style == TwoValueVertical
-              || style == ThreeValueHorizontal || style == ThreeValueVertical);
+    jassert (style == MappingSlider::TwoValueHorizontal || style == MappingSlider::TwoValueVertical
+              || style == MappingSlider::ThreeValueHorizontal || style == MappingSlider::ThreeValueVertical);
 
     if (newMaxValue < newMinValue)
         std::swap (newMaxValue, newMinValue);
@@ -730,13 +734,13 @@ void MappingSlider::labelTextChanged (Label* label)
 
 void MappingSlider::buttonClicked (Button* button)
 {
-    if (style == IncDecButtons)
+    if (style == MappingSlider::IncDecButtons)
     {
         sendDragStart();
 
-        if (button == incButton)
+        if (button == incButton.get())
             setValue (snapValue (getValue() + interval, false), true, true);
-        else if (button == decButton)
+        else if (button == decButton.get())
             setValue (snapValue (getValue() - interval, false), true, true);
 
         sendDragEnd();
@@ -782,7 +786,7 @@ float MappingSlider::getLinearMappingSliderPos (const double value)
         sliderPosProportional = 0.5;
     }
 
-    if (isVertical() || style == IncDecButtons)
+    if (isVertical() || style == MappingSlider::IncDecButtons)
         sliderPosProportional = 1.0 - sliderPosProportional;
 
     return (float) (sliderRegionStart + sliderPosProportional * sliderRegionSize);
@@ -790,23 +794,23 @@ float MappingSlider::getLinearMappingSliderPos (const double value)
 
 bool MappingSlider::isHorizontal() const
 {
-    return style == LinearHorizontal
-        || style == LinearBar
-        || style == TwoValueHorizontal
-        || style == ThreeValueHorizontal;
+    return style == MappingSlider::LinearHorizontal
+        || style == MappingSlider::LinearBar
+        || style == MappingSlider::TwoValueHorizontal
+        || style == MappingSlider::ThreeValueHorizontal;
 }
 
 bool MappingSlider::isVertical() const
 {
-    return style == LinearVertical
-        || style == TwoValueVertical
-        || style == ThreeValueVertical;
+    return style == MappingSlider::LinearVertical
+        || style == MappingSlider::TwoValueVertical
+        || style == MappingSlider::ThreeValueVertical;
 }
 
 bool MappingSlider::incDecDragDirectionIsHorizontal() const
 {
-    return incDecButtonMode == incDecButtonsDraggable_Horizontal
-            || (incDecButtonMode == incDecButtonsDraggable_AutoDirection && incDecButtonsSideBySide);
+    return incDecButtonMode == MappingSlider::incDecButtonsDraggable_Horizontal
+            || (incDecButtonMode == MappingSlider::incDecButtonsDraggable_AutoDirection && incDecButtonsSideBySide);
 }
 
 float MappingSlider::getPositionOfValue (const double value)
@@ -825,9 +829,9 @@ float MappingSlider::getPositionOfValue (const double value)
 //==============================================================================
 void MappingSlider::paint (Graphics& g)
 {
-    if (style != IncDecButtons)
+    if (style != MappingSlider::IncDecButtons)
     {
-        if (style == Rotary || style == RotaryHorizontalDrag || style == RotaryVerticalDrag)
+        if (style == MappingSlider::Rotary || style == MappingSlider::RotaryHorizontalDrag || style == MappingSlider::RotaryVerticalDrag)
         {
             const float sliderPos = (float) valueToProportionOfLength (lastCurrentValue);
             jassert (sliderPos >= 0 && sliderPos <= 1.0f);
@@ -855,7 +859,7 @@ void MappingSlider::paint (Graphics& g)
                                                *this);
         }
 
-        if (style == LinearBar && valueBox == nullptr)
+        if (style == MappingSlider::LinearBar && valueBox == nullptr)
         {
             g.setColour (findColour (MappingSlider::textBoxOutlineColourId));
             g.drawRect (0, 0, getWidth(), getHeight(), 1);
@@ -868,7 +872,7 @@ void MappingSlider::resized()
     int minXSpace = 0;
     int minYSpace = 0;
 
-    if (textBoxPos == TextBoxLeft || textBoxPos == TextBoxRight)
+    if (textBoxPos == MappingSlider::TextBoxLeft || textBoxPos == MappingSlider::TextBoxRight)
         minXSpace = 30;
     else
         minYSpace = 15;
@@ -876,33 +880,33 @@ void MappingSlider::resized()
     const int tbw = jmax (0, jmin (textBoxWidth, getWidth() - minXSpace));
     const int tbh = jmax (0, jmin (textBoxHeight, getHeight() - minYSpace));
 
-    if (style == LinearBar)
+    if (style == MappingSlider::LinearBar)
     {
         if (valueBox != nullptr)
             valueBox->setBounds (getLocalBounds());
     }
     else
     {
-        if (textBoxPos == NoTextBox)
+        if (textBoxPos == MappingSlider::NoTextBox)
         {
             sliderRect = getLocalBounds();
         }
-        else if (textBoxPos == TextBoxLeft)
+        else if (textBoxPos == MappingSlider::TextBoxLeft)
         {
             valueBox->setBounds (0, (getHeight() - tbh) / 2, tbw, tbh);
             sliderRect.setBounds (tbw, 0, getWidth() - tbw, getHeight());
         }
-        else if (textBoxPos == TextBoxRight)
+        else if (textBoxPos == MappingSlider::TextBoxRight)
         {
             valueBox->setBounds (getWidth() - tbw, (getHeight() - tbh) / 2, tbw, tbh);
             sliderRect.setBounds (0, 0, getWidth() - tbw, getHeight());
         }
-        else if (textBoxPos == TextBoxAbove)
+        else if (textBoxPos == MappingSlider::TextBoxAbove)
         {
             valueBox->setBounds ((getWidth() - tbw) / 2, 0, tbw, tbh);
             sliderRect.setBounds (0, tbh, getWidth(), getHeight() - tbh);
         }
-        else if (textBoxPos == TextBoxBelow)
+        else if (textBoxPos == MappingSlider::TextBoxBelow)
         {
             valueBox->setBounds ((getWidth() - tbw) / 2, getHeight() - tbh, tbw, tbh);
             sliderRect.setBounds (0, 0, getWidth(), getHeight() - tbh);
@@ -911,7 +915,7 @@ void MappingSlider::resized()
 
     const int indent = getMappingSliderThumbRadius (*this);
 
-    if (style == LinearBar)
+    if (style == MappingSlider::LinearBar)
     {
         const int barIndent = 1;
         sliderRegionStart = barIndent;
@@ -942,11 +946,11 @@ void MappingSlider::resized()
         sliderRegionSize = 100;
     }
 
-    if (style == IncDecButtons)
+    if (style == MappingSlider::IncDecButtons)
     {
         Rectangle<int> buttonRect (sliderRect);
 
-        if (textBoxPos == TextBoxLeft || textBoxPos == TextBoxRight)
+        if (textBoxPos == MappingSlider::TextBoxLeft || textBoxPos == MappingSlider::TextBoxRight)
             buttonRect.expand (-2, 0);
         else
             buttonRect.expand (0, -2);
@@ -1027,12 +1031,12 @@ void MappingSlider::mouseDown (const MouseEvent& e)
             m.addItem (1, TRANS ("velocity-sensitive mode"), true, isVelocityBased);
             m.addSeparator();
 
-            if (style == Rotary || style == RotaryHorizontalDrag || style == RotaryVerticalDrag)
+            if (style == MappingSlider::Rotary || style == MappingSlider::RotaryHorizontalDrag || style == MappingSlider::RotaryVerticalDrag)
             {
                 PopupMenu rotaryMenu;
-                rotaryMenu.addItem (2, TRANS ("use circular dragging"), true, style == Rotary);
-                rotaryMenu.addItem (3, TRANS ("use left-right dragging"), true, style == RotaryHorizontalDrag);
-                rotaryMenu.addItem (4, TRANS ("use up-down dragging"), true, style == RotaryVerticalDrag);
+                rotaryMenu.addItem (2, TRANS ("use circular dragging"), true, style == MappingSlider::Rotary);
+                rotaryMenu.addItem (3, TRANS ("use left-right dragging"), true, style == MappingSlider::RotaryHorizontalDrag);
+                rotaryMenu.addItem (4, TRANS ("use up-down dragging"), true, style == MappingSlider::RotaryVerticalDrag);
 
                 m.addSubMenu (TRANS ("rotary mode"), rotaryMenu);
             }
@@ -1049,10 +1053,10 @@ void MappingSlider::mouseDown (const MouseEvent& e)
 
             sliderBeingDragged = 0;
 
-            if (style == TwoValueHorizontal
-                 || style == TwoValueVertical
-                 || style == ThreeValueHorizontal
-                 || style == ThreeValueVertical)
+            if (style == MappingSlider::TwoValueHorizontal
+                 || style == MappingSlider::TwoValueVertical
+                 || style == MappingSlider::ThreeValueHorizontal
+                 || style == MappingSlider::ThreeValueVertical)
             {
                 const float mousePos = (float) (isVertical() ? e.y : e.x);
 
@@ -1060,14 +1064,14 @@ void MappingSlider::mouseDown (const MouseEvent& e)
                 const float minPosDistance = std::abs (getLinearMappingSliderPos (valueMin.getValue()) - 0.1f - mousePos);
                 const float maxPosDistance = std::abs (getLinearMappingSliderPos (valueMax.getValue()) + 0.1f - mousePos);
 
-                if (style == TwoValueHorizontal || style == TwoValueVertical)
+                if (style == MappingSlider::TwoValueHorizontal || style == MappingSlider::TwoValueVertical)
                 {
                     if (maxPosDistance <= minPosDistance)
                         sliderBeingDragged = 2;
                     else
                         sliderBeingDragged = 1;
                 }
-                else if (style == ThreeValueHorizontal || style == ThreeValueVertical)
+                else if (style == MappingSlider::ThreeValueHorizontal || style == MappingSlider::ThreeValueVertical)
                 {
                     if (normalPosDistance >= minPosDistance && maxPosDistance >= minPosDistance)
                         sliderBeingDragged = 1;
@@ -1090,7 +1094,7 @@ void MappingSlider::mouseDown (const MouseEvent& e)
             if (popupDisplayEnabled)
             {
                 PopupDisplayComponent* const popup = new PopupDisplayComponent (*this);
-                popupDisplay = popup;
+                popupDisplay.reset(popup);
 
                 if (parentForPopupDisplay != nullptr)
                     parentForPopupDisplay->addChildComponent (popup);
@@ -1112,7 +1116,7 @@ void MappingSlider::mouseUp (const MouseEvent&)
     if (isEnabled()
          && (! menuShown)
          && (maximum > minimum)
-         && (style != IncDecButtons || incDecDragged))
+         && (style != MappingSlider::IncDecButtons || incDecDragged))
     {
         restoreMouseIfHidden();
 
@@ -1122,7 +1126,7 @@ void MappingSlider::mouseUp (const MouseEvent&)
         sendDragEnd();
         popupDisplay = nullptr;
 
-        if (style == IncDecButtons)
+        if (style == MappingSlider::IncDecButtons)
         {
             incButton->setState (Button::buttonNormal);
             decButton->setState (Button::buttonNormal);
@@ -1149,11 +1153,11 @@ void MappingSlider::restoreMouseIfHidden()
 
         Point<int> mousePos;
 
-        if (style == RotaryHorizontalDrag || style == RotaryVerticalDrag)
+        if (style == MappingSlider::RotaryHorizontalDrag || style == MappingSlider::RotaryVerticalDrag)
         {
             mousePos = Desktop::getLastMouseDownPosition();
 
-            if (style == RotaryHorizontalDrag)
+            if (style == MappingSlider::RotaryHorizontalDrag)
             {
                 const double posDiff = valueToProportionOfLength (pos) - valueToProportionOfLength (valueOnMouseDown);
                 mousePos += Point<int> (roundToInt (pixelsForFullDragExtent * posDiff), 0);
@@ -1179,8 +1183,8 @@ void MappingSlider::restoreMouseIfHidden()
 void MappingSlider::modifierKeysChanged (const ModifierKeys& modifiers)
 {
     if (isEnabled()
-         && style != IncDecButtons
-         && style != Rotary
+         && style != MappingSlider::IncDecButtons
+         && style != MappingSlider::Rotary
          && isVelocityBased == modifiers.isAnyModifierKeyDown())
     {
         restoreMouseIfHidden();
@@ -1192,8 +1196,8 @@ namespace MappingSliderHelpers
     double smallestAngleBetween (double a1, double a2) noexcept
     {
         return jmin (std::abs (a1 - a2),
-                     std::abs (a1 + double_Pi * 2.0 - a2),
-                     std::abs (a2 + double_Pi * 2.0 - a1));
+                     std::abs (a1 + juce::MathConstants<float>::pi * 2.0 - a2),
+                     std::abs (a2 + juce::MathConstants<float>::pi * 2.0 - a1));
     }
 }
 
@@ -1203,7 +1207,7 @@ void MappingSlider::mouseDrag (const MouseEvent& e)
          && (! menuShown)
          && (maximum > minimum))
     {
-        if (style == Rotary)
+        if (style == MappingSlider::Rotary)
         {
             const int dx = e.x - sliderRect.getCentreX();
             const int dy = e.y - sliderRect.getCentreY();
@@ -1212,16 +1216,16 @@ void MappingSlider::mouseDrag (const MouseEvent& e)
             {
                 double angle = std::atan2 ((double) dx, (double) -dy);
                 while (angle < 0.0)
-                    angle += double_Pi * 2.0;
+                    angle += juce::MathConstants<float>::pi * 2.0;
 
                 if (rotaryStop && ! e.mouseWasClicked())
                 {
-                    if (std::abs (angle - lastAngle) > double_Pi)
+                    if (std::abs (angle - lastAngle) > juce::MathConstants<float>::pi)
                     {
                         if (angle >= lastAngle)
-                            angle -= double_Pi * 2.0;
+                            angle -= juce::MathConstants<float>::pi * 2.0;
                         else
-                            angle += double_Pi * 2.0;
+                            angle += juce::MathConstants<float>::pi * 2.0;
                     }
 
                     if (angle >= lastAngle)
@@ -1232,7 +1236,7 @@ void MappingSlider::mouseDrag (const MouseEvent& e)
                 else
                 {
                     while (angle < rotaryStart)
-                        angle += double_Pi * 2.0;
+                        angle += juce::MathConstants<float>::pi * 2.0;
 
                     if (angle > rotaryEnd)
                     {
@@ -1253,11 +1257,11 @@ void MappingSlider::mouseDrag (const MouseEvent& e)
         }
         else
         {
-            if (style == LinearBar && e.mouseWasClicked()
+            if (style == MappingSlider::LinearBar && e.mouseWasClicked()
                  && valueBox != nullptr && valueBox->isEditable())
                 return;
 
-            if (style == IncDecButtons && ! incDecDragged)
+            if (style == MappingSlider::IncDecButtons && ! incDecDragged)
             {
                 if (e.getDistanceFromDragStart() < 10 || e.mouseWasClicked())
                     return;
@@ -1271,20 +1275,20 @@ void MappingSlider::mouseDrag (const MouseEvent& e)
                                                               : false))
                 || ((maximum - minimum) / sliderRegionSize < interval))
             {
-                const int mousePos = (isHorizontal() || style == RotaryHorizontalDrag) ? e.x : e.y;
+                const int mousePos = (isHorizontal() || style == MappingSlider::RotaryHorizontalDrag) ? e.x : e.y;
 
                 double scaledMousePos = (mousePos - sliderRegionStart) / (double) sliderRegionSize;
 
-                if (style == RotaryHorizontalDrag
-                    || style == RotaryVerticalDrag
-                    || style == IncDecButtons
-                    || ((style == LinearHorizontal || style == LinearVertical || style == LinearBar)
+                if (style == MappingSlider::RotaryHorizontalDrag
+                    || style == MappingSlider::RotaryVerticalDrag
+                    || style == MappingSlider::IncDecButtons
+                    || ((style == MappingSlider::LinearHorizontal || style == MappingSlider::LinearVertical || style == MappingSlider::LinearBar)
                         && ! snapsToMousePos))
                 {
-                    const int mouseDiff = (style == RotaryHorizontalDrag
-                                             || style == LinearHorizontal
-                                             || style == LinearBar
-                                             || (style == IncDecButtons && incDecDragDirectionIsHorizontal()))
+                    const int mouseDiff = (style == MappingSlider::RotaryHorizontalDrag
+                                             || style == MappingSlider::LinearHorizontal
+                                             || style == MappingSlider::LinearBar
+                                             || (style == MappingSlider::IncDecButtons && incDecDragDirectionIsHorizontal()))
                                             ? e.x - mouseDragStartX
                                             : mouseDragStartY - e.y;
 
@@ -1293,7 +1297,7 @@ void MappingSlider::mouseDrag (const MouseEvent& e)
 
                     valueWhenLastDragged = proportionOfLengthToValue (jlimit (0.0, 1.0, newPos));
 
-                    if (style == IncDecButtons)
+                    if (style == MappingSlider::IncDecButtons)
                     {
                         incButton->setState (mouseDiff < 0 ? Button::buttonNormal : Button::buttonDown);
                         decButton->setState (mouseDiff > 0 ? Button::buttonNormal : Button::buttonDown);
@@ -1309,8 +1313,8 @@ void MappingSlider::mouseDrag (const MouseEvent& e)
             }
             else
             {
-                const int mouseDiff = (isHorizontal() || style == RotaryHorizontalDrag
-                                         || (style == IncDecButtons && incDecDragDirectionIsHorizontal()))
+                const int mouseDiff = (isHorizontal() || style == MappingSlider::RotaryHorizontalDrag
+                                         || (style == MappingSlider::IncDecButtons && incDecDragDirectionIsHorizontal()))
                                         ? e.x - mousePosWhenLastDragged.getX()
                                         : e.y - mousePosWhenLastDragged.getY();
 
@@ -1320,15 +1324,15 @@ void MappingSlider::mouseDrag (const MouseEvent& e)
                 if (speed != 0)
                 {
                     speed = 0.2 * velocityModeSensitivity
-                              * (1.0 + std::sin (double_Pi * (1.5 + jmin (0.5, velocityModeOffset
+                              * (1.0 + std::sin (juce::MathConstants<float>::pi * (1.5 + jmin (0.5, velocityModeOffset
                                                                             + jmax (0.0, (double) (speed - velocityModeThreshold))
                                                                                 / maxSpeed))));
 
                     if (mouseDiff < 0)
                         speed = -speed;
 
-                    if (isVertical() || style == RotaryVerticalDrag
-                         || (style == IncDecButtons && ! incDecDragDirectionIsHorizontal()))
+                    if (isVertical() || style == MappingSlider::RotaryVerticalDrag
+                         || (style == MappingSlider::IncDecButtons && ! incDecDragDirectionIsHorizontal()))
                         speed = -speed;
 
                     const double currentPos = valueToProportionOfLength (valueWhenLastDragged);
@@ -1339,39 +1343,39 @@ void MappingSlider::mouseDrag (const MouseEvent& e)
                     mouseWasHidden = true;
                 }
             }
-        }
 
-        valueWhenLastDragged = jlimit (minimum, maximum, valueWhenLastDragged);
+            valueWhenLastDragged = jlimit (minimum, maximum, valueWhenLastDragged);
 
-        if (sliderBeingDragged == 0)
-        {
-            setValue (snapValue (valueWhenLastDragged, true),
-                      ! sendChangeOnlyOnRelease, true);
-        }
-        else if (sliderBeingDragged == 1)
-        {
-            setMinValue (snapValue (valueWhenLastDragged, true),
-                         ! sendChangeOnlyOnRelease, false, true);
+            if (sliderBeingDragged == 0)
+            {
+                setValue (snapValue (valueWhenLastDragged, true),
+                          ! sendChangeOnlyOnRelease, true);
+            }
+            else if (sliderBeingDragged == 1)
+            {
+                setMinValue (snapValue (valueWhenLastDragged, true),
+                             ! sendChangeOnlyOnRelease, false, juce::NotificationType::sendNotification);
 
-            if (e.mods.isShiftDown())
-                setMaxValue (getMinValue() + minMaxDiff, false, false, true);
+                if (e.mods.isShiftDown())
+                    setMaxValue (getMinValue() + minMaxDiff, false, false, juce::NotificationType::sendNotification);
+                else
+                    minMaxDiff = (double) valueMax.getValue() - (double) valueMin.getValue();
+            }
             else
-                minMaxDiff = (double) valueMax.getValue() - (double) valueMin.getValue();
+            {
+                jassert (sliderBeingDragged == 2);
+
+                setMaxValue (snapValue (valueWhenLastDragged, true),
+                             ! sendChangeOnlyOnRelease, false, juce::NotificationType::sendNotification);
+
+                if (e.mods.isShiftDown())
+                    setMinValue (getMaxValue() - minMaxDiff, false, false, juce::NotificationType::sendNotification);
+                else
+                    minMaxDiff = (double) valueMax.getValue() - (double) valueMin.getValue();
+            }
+
+            mousePosWhenLastDragged = e.getPosition();
         }
-        else
-        {
-            jassert (sliderBeingDragged == 2);
-
-            setMaxValue (snapValue (valueWhenLastDragged, true),
-                         ! sendChangeOnlyOnRelease, false, true);
-
-            if (e.mods.isShiftDown())
-                setMinValue (getMaxValue() - minMaxDiff, false, false, true);
-            else
-                minMaxDiff = (double) valueMax.getValue() - (double) valueMin.getValue();
-        }
-
-        mousePosWhenLastDragged = e.getPosition();
     }
 }
 
@@ -1379,7 +1383,7 @@ void MappingSlider::mouseDoubleClick (const MouseEvent&)
 {
     if (doubleClickToValue
          && isEnabled()
-         && style != IncDecButtons
+         && style != MappingSlider::IncDecButtons
          && minimum <= doubleClickReturnValue
          && maximum >= doubleClickReturnValue)
     {
@@ -1392,8 +1396,8 @@ void MappingSlider::mouseDoubleClick (const MouseEvent&)
 void MappingSlider::mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wheel)
 {
     if (scrollWheelEnabled && isEnabled()
-         && style != TwoValueHorizontal
-         && style != TwoValueVertical)
+         && style != MappingSlider::TwoValueHorizontal
+         && style != MappingSlider::TwoValueVertical)
     {
         if (maximum > minimum && ! e.mods.isAnyMouseButtonDown())
         {
@@ -1433,7 +1437,7 @@ void MappingSliderListener::sliderDragEnded (MappingSlider*)
 class SliderLabelComp : public Label
 {
 public:
-    SliderLabelComp() : Label (String::empty, String::empty) {}
+    SliderLabelComp() : Label (juce::String(), juce::String()) {}
 
     void mouseWheelMove (const MouseEvent&, const MouseWheelDetails& wheel) {}
 };
@@ -1464,7 +1468,7 @@ Label* MappingSlider::createMappingSliderTextBox (MappingSlider& slider)
 
 Button* MappingSlider::createMappingSliderButton (const bool isIncrement)
 {
-    return new TextButton (isIncrement ? "+" : "-", String::empty);
+    return new TextButton (isIncrement ? "+" : "-", juce::String());
 }
 
 void MappingSlider::drawRotaryMappingSlider (Graphics& g,
@@ -1566,51 +1570,51 @@ void createRoundedPath (Path& p,
                             const float cs,
                             const bool curveTopLeft, const bool curveTopRight,
                             const bool curveBottomLeft, const bool curveBottomRight) noexcept
+{
+    const float cs2 = 2.0f * cs;
+
+    if (curveTopLeft)
     {
-        const float cs2 = 2.0f * cs;
-
-        if (curveTopLeft)
-        {
-            p.startNewSubPath (x, y + cs);
-            p.addArc (x, y, cs2, cs2, float_Pi * 1.5f, float_Pi * 2.0f);
-        }
-        else
-        {
-            p.startNewSubPath (x, y);
-        }
-
-        if (curveTopRight)
-        {
-            p.lineTo (x + w - cs, y);
-            p.addArc (x + w - cs2, y, cs2, cs2, 0.0f, float_Pi * 0.5f);
-        }
-        else
-        {
-            p.lineTo (x + w, y);
-        }
-
-        if (curveBottomRight)
-        {
-            p.lineTo (x + w, y + h - cs);
-            p.addArc (x + w - cs2, y + h - cs2, cs2, cs2, float_Pi * 0.5f, float_Pi);
-        }
-        else
-        {
-            p.lineTo (x + w, y + h);
-        }
-
-        if (curveBottomLeft)
-        {
-            p.lineTo (x + cs, y + h);
-            p.addArc (x, y + h - cs2, cs2, cs2, float_Pi, float_Pi * 1.5f);
-        }
-        else
-        {
-            p.lineTo (x, y + h);
-        }
-
-        p.closeSubPath();
+        p.startNewSubPath (x, y + cs);
+        p.addArc (x, y, cs2, cs2, juce::MathConstants<float>::pi * 1.5f, juce::MathConstants<float>::pi * 2.0f);
     }
+    else
+    {
+        p.startNewSubPath (x, y);
+    }
+
+    if (curveTopRight)
+    {
+        p.lineTo (x + w - cs, y);
+        p.addArc (x + w - cs2, y, cs2, cs2, 0.0f, juce::MathConstants<float>::pi * 0.5f);
+    }
+    else
+    {
+        p.lineTo (x + w, y);
+    }
+
+    if (curveBottomRight)
+    {
+        p.lineTo (x + w, y + h - cs);
+        p.addArc (x + w - cs2, y + h - cs2, cs2, cs2, juce::MathConstants<float>::pi * 0.5f, juce::MathConstants<float>::pi);
+    }
+    else
+    {
+        p.lineTo (x + w, y + h);
+    }
+
+    if (curveBottomLeft)
+    {
+        p.lineTo (x + cs, y + h);
+        p.addArc (x, y + h - cs2, cs2, cs2, juce::MathConstants<float>::pi, juce::MathConstants<float>::pi * 1.5f);
+    }
+    else
+    {
+        p.lineTo (x, y + h);
+    }
+
+    p.closeSubPath();
+}
 
 void drawShinyButtonShape (Graphics& g,
                                         float x, float y, float w, float h,
@@ -1646,6 +1650,91 @@ void drawShinyButtonShape (Graphics& g,
 
     g.setColour (Colour (0x80000000));
     g.strokePath (outline, PathStrokeType (strokeWidth));
+}
+
+void drawGlassSphere (Graphics& g,
+                                   const float x, const float y,
+                                   const float diameter,
+                                   const Colour& colour,
+                                   const float outlineThickness) noexcept
+{
+    if (diameter <= outlineThickness)
+        return;
+
+    Path p;
+    p.addEllipse (x, y, diameter, diameter);
+
+    {
+        ColourGradient cg (Colours::white.overlaidWith (colour.withMultipliedAlpha (0.3f)), 0, y,
+                           Colours::white.overlaidWith (colour.withMultipliedAlpha (0.3f)), 0, y + diameter, false);
+
+        cg.addColour (0.4, Colours::white.overlaidWith (colour));
+
+        g.setGradientFill (cg);
+        g.fillPath (p);
+    }
+
+    g.setGradientFill (ColourGradient (Colours::white, 0, y + diameter * 0.06f,
+                                       Colours::transparentWhite, 0, y + diameter * 0.3f, false));
+    g.fillEllipse (x + diameter * 0.2f, y + diameter * 0.05f, diameter * 0.6f, diameter * 0.4f);
+
+    ColourGradient cg (Colours::transparentBlack,
+                       x + diameter * 0.5f, y + diameter * 0.5f,
+                       Colours::black.withAlpha (0.5f * outlineThickness * colour.getFloatAlpha()),
+                       x, y + diameter * 0.5f, true);
+
+    cg.addColour (0.7, Colours::transparentBlack);
+    cg.addColour (0.8, Colours::black.withAlpha (0.1f * outlineThickness));
+
+    g.setGradientFill (cg);
+    g.fillPath (p);
+
+    g.setColour (Colours::black.withAlpha (0.5f * colour.getFloatAlpha()));
+    g.drawEllipse (x, y, diameter, diameter, outlineThickness);
+}
+
+void drawGlassPointer (Graphics& g,
+                                    const float x, const float y,
+                                    const float diameter,
+                                    const Colour& colour, const float outlineThickness,
+                                    const int direction) noexcept
+{
+    if (diameter <= outlineThickness)
+        return;
+
+    Path p;
+    p.startNewSubPath (x + diameter * 0.5f, y);
+    p.lineTo (x + diameter, y + diameter * 0.6f);
+    p.lineTo (x + diameter, y + diameter);
+    p.lineTo (x, y + diameter);
+    p.lineTo (x, y + diameter * 0.6f);
+    p.closeSubPath();
+
+    p.applyTransform (AffineTransform::rotation (direction * (juce::MathConstants<float>::pi * 0.5f), x + diameter * 0.5f, y + diameter * 0.5f));
+
+    {
+        ColourGradient cg (Colours::white.overlaidWith (colour.withMultipliedAlpha (0.3f)), 0, y,
+                           Colours::white.overlaidWith (colour.withMultipliedAlpha (0.3f)), 0, y + diameter, false);
+
+        cg.addColour (0.4, Colours::white.overlaidWith (colour));
+
+        g.setGradientFill (cg);
+        g.fillPath (p);
+    }
+
+    ColourGradient cg (Colours::transparentBlack,
+                       x + diameter * 0.5f, y + diameter * 0.5f,
+                       Colours::black.withAlpha (0.5f * outlineThickness * colour.getFloatAlpha()),
+                       x - diameter * 0.2f, y + diameter * 0.5f, true);
+
+    cg.addColour (0.5, Colours::transparentBlack);
+    cg.addColour (0.7, Colours::black.withAlpha (0.07f * outlineThickness));
+
+    g.setGradientFill (cg);
+    g.fillPath (p);
+
+    g.setColour (Colours::black.withAlpha (0.5f * colour.getFloatAlpha()));
+    g.strokePath (p, PathStrokeType (outlineThickness));
 }
 
 void MappingSlider::drawLinearMappingSlider (Graphics& g,
@@ -1728,92 +1817,7 @@ void MappingSlider::drawLinearMappingSliderBackground (Graphics& g,
     g.strokePath (indent, PathStrokeType (0.5f));
 }
 
-void drawGlassSphere (Graphics& g,
-                                   const float x, const float y,
-                                   const float diameter,
-                                   const Colour& colour,
-                                   const float outlineThickness) noexcept
-{
-    if (diameter <= outlineThickness)
-        return;
-
-    Path p;
-    p.addEllipse (x, y, diameter, diameter);
-
-    {
-        ColourGradient cg (Colours::white.overlaidWith (colour.withMultipliedAlpha (0.3f)), 0, y,
-                           Colours::white.overlaidWith (colour.withMultipliedAlpha (0.3f)), 0, y + diameter, false);
-
-        cg.addColour (0.4, Colours::white.overlaidWith (colour));
-
-        g.setGradientFill (cg);
-        g.fillPath (p);
-    }
-
-    g.setGradientFill (ColourGradient (Colours::white, 0, y + diameter * 0.06f,
-                                       Colours::transparentWhite, 0, y + diameter * 0.3f, false));
-    g.fillEllipse (x + diameter * 0.2f, y + diameter * 0.05f, diameter * 0.6f, diameter * 0.4f);
-
-    ColourGradient cg (Colours::transparentBlack,
-                       x + diameter * 0.5f, y + diameter * 0.5f,
-                       Colours::black.withAlpha (0.5f * outlineThickness * colour.getFloatAlpha()),
-                       x, y + diameter * 0.5f, true);
-
-    cg.addColour (0.7, Colours::transparentBlack);
-    cg.addColour (0.8, Colours::black.withAlpha (0.1f * outlineThickness));
-
-    g.setGradientFill (cg);
-    g.fillPath (p);
-
-    g.setColour (Colours::black.withAlpha (0.5f * colour.getFloatAlpha()));
-    g.drawEllipse (x, y, diameter, diameter, outlineThickness);
-}
-
-void drawGlassPointer (Graphics& g,
-                                    const float x, const float y,
-                                    const float diameter,
-                                    const Colour& colour, const float outlineThickness,
-                                    const int direction) noexcept
-{
-    if (diameter <= outlineThickness)
-        return;
-
-    Path p;
-    p.startNewSubPath (x + diameter * 0.5f, y);
-    p.lineTo (x + diameter, y + diameter * 0.6f);
-    p.lineTo (x + diameter, y + diameter);
-    p.lineTo (x, y + diameter);
-    p.lineTo (x, y + diameter * 0.6f);
-    p.closeSubPath();
-
-    p.applyTransform (AffineTransform::rotation (direction * (float_Pi * 0.5f), x + diameter * 0.5f, y + diameter * 0.5f));
-
-    {
-        ColourGradient cg (Colours::white.overlaidWith (colour.withMultipliedAlpha (0.3f)), 0, y,
-                           Colours::white.overlaidWith (colour.withMultipliedAlpha (0.3f)), 0, y + diameter, false);
-
-        cg.addColour (0.4, Colours::white.overlaidWith (colour));
-
-        g.setGradientFill (cg);
-        g.fillPath (p);
-    }
-
-    ColourGradient cg (Colours::transparentBlack,
-                       x + diameter * 0.5f, y + diameter * 0.5f,
-                       Colours::black.withAlpha (0.5f * outlineThickness * colour.getFloatAlpha()),
-                       x - diameter * 0.2f, y + diameter * 0.5f, true);
-
-    cg.addColour (0.5, Colours::transparentBlack);
-    cg.addColour (0.7, Colours::black.withAlpha (0.07f * outlineThickness));
-
-    g.setGradientFill (cg);
-    g.fillPath (p);
-
-    g.setColour (Colours::black.withAlpha (0.5f * colour.getFloatAlpha()));
-    g.strokePath (p, PathStrokeType (outlineThickness));
-}
-
-void MappingSlider::drawLinearMappingSliderThumb (Graphics& g,
+void drawLinearMappingSliderThumb (Graphics& g,
                                          int x, int y,
                                          int width, int height,
                                          float sliderPos,

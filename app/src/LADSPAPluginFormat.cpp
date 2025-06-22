@@ -164,7 +164,7 @@ public:
         desc.lastFileModTime = module->file.getLastModificationTime();
         desc.pluginFormatName = "LADSPA";
         desc.category = getCategory();
-        desc.manufacturerName = ptrPlug ? String (ptrPlug->Maker) : String::empty;
+        desc.manufacturerName = ptrPlug ? String (ptrPlug->Maker) : juce::String();
         desc.version = getVersion();
         desc.numInputChannels = getNumInputChannels();
         desc.numOutputChannels = getNumOutputChannels();
@@ -610,7 +610,7 @@ const String LADSPAPluginInstance::getParameterName (int index)
         return String (ptrPlug->PortNames [parameters [index]]).trim();
     }
 
-    return String::empty;
+    return juce::String();
 }
 
 const String LADSPAPluginInstance::getParameterText (int index)
@@ -627,7 +627,7 @@ const String LADSPAPluginInstance::getParameterText (int index)
             return String (normalParameters [index], 4);
     }
 
-    return String::empty;
+    return juce::String();
 }
 
 bool LADSPAPluginInstance::isParameterAutomatable (int index) const
@@ -749,7 +749,7 @@ const String LADSPAPluginInstance::getProgramName (int index)
     return programNames [index];
 #endif
 
-    return String::empty;
+    return juce::String();
 }
 
 void LADSPAPluginInstance::changeProgramName (int index, const String& newName)
@@ -775,7 +775,7 @@ const String LADSPAPluginInstance::getInputChannelName (const int index) const
         return String (ptrPlug->PortNames [inputs [index]]).trim();
     }
 
-    return String::empty;
+    return juce::String();
 }
 
 bool LADSPAPluginInstance::isInputChannelStereoPair (int index) const
@@ -793,7 +793,7 @@ const String LADSPAPluginInstance::getOutputChannelName (const int index) const
         return String (ptrPlug->PortNames [outputs [index]]).trim();
     }
 
-    return String::empty;
+    return juce::String();
 }
 
 bool LADSPAPluginInstance::isOutputChannelStereoPair (int index) const
@@ -953,7 +953,7 @@ bool LADSPAPluginFormat::fileMightContainThisPluginType (const String& fileOrIde
 
 #if JUCE_WIN32
     return f.existsAsFile()
-            && f.hasFileExtension (T(".dll"));
+            && f.hasFileExtension (T(".dl"));
 #elif JUCE_MAC
     return f.existsAsFile()
             && f.hasFileExtension (T(".so"));
@@ -1019,4 +1019,5 @@ const FileSearchPath LADSPAPluginFormat::getDefaultLocationsToSearch()
     return FileSearchPath ("/usr/lib/ladspa");
 #endif
 }
+
 

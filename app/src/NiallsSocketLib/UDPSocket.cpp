@@ -27,6 +27,7 @@
 #include <sys/select.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <unistd.h>
 
 #ifndef inet_addr
 #include <arpa/inet.h>

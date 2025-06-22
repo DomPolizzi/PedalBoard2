@@ -18,6 +18,7 @@
 //	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //	----------------------------------------------------------------------------
 
+#include "JuceHeader.h"
 #include "PedalboardProcessors.h"
 #include "PropertiesSingleton.h"
 #include "BypassableInstance.h"
@@ -38,8 +39,8 @@ class NiallsGenericEditor : public GenericAudioProcessorEditor
 {
   public:
 	///	Constructor.
-	NiallsGenericEditor(AudioProcessor * const owner):
-	GenericAudioProcessorEditor(owner)
+	NiallsGenericEditor(AudioProcessor * const &owner):
+	GenericAudioProcessorEditor(*owner)
 	{
 		
 	};
@@ -47,7 +48,7 @@ class NiallsGenericEditor : public GenericAudioProcessorEditor
 	///	Fill the background the correct colour.
 	void paint(Graphics& g)
 	{
-		g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+		g.fillAll(ColourScheme::getInstance().colours["Window Background"]);
 	};
 };
 
@@ -76,7 +77,7 @@ dragY(0)
 
 	determineSize();
 
-	titleLabel = new Label("titleLabel", pluginName);
+	titleLabel = new Label("titleLabe", pluginName);
 	titleLabel->setBounds(5, 0, getWidth()-10, 20);
 	titleLabel->setInterceptsMouseClicks(false, false);
 	titleLabel->setFont(Font(14.0f, Font::bold));
@@ -115,7 +116,7 @@ dragY(0)
 
 		bypassButton = new DrawableButton("BypassFilterButton",
 										  DrawableButton::ImageOnButtonBackground);
-		bypassButton->setImages(bypassOff, nullptr, nullptr, nullptr, bypassOn);
+		bypassButton->setImages(bypassOff.get(), nullptr, nullptr, nullptr, bypassOn.get());
 		bypassButton->setClickingTogglesState(true);
 		bypassButton->setBounds(getWidth()-30, getHeight()-30, 20, 20);
 		bypassButton->addListener(this);
@@ -123,7 +124,7 @@ dragY(0)
 
 		deleteButton = new DrawableButton("DeleteFilterButton",
 										  DrawableButton::ImageRaw);
-		deleteButton->setImages(closeUp, closeOver, closeDown);
+		deleteButton->setImages(closeUp.get(), closeOver.get(), closeDown.get());
 		deleteButton->setEdgeIndent(0);
 		deleteButton->setBounds(getWidth()-17, 5, 12, 12);
 		deleteButton->addListener(this);
@@ -171,7 +172,7 @@ void PluginComponent::paint(Graphics& g)
 						   1.0f);
 
 	//Fill Component background.
-	g.setColour(colours[L"Plugin Background"]);
+	g.setColour(colours["Plugin Background"]);
 	g.fillRoundedRectangle(2.0f,
 						   2.0f,
 						   (float)getWidth()-4.0f,
@@ -179,7 +180,7 @@ void PluginComponent::paint(Graphics& g)
 						   5.0f);
 
 	//Fill Component outline and text background.
-	g.setColour(colours[L"Plugin Border"]);
+	g.setColour(colours["Plugin Border"]);
 	g.drawRoundedRectangle(3.0f,
 						   3.0f,
 						   (float)getWidth()-6.0f,
@@ -194,7 +195,7 @@ void PluginComponent::paint(Graphics& g)
 	g.fillRect(1.0f, 16.0f, (float)getWidth()-2.0f, 5.0f);
 
 	//Draw the plugin name.
-	g.setColour(colours[L"Text Colour"]);
+	g.setColour(colours["Text Colour"]);
 	//nameText.draw(g);
 
 	//Draw the input channels.
@@ -218,7 +219,7 @@ void PluginComponent::timerUpdate()
 	BypassableInstance *bypassable = dynamic_cast<BypassableInstance *>(node->getProcessor());
 
 	if(bypassable)
-		bypassButton->setToggleState(bypassable->getBypass(), false);
+		bypassButton->setToggleState(bypassable->getBypass(), juce::NotificationType::dontSendNotification);
 }
 
 //------------------------------------------------------------------------------
@@ -328,7 +329,7 @@ void PluginComponent::labelTextChanged(Label *label)
 
 	pluginName = label->getText();
 
-	parent->updateProcessorName(node->nodeId, pluginName);
+	parent->updateProcessorName(node->nodeID.uid, pluginName);
 
 	//Reset the Component's size/layout.
 	determineSize(true);
@@ -400,7 +401,7 @@ void PluginComponent::openMappingsWindow()
 	MappingsDialog dlg(parent->getMidiManager(),
 					   parent->getOscManager(),
 					   node,
-					   parent->getMappingsForPlugin(node->nodeId),
+					   parent->getMappingsForPlugin(node->nodeID.uid),
 					   parent);
 
 	tempstr << node->getProcessor()->getName() << " Mappings";
@@ -509,7 +510,7 @@ void PluginComponent::determineSize(bool onlyUpdateWidth)
 				String tempstr;
 				GlyphArrangement *g = new GlyphArrangement;
 
-				tempstr << L"Input " << i+1;
+				tempstr << "Input " << i+1;
 				g->addLineOfText(tempFont, tempstr, 10.0f, y);
 				bounds = g->getBoundingBox(0, -1, true);
 
@@ -570,7 +571,7 @@ void PluginComponent::determineSize(bool onlyUpdateWidth)
 				String tempstr;
 				GlyphArrangement *g = new GlyphArrangement;
 
-				tempstr << L"Output " << i+1;
+				tempstr << "Output " << i+1;
 				g->addLineOfText(tempFont,
 								 tempstr,
 								 0.0f,//(inputWidth + 20.0f),
@@ -661,7 +662,7 @@ void PluginComponent::createPins()
 	int y;
 	PluginPinComponent *pin;
 	AudioProcessor *plugin = node->getProcessor();
-	const uint32 uid = node->nodeId;
+	const uint32 uid = node->nodeID.uid;
 
 	y = 25;
 	for(i=0;i<plugin->getNumInputChannels();++i)
@@ -753,9 +754,9 @@ void PluginPinComponent::paint(Graphics& g)
 	g.drawEllipse(1, 1, w, h, 1.0f);
 
 	if(!parameterPin)
-		g.setColour(ColourScheme::getInstance().colours[L"Audio Connection"]);
+		g.setColour(ColourScheme::getInstance().colours["Audio Connection"]);
 	else
-		g.setColour(ColourScheme::getInstance().colours[L"Parameter Connection"]);
+		g.setColour(ColourScheme::getInstance().colours["Parameter Connection"]);
 	g.fillEllipse(1, 1, w, h);
 }
 
@@ -789,110 +790,6 @@ void PluginPinComponent::mouseUp(const MouseEvent& e)
 		MouseEvent e2 = e.getEventRelativeTo(field);
 
 		field->releaseConnection(e2.x, e2.y);
-	}
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-PluginEditorWindow::PluginEditorWindow(AudioProcessorEditor *editor,
-									   PluginComponent *c):
-DocumentWindow(c->getUserName(),
-			   ColourScheme::getInstance().colours[L"Window Background"],
-			   DocumentWindow::minimiseButton|DocumentWindow::maximiseButton|DocumentWindow::closeButton),
-component(c)
-{
-	int x, y;
-
-	centreWithSize(400, 300);
-	
-	setResizeLimits(396, 32, 10000, 10000);
-	setUsingNativeTitleBar(true);
-    setContentOwned(new EditorWrapper(editor, c), true);
-	setAlwaysOnTop(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("WindowsOnTop", false));
-	//setDropShadowEnabled(false);
-	//Fix for my favourite synth being unable to handle being resizable :(
-	if((c->getNode()->getProcessor()->getName() != "VAZPlusVSTi") &&
-	   !PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("fixedSizeWindows", true))
-	{
-/*#ifdef __APPLE__
-		//Most OSX AudioUnits/VSTs do not like being put in resizable windows, so
-		//we only put our internal processors in them.
-		PedalboardProcessor *p = dynamic_cast<PedalboardProcessor *>(editor->getAudioProcessor());
-		if(p)
-#endif*/
-		setResizable(true, false);
-	}
-
-	x = component->getNode()->properties.getWithDefault("uiLastX", getX());
-	if(x < 10)
-		x = 10;
-	y = component->getNode()->properties.getWithDefault("uiLastY", getY());
-	if(y < 10)
-		y = 10;
-	setTopLeftPosition(x, y);
-
-    setVisible(true);
-	getPeer()->setIcon(ImageCache::getFromMemory(Images::icon512_png,
-												 Images::icon512_pngSize));
-}
-
-//------------------------------------------------------------------------------
-PluginEditorWindow::~PluginEditorWindow()
-{
-	component->getNode()->properties.set("uiLastX", getX());
-	component->getNode()->properties.set("uiLastY", getY());
-}
-
-//------------------------------------------------------------------------------
-void PluginEditorWindow::closeButtonPressed()
-{
-	component->setWindow(0);
-    delete this;
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-PluginEditorWindow::EditorWrapper::EditorWrapper(AudioProcessorEditor *ed,
-												 PluginComponent *comp):
-editor(ed),
-component(comp)
-{
-	presetBar = new PresetBar(component);
-
-	presetBar->setBounds(0, 0, 396, 32);
-	addAndMakeVisible(presetBar);
-
-	editor->setTopLeftPosition(0, 32);
-	addAndMakeVisible(editor);
-
-	if(editor->getWidth() < 396)
-		setSize(396, 32 + editor->getHeight());
-	else
-		setSize(editor->getWidth(), 32 + editor->getHeight());
-}
-
-//------------------------------------------------------------------------------
-PluginEditorWindow::EditorWrapper::~EditorWrapper()
-{
-	deleteAllChildren();
-}
-
-//------------------------------------------------------------------------------
-void PluginEditorWindow::EditorWrapper::resized()
-{
-	presetBar->setSize(getWidth(), 32);
-	editor->setSize(getWidth(), getHeight()-32);
-}
-
-//------------------------------------------------------------------------------
-void PluginEditorWindow::EditorWrapper::childBoundsChanged(Component *child)
-{
-	if(child == editor)
-	{
-		if(editor->getWidth() < 396)
-			setSize(396, 32 + editor->getHeight());
-		else
-			setSize(editor->getWidth(), 32 + editor->getHeight());
 	}
 }
 
@@ -959,9 +856,9 @@ void PluginConnection::paint(Graphics& g)
 	}
 
 	if(!paramCon)
-		tempCol = ColourScheme::getInstance().colours[L"Audio Connection"];
+		tempCol = ColourScheme::getInstance().colours["Audio Connection"];
 	else
-		tempCol = ColourScheme::getInstance().colours[L"Parameter Connection"];
+		tempCol = ColourScheme::getInstance().colours["Parameter Connection"];
 
 	if(selected)
 		g.setColour(tempCol.brighter(0.75f));
@@ -1161,4 +1058,108 @@ void PluginConnection::updateBounds(int sX, int sY, int dX, int dY)
 	drawnType.createStrokedPath(drawnCurve, tempPath);
 
 	setBounds(left-5, top-5, width+10, height+10);
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+PluginEditorWindow::PluginEditorWindow(AudioProcessorEditor *editor,
+									   PluginComponent *c):
+DocumentWindow(c->getUserName(),
+			   ColourScheme::getInstance().colours["Window Background"],
+			   DocumentWindow::minimiseButton|DocumentWindow::maximiseButton|DocumentWindow::closeButton),
+component(c)
+{
+	int x, y;
+
+	centreWithSize(400, 300);
+	
+	setResizeLimits(396, 32, 10000, 10000);
+	setUsingNativeTitleBar(true);
+    setContentOwned(new EditorWrapper(editor, c), true);
+	setAlwaysOnTop(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("WindowsOnTop", false));
+	//setDropShadowEnabled(false);
+	//Fix for my favourite synth being unable to handle being resizable :(
+	if((c->getNode()->getProcessor()->getName() != "VAZPlusVSTi") &&
+	   !PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("fixedSizeWindows", true))
+	{
+/*#ifdef __APPLE__
+		//Most OSX AudioUnits/VSTs do not like being put in resizable windows, so
+		//we only put our internal processors in them.
+		PedalboardProcessor *p = dynamic_cast<PedalboardProcessor *>(editor->getAudioProcessor());
+		if(p)
+#endif*/
+		setResizable(true, false);
+	}
+
+	x = component->getNode()->properties.getWithDefault("uiLastX", getX());
+	if(x < 10)
+		x = 10;
+	y = component->getNode()->properties.getWithDefault("uiLastY", getY());
+	if(y < 10)
+		y = 10;
+	setTopLeftPosition(x, y);
+
+    setVisible(true);
+	getPeer()->setIcon(ImageCache::getFromMemory(Images::icon512_png,
+												 Images::icon512_pngSize));
+}
+
+//------------------------------------------------------------------------------
+PluginEditorWindow::~PluginEditorWindow()
+{
+	component->getNode()->properties.set("uiLastX", getX());
+	component->getNode()->properties.set("uiLastY", getY());
+}
+
+//------------------------------------------------------------------------------
+void PluginEditorWindow::closeButtonPressed()
+{
+	component->setWindow(0);
+    delete this;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+PluginEditorWindow::EditorWrapper::EditorWrapper(AudioProcessorEditor *ed,
+												 PluginComponent *comp):
+editor(ed),
+component(comp)
+{
+	presetBar = new PresetBar(component);
+
+	presetBar->setBounds(0, 0, 396, 32);
+	addAndMakeVisible(presetBar);
+
+	editor->setTopLeftPosition(0, 32);
+	addAndMakeVisible(editor);
+
+	if(editor->getWidth() < 396)
+		setSize(396, 32 + editor->getHeight());
+	else
+		setSize(editor->getWidth(), 32 + editor->getHeight());
+}
+
+//------------------------------------------------------------------------------
+PluginEditorWindow::EditorWrapper::~EditorWrapper()
+{
+	deleteAllChildren();
+}
+
+//------------------------------------------------------------------------------
+void PluginEditorWindow::EditorWrapper::resized()
+{
+	presetBar->setSize(getWidth(), 32);
+	editor->setSize(getWidth(), getHeight()-32);
+}
+
+//------------------------------------------------------------------------------
+void PluginEditorWindow::EditorWrapper::childBoundsChanged(Component *child)
+{
+	if(child == editor)
+	{
+		if(editor->getWidth() < 396)
+			setSize(396, 32 + editor->getHeight());
+		else
+			setSize(editor->getWidth(), 32 + editor->getHeight());
+	}
 }

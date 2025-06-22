@@ -125,8 +125,7 @@ buffer(0)
 
 					++i;
 				}
-				//tempstr[tempstr.length()] = static_cast<char>(NULL); //Terminator.
-				tempstr.append(static_cast<char>(NULL));
+				tempstr.push_back(static_cast<char>(NULL));
 				stringArray.push_back(tempstr);
 
 				//Handle any padding bytes.

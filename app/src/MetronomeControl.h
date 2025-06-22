@@ -43,8 +43,8 @@ class MetronomeProcessor;
 class MetronomeControl  : public Component,
                           public FilenameComponentListener,
                           public ChangeListener,
-                          public ButtonListener,
-                          public LabelListener
+                          public Button::Listener,
+                          public Label::Listener
 {
 public:
     //==========================================================================

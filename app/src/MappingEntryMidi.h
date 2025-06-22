@@ -41,8 +41,8 @@ class MappingsDialog;
                                                                     //[/Comments]
 */
 class MappingEntryMidi  : public Component,
-                          public ComboBoxListener,
-                          public ButtonListener,
+                          public ComboBox::Listener,
+                          public Button::Listener,
                           public MappingSliderListener
 {
 public:

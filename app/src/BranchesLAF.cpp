@@ -33,17 +33,17 @@ juce::LookAndFeel_V4()
 {
 	std::map<juce::String, juce::Colour>& colours = CustomColourScheme::getInstance().colours;
 
-	setColour(juce::TextButton::buttonColourId, colours[L"Button Colour"]);
-	setColour(juce::TextButton::buttonOnColourId, colours[L"Button Colour"]);
-	setColour(juce::PopupMenu::highlightedBackgroundColourId, colours[L"Menu Selection Colour"]);
-	setColour(juce::PopupMenu::backgroundColourId, colours[L"Window Background"]);
-	setColour(juce::AlertWindow::backgroundColourId, colours[L"Window Background"]);
-	setColour(juce::ComboBox::buttonColourId, colours[L"Button Colour"]);
-	setColour(juce::TextEditor::highlightColourId, colours[L"Button Highlight"]);
-	setColour(juce::TextEditor::focusedOutlineColourId, colours[L"Menu Selection Colour"]);
+	setColour(juce::TextButton::buttonColourId, colours["Button Colour"]);
+	setColour(juce::TextButton::buttonOnColourId, colours["Button Colour"]);
+	setColour(juce::PopupMenu::highlightedBackgroundColourId, colours["Menu Selection Colour"]);
+	setColour(juce::PopupMenu::backgroundColourId, colours["Window Background"]);
+	setColour(juce::AlertWindow::backgroundColourId, colours["Window Background"]);
+	setColour(juce::ComboBox::buttonColourId, colours["Button Colour"]);
+	setColour(juce::TextEditor::highlightColourId, colours["Button Highlight"]);
+	setColour(juce::TextEditor::focusedOutlineColourId, colours["Menu Selection Colour"]);
 	setColour(juce::DirectoryContentsDisplayComponent::highlightColourId, juce::Colour(0xFFD7D1B5));
-	setColour(juce::ProgressBar::backgroundColourId, colours[L"Window Background"]);
-	setColour(juce::ProgressBar::foregroundColourId, colours[L"CPU Meter Colour"]);
+	setColour(juce::ProgressBar::backgroundColourId, colours["Window Background"]);
+	setColour(juce::ProgressBar::foregroundColourId, colours["CPU Meter Colour"]);
 }
 
 //------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ void BranchesLAF::drawButtonBackground(juce::Graphics &g,
 									   bool isButtonDown)
 {
 	juce::Path highlight, shadow;
-	juce::Colour buttonCol = CustomColourScheme::getInstance().colours[L"Button Colour"];
+	juce::Colour buttonCol = CustomColourScheme::getInstance().colours["Button Colour"];
 	
 	juce::ColourGradient grad(buttonCol.brighter(0.8f),
 				    0.0f,
@@ -88,7 +88,7 @@ void BranchesLAF::drawButtonBackground(juce::Graphics &g,
 	//Draw mouse over.
 	if(isMouseOverButton)
 	{
-		g.setColour(CustomColourScheme::getInstance().colours[L"Button Highlight"]);
+		g.setColour(CustomColourScheme::getInstance().colours["Button Highlight"]);
 		g.drawRoundedRectangle(2.0f,
 							   2.0f,
 							   (float)(button.getWidth()-4),
@@ -157,7 +157,7 @@ void BranchesLAF::drawButtonText(juce::Graphics &g,
 	int inc;
 
 	g.setFont(juce::Font(15.0f));
-    g.setColour (CustomColourScheme::getInstance().colours[L"Text Colour"]
+    g.setColour (CustomColourScheme::getInstance().colours["Text Colour"]
                        .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f));
 
     const int yIndent = juce::jmin(4, button.proportionOfHeight(0.3f));
@@ -196,10 +196,10 @@ void BranchesLAF::drawScrollbarButton(juce::Graphics &g,
 
 	if(!isScrollbarVertical)
 	{
-		juce::ColourGradient grad(colours[L"Window Background"].darker(0.25f),
+		juce::ColourGradient grad(colours["Window Background"].darker(0.25f),
 							0.0f,
 							0.0f,
-							colours[L"Window Background"],
+							colours["Window Background"],
 							0.0f,
 							(float)height,
 							false);
@@ -230,7 +230,7 @@ void BranchesLAF::drawScrollbarButton(juce::Graphics &g,
 							   (float)(height-2),
 							   2.0f,
 							   1.0f);
-		g.setColour(colours[L"Button Colour"]);
+		g.setColour(colours["Button Colour"]);
 		g.fillRoundedRectangle(1.0f,
 							   1.0f,
 							   (float)(width-2),
@@ -293,10 +293,10 @@ void BranchesLAF::drawScrollbarButton(juce::Graphics &g,
 	}
 	else
 	{
-		juce::ColourGradient grad(colours[L"Window Background"].darker(0.25f),
+		juce::ColourGradient grad(colours["Window Background"].darker(0.25f),
 							0.0f,
 							0.0f,
-							colours[L"Window Background"],
+							colours["Window Background"],
 							(float)width,
 							0.0f,
 							false);
@@ -327,7 +327,7 @@ void BranchesLAF::drawScrollbarButton(juce::Graphics &g,
 							   (float)(height-2),
 							   2.0f,
 							   1.0f);
-		g.setColour(colours[L"Button Colour"]);
+		g.setColour(colours["Button Colour"]);
 		g.fillRoundedRectangle(1.0f,
 							   1.0f,
 							   (float)(width-2),
@@ -430,7 +430,7 @@ void BranchesLAF::drawScrollbarButton(juce::Graphics &g,
 			break;
 	}
 
-	g.setColour(colours[L"Vector Colour"]);
+	g.setColour(colours["Vector Colour"]);
 	g.strokePath(tri, juce::PathStrokeType(2.0f));
 }
 
@@ -451,10 +451,10 @@ void BranchesLAF::drawScrollbar(juce::Graphics &g,
 
 	if(!isScrollbarVertical)
 	{
-		juce::ColourGradient grad(colours[L"Window Background"].darker(0.25f),
+		juce::ColourGradient grad(colours["Window Background"].darker(0.25f),
 							0.0f,
 							(float)y,
-							colours[L"Window Background"],
+							colours["Window Background"],
 							0.0f,
 							(float)height,
 							false);
@@ -473,7 +473,7 @@ void BranchesLAF::drawScrollbar(juce::Graphics &g,
 							   (float)(height-2),
 							   2.0f,
 							   1.0f);
-		g.setColour(colours[L"Button Colour"]);
+		g.setColour(colours["Button Colour"]);
 		g.fillRoundedRectangle((float)(thumbStartPosition+1),
 							   (float)(y+1),
 							   (float)(thumbSize-2),
@@ -489,10 +489,10 @@ void BranchesLAF::drawScrollbar(juce::Graphics &g,
 	}
 	else
 	{
-		juce::ColourGradient grad(colours[L"Window Background"].darker(0.25f),
+		juce::ColourGradient grad(colours["Window Background"].darker(0.25f),
 							(float)x,
 							(float)0.0f,
-							colours[L"Window Background"],
+							colours["Window Background"],
 							(float)width,
 							0.0f,
 							false);
@@ -511,7 +511,7 @@ void BranchesLAF::drawScrollbar(juce::Graphics &g,
 							   (float)(thumbSize-2),
 							   2.0f,
 							   1.0f);
-		g.setColour(colours[L"Button Colour"]);
+		g.setColour(colours["Button Colour"]);
 		g.fillRoundedRectangle((float)(x+1),
 							   (float)(thumbStartPosition+1),
 							   (float)(width-2),
@@ -534,7 +534,7 @@ void BranchesLAF::drawMenuBarBackground(juce::Graphics &g,
 							   bool isMouseOverBar,
 							   juce::MenuBarComponent &menuBar)
 {
-	juce::Colour col = CustomColourScheme::getInstance().colours[L"Window Background"];
+	juce::Colour col = CustomColourScheme::getInstance().colours["Window Background"];
 
 	juce::ColourGradient grad(col.brighter(0.8f),
 					    0.0f,
@@ -574,16 +574,16 @@ void BranchesLAF::drawMenuBarItem(juce::Graphics &g,
 
 	if (! menuBar.isEnabled())
     {
-        g.setColour (colours[L"Text Colour"].withMultipliedAlpha (0.5f));
+        g.setColour (colours["Text Colour"].withMultipliedAlpha (0.5f));
     }
     else if (isMenuOpen || isMouseOverItem)
     {
-        g.fillAll (colours[L"Menu Selection Colour"]);
-		g.setColour (colours[L"Menu Selection Colour"].contrasting());
+        g.fillAll (colours["Menu Selection Colour"]);
+		g.setColour (colours["Menu Selection Colour"].contrasting());
     }
     else
     {
-        g.setColour (colours[L"Text Colour"]);
+        g.setColour (colours["Text Colour"]);
     }
 
     g.setFont (getMenuBarFont (menuBar, itemIndex, itemText));
@@ -603,7 +603,7 @@ void BranchesLAF::drawPopupMenuBackground(juce::Graphics &g, int width, int heig
 {
     juce::Path highlight, shadow;
 
-    g.fillAll(CustomColourScheme::getInstance().colours[L"Window Background"]);
+    g.fillAll(CustomColourScheme::getInstance().colours["Window Background"]);
 
     highlight.startNewSubPath(2.0f, (float)(height-3));
     highlight.lineTo(2.0f, 2.0f);
@@ -645,12 +645,12 @@ void BranchesLAF::drawComboBox(juce::Graphics& g,
     float inc;
     std::map<juce::String, juce::Colour>& colours = CustomColourScheme::getInstance().colours;
 
-    g.setColour(colours[L"Text Editor Colour"]);
+    g.setColour(colours["Text Editor Colour"]);
     g.fillRect(0, 0, width-buttonW+3, height);
 
     if (box.isEnabled() && box.hasKeyboardFocus(false))
     {
-        g.setColour(colours[L"Button Colour"]);
+        g.setColour(colours["Button Colour"]);
         g.drawRect(0, 0, width, height, 2);
     }
     else
@@ -666,7 +666,7 @@ void BranchesLAF::drawComboBox(juce::Graphics& g,
 						   (float)(buttonH-2),
 						   2.0f,
 						   1.0f);
-	g.setColour(colours[L"Button Colour"]);
+	g.setColour(colours["Button Colour"]);
 	g.fillRoundedRectangle(buttonX+1.0f,
 						   buttonY+1.0f,
 						   (float)(buttonW-2),
@@ -696,7 +696,7 @@ void BranchesLAF::drawComboBox(juce::Graphics& g,
 		tri.lineTo(buttonX+(float)(buttonW/2)+(float)(buttonW/4)+inc,
 				   buttonY+(float)(buttonH/2)-(float)(buttonH/8)+inc);
 
-        g.setColour(colours[L"Vector Colour"]);
+        g.setColour(colours["Vector Colour"]);
         g.strokePath(tri, juce::PathStrokeType(2.0f));
     }
 }
@@ -710,10 +710,10 @@ void BranchesLAF::drawProgressBar(juce::Graphics& g,
                                  const juce::String& textToShow)
 {
     std::map<juce::String, juce::Colour>& colours = CustomColourScheme::getInstance().colours;
-    juce::ColourGradient grad(colours[L"Window Background"].darker(0.2f),
+    juce::ColourGradient grad(colours["Window Background"].darker(0.2f),
                         0.0f,
                         0.0f,
-                        colours[L"Window Background"],
+                        colours["Window Background"],
                         0.0f,
                         (float)height,
                         false);
@@ -732,7 +732,7 @@ void BranchesLAF::drawProgressBar(juce::Graphics& g,
                            (float)(height-2),
                            2.0f,
                            1.0f);
-    g.setColour(colours[L"CPU Meter Colour"]);
+    g.setColour(colours["CPU Meter Colour"]);
     g.fillRoundedRectangle(1.0f,
                            1.0f,
                            (float)(width-2)*(float)progress,
@@ -770,11 +770,11 @@ void BranchesLAF::drawKeymapChangeButton(juce::Graphics &g,
     {
         drawButtonBackground(g,
                              button,
-                             colours[L"Button Colour"],
+                             colours["Button Colour"],
                              button.isOver(),
                              button.isDown());
 
-        g.setColour(colours[L"Text Colour"]);
+        g.setColour(colours["Text Colour"]);
         g.setFont(height * 0.6f);
         g.drawFittedText(keyDescription,
                          3,
@@ -805,7 +805,7 @@ void BranchesLAF::drawKeymapChangeButton(juce::Graphics &g,
                        50.0f - indent - thickness);
         p.setUsingNonZeroWinding(false);
 
-        g.setColour(colours[L"Text Colour"].withAlpha(button.isDown() ? 0.7f : (button.isOver() ? 0.5f : 0.3f)));
+        g.setColour(colours["Text Colour"].withAlpha(button.isDown() ? 0.7f : (button.isOver() ? 0.5f : 0.3f)));
         g.fillPath(p,
                    p.getTransformToScaleToFit(2.0f,
                                               2.0f,
@@ -825,7 +825,7 @@ void BranchesLAF::drawLabel(juce::Graphics& g, juce::Label& label)
         const float alpha = label.isEnabled() ? 1.0f : 0.5f;
         const int borderSize = 4; // Default border size since the methods don't exist
 
-        g.setColour(CustomColourScheme::getInstance().colours[L"Text Colour"]);
+        g.setColour(CustomColourScheme::getInstance().colours["Text Colour"]);
         g.setFont(label.getFont());
         g.drawFittedText(label.getText(),
                          borderSize,
@@ -854,7 +854,7 @@ void BranchesLAF::drawToggleButton(juce::Graphics& g,
 {
     if(button.hasKeyboardFocus (true))
     {
-        g.setColour(CustomColourScheme::getInstance().colours[L"List Selected Colour"]);
+        g.setColour(CustomColourScheme::getInstance().colours["List Selected Colour"]);
         g.drawRect(0, 0, button.getWidth(), button.getHeight());
     }
 
@@ -868,7 +868,7 @@ void BranchesLAF::drawToggleButton(juce::Graphics& g,
                 isMouseOverButton,
                 isButtonDown);
 
-    g.setColour(CustomColourScheme::getInstance().colours[L"Text Colour"]);
+    g.setColour(CustomColourScheme::getInstance().colours["Text Colour"]);
     g.setFont(fontSize);
 
     if (! button.isEnabled())
@@ -896,7 +896,7 @@ void BranchesLAF::drawTickBox(juce::Graphics& g,
     const float sphereY = y + (h - boxSize) * 0.5f;
     
     // Draw a simple sphere instead of calling drawGlassSphere
-    juce::Colour sphereColour = CustomColourScheme::getInstance().colours[L"Tick Box Colour"].withMultipliedAlpha(isEnabled ? 1.0f : 0.5f);
+    juce::Colour sphereColour = CustomColourScheme::getInstance().colours["Tick Box Colour"].withMultipliedAlpha(isEnabled ? 1.0f : 0.5f);
     
     g.setColour(sphereColour);
     g.fillEllipse(sphereX, sphereY, boxSize, boxSize);
@@ -913,7 +913,7 @@ void BranchesLAF::drawTickBox(juce::Graphics& g,
     if(ticked)
     {
         juce::Path tick;
-        juce::Colour tempCol = CustomColourScheme::getInstance().colours[L"Vector Colour"];
+        juce::Colour tempCol = CustomColourScheme::getInstance().colours["Vector Colour"];
         tick.startNewSubPath(1.5f, 3.0f);
         tick.lineTo(3.0f, 6.0f);
         tick.lineTo(6.0f, 0.0f);
@@ -931,7 +931,7 @@ void BranchesLAF::drawTickBox(juce::Graphics& g,
 void BranchesLAF::fillTextEditorBackground(juce::Graphics& g, int /*width*/, int /*height*/,
                                            juce::TextEditor& textEditor)
 {
-    g.fillAll(CustomColourScheme::getInstance().colours[L"Text Editor Colour"]);
+    g.fillAll(CustomColourScheme::getInstance().colours["Text Editor Colour"]);
 }
 
 //------------------------------------------------------------------------------
@@ -945,7 +945,7 @@ void BranchesLAF::drawCallOutBoxBackground(juce::CallOutBox &box,
     {
         juce::Graphics g2(content);
 
-        g2.setColour(CustomColourScheme::getInstance().colours[L"Window Background"].withAlpha(0.9f));
+        g2.setColour(CustomColourScheme::getInstance().colours["Window Background"].withAlpha(0.9f));
         g2.fillPath(path);
 
         g2.setColour(juce::Colours::black.withAlpha(0.8f));

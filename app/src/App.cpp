@@ -23,11 +23,11 @@ void App::initialise(const String& commandLine)
 	PropertiesFile::Options opts;
 
 	//Initialise our settings file.
-	opts.applicationName = L"Pedalboard2";
-	opts.filenameSuffix = L"Settings";
-	opts.osxLibrarySubFolder = L"Application Support";
+	opts.applicationName = "Pedalboard2";
+	opts.filenameSuffix = "Settings";
+	opts.osxLibrarySubFolder = "Application Support";
 #ifdef __APPLE__
-	opts.folderName = L"Pedalboard2";
+	opts.folderName = "Pedalboard2";
 #endif
 	opts.commonToAllUsers = false;
 	opts.ignoreCaseOfKeyNames = false;
@@ -83,7 +83,7 @@ void App::anotherInstanceStarted(const String& commandLine)
 	{
 		MainPanel *pan = dynamic_cast<MainPanel *>(win->getContentComponent());
 
-		if(initialFile.getFileExtension() == L".pdl" && pan)
+		if(initialFile.getFileExtension() == ".pdl" && pan)
 			pan->loadDocument(initialFile);
 	}
 #endif
@@ -104,7 +104,7 @@ void App::showTrayIcon(bool val)
 }
 
 StupidWindow::StupidWindow(const String& commandLine, bool startHidden):
-DocumentWindow(L"Pedalboard 2", Colours::black, DocumentWindow::allButtons)
+DocumentWindow("Pedalboard 2", Colours::black, DocumentWindow::allButtons)
 {
 	//Make sure we've loaded all the available plugin formats before we create
 	//the main panel.
@@ -160,7 +160,7 @@ LookAndFeel::setDefaultLookAndFeel(laf.get());
 
 	if(initialFile.existsAsFile())
 	{
-		if(initialFile.getFileExtension() == L".pdl")
+		if(initialFile.getFileExtension() == ".pdl")
 		{
 			mainPanel->loadDocument(initialFile);
 			mainPanel->setLastDocumentOpened(initialFile);
@@ -219,7 +219,7 @@ void StupidWindow::loadKeyMappings()
 	int i;
 	OscMappingManager *oscManager = mainPanel->getOscMappingManager();
 	MidiMappingManager *midiManager = mainPanel->getMidiMappingManager();
-	File mappingsFile = JuceHelperStuff::getAppDataFolder().getChildFile("AppMappings.xml");
+	File mappingsFile = JuceHelperStuff::getAppDataFolder().getChildFile("AppMappings.xm");
 
 	if(mappingsFile.existsAsFile())
 	{
@@ -267,7 +267,7 @@ void StupidWindow::loadKeyMappings()
 void StupidWindow::saveKeyMappings()
 {
 	int i;
-	File mappingsFile = JuceHelperStuff::getAppDataFolder().getChildFile("AppMappings.xml");
+	File mappingsFile = JuceHelperStuff::getAppDataFolder().getChildFile("AppMappings.xm");
 	auto mappingsXml = std::unique_ptr<XmlElement>(commandManager.getKeyMappings()->createXml(false));
 	XmlElement rootXml("Pedalboard2AppMappings");
 	auto midiXml = std::make_unique<XmlElement>("MidiMappings");
@@ -293,3 +293,4 @@ void StupidWindow::saveKeyMappings()
 }
 
 START_JUCE_APPLICATION(App)
+

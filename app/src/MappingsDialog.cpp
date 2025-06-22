@@ -54,81 +54,81 @@ MappingsDialog::MappingsDialog (MidiMappingManager *manager, OscMappingManager *
       midiChannelLabel (0),
       midiChannelComboBox (0)
 {
-    addAndMakeVisible (mappingsList = new ListBox (String::empty, this));
-    mappingsList->setName (L"mappingsList");
+    addAndMakeVisible (mappingsList = new ListBox (juce::String(), this));
+    mappingsList->setName ("mappingsList");
 
-    addAndMakeVisible (addMidiButton = new TextButton (L"addMidiButton"));
-    addMidiButton->setButtonText (L"add MIDI");
+    addAndMakeVisible (addMidiButton = new TextButton ("addMidiButton"));
+    addMidiButton->setButtonText ("add MIDI");
     addMidiButton->addListener (this);
 
-    addAndMakeVisible (addOscButton = new TextButton (L"addOscButton"));
-    addOscButton->setButtonText (L"add OSC");
+    addAndMakeVisible (addOscButton = new TextButton ("addOscButton"));
+    addOscButton->setButtonText ("add OSC");
     addOscButton->addListener (this);
 
-    addAndMakeVisible (deleteButton = new TextButton (L"deleteButton"));
-    deleteButton->setButtonText (L"remove");
+    addAndMakeVisible (deleteButton = new TextButton ("deleteButton"));
+    deleteButton->setButtonText ("remove");
     deleteButton->addListener (this);
 
-    addAndMakeVisible (overrideMidiButton = new ToggleButton (L"overrideMidiButton"));
-    overrideMidiButton->setButtonText (L"Override plugin\'s default MIDI behaviour");
+    addAndMakeVisible (overrideMidiButton = new ToggleButton ("overrideMidiButton"));
+    overrideMidiButton->setButtonText ("Override plugin\'s default MIDI behaviour");
     overrideMidiButton->addListener (this);
 
-    addAndMakeVisible (oscMidiAddressLabel = new Label (L"oscMidiAddressLabel",
-                                                        L"OSC MIDI Address:"));
+    addAndMakeVisible (oscMidiAddressLabel = new Label ("oscMidiAddressLabel",
+                                                        "OSC MIDI Address:"));
     oscMidiAddressLabel->setFont (Font (15.0000f, Font::plain));
     oscMidiAddressLabel->setJustificationType (Justification::centredLeft);
     oscMidiAddressLabel->setEditable (false, false, false);
-    oscMidiAddressLabel->setColour (TextEditor::textColourId, Colours::black);
-    oscMidiAddressLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    oscMidiAddressLabel->setColour (juce::Label::textColourId, Colours::black);
+    oscMidiAddressLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (oscMidiAddress = new TextEditor (L"oscMidiAddress"));
+    addAndMakeVisible (oscMidiAddress = new TextEditor ("oscMidiAddress"));
     oscMidiAddress->setMultiLine (false);
     oscMidiAddress->setReturnKeyStartsNewLine (false);
     oscMidiAddress->setReadOnly (false);
     oscMidiAddress->setScrollbarsShown (true);
     oscMidiAddress->setCaretVisible (true);
     oscMidiAddress->setPopupMenuEnabled (true);
-    oscMidiAddress->setText (String::empty);
+    oscMidiAddress->setText (juce::String());
 
-    addAndMakeVisible (oscHintLabel = new Label (L"oscHintLabel",
-                                                 L"(leave blank if you don\'t want to receive MIDI over OSC)"));
+    addAndMakeVisible (oscHintLabel = new Label ("oscHintLabel",
+                                                 "(leave blank if you don\'t want to receive MIDI over OSC)"));
     oscHintLabel->setFont (Font (15.0000f, Font::plain));
     oscHintLabel->setJustificationType (Justification::centredRight);
     oscHintLabel->setEditable (false, false, false);
     oscHintLabel->setColour (Label::textColourId, Colours::black);
-    oscHintLabel->setColour (TextEditor::textColourId, Colours::black);
-    oscHintLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    oscHintLabel->setColour (juce::Label::textColourId, Colours::black);
+    oscHintLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (midiChannelLabel = new Label (L"midiChannelLabel",
-                                                     L"MIDI Channel:"));
+    addAndMakeVisible (midiChannelLabel = new Label ("midiChannelLabel",
+                                                     "MIDI Channel:"));
     midiChannelLabel->setFont (Font (15.0000f, Font::plain));
     midiChannelLabel->setJustificationType (Justification::centredLeft);
     midiChannelLabel->setEditable (false, false, false);
-    midiChannelLabel->setColour (TextEditor::textColourId, Colours::black);
-    midiChannelLabel->setColour (TextEditor::backgroundColourId, Colour (0x0));
+    midiChannelLabel->setColour (juce::Label::textColourId, Colours::black);
+    midiChannelLabel->setColour (juce::Label::backgroundColourId, Colour (0x0));
 
-    addAndMakeVisible (midiChannelComboBox = new ComboBox (L"midiChannelComboBox"));
+    addAndMakeVisible (midiChannelComboBox = new ComboBox ("midiChannelComboBox"));
     midiChannelComboBox->setEditableText (false);
     midiChannelComboBox->setJustificationType (Justification::centredLeft);
-    midiChannelComboBox->setTextWhenNothingSelected (L"Omni");
-    midiChannelComboBox->setTextWhenNoChoicesAvailable (L"(no choices)");
-    midiChannelComboBox->addItem (L"Omni", 1);
-    midiChannelComboBox->addItem (L"1", 2);
-    midiChannelComboBox->addItem (L"2", 3);
-    midiChannelComboBox->addItem (L"3", 4);
-    midiChannelComboBox->addItem (L"4", 5);
-    midiChannelComboBox->addItem (L"5", 6);
-    midiChannelComboBox->addItem (L"6", 7);
-    midiChannelComboBox->addItem (L"7", 8);
-    midiChannelComboBox->addItem (L"8", 9);
-    midiChannelComboBox->addItem (L"9", 10);
-    midiChannelComboBox->addItem (L"10", 11);
-    midiChannelComboBox->addItem (L"11", 12);
-    midiChannelComboBox->addItem (L"12", 13);
-    midiChannelComboBox->addItem (L"13", 14);
-    midiChannelComboBox->addItem (L"14", 15);
-    midiChannelComboBox->addItem (L"15", 16);
-    midiChannelComboBox->addItem (L"16", 17);
+    midiChannelComboBox->setTextWhenNothingSelected ("Omni");
+    midiChannelComboBox->setTextWhenNoChoicesAvailable ("(no choices)");
+    midiChannelComboBox->addItem ("Omni", 1);
+    midiChannelComboBox->addItem ("1", 2);
+    midiChannelComboBox->addItem ("2", 3);
+    midiChannelComboBox->addItem ("3", 4);
+    midiChannelComboBox->addItem ("4", 5);
+    midiChannelComboBox->addItem ("5", 6);
+    midiChannelComboBox->addItem ("6", 7);
+    midiChannelComboBox->addItem ("7", 8);
+    midiChannelComboBox->addItem ("8", 9);
+    midiChannelComboBox->addItem ("9", 10);
+    midiChannelComboBox->addItem ("10", 11);
+    midiChannelComboBox->addItem ("11", 12);
+    midiChannelComboBox->addItem ("12", 13);
+    midiChannelComboBox->addItem ("13", 14);
+    midiChannelComboBox->addItem ("14", 15);
+    midiChannelComboBox->addItem ("15", 16);
+    midiChannelComboBox->addItem ("16", 17);
     midiChannelComboBox->addListener (this);
 
 
@@ -148,9 +148,9 @@ MappingsDialog::MappingsDialog (MidiMappingManager *manager, OscMappingManager *
 	mappingsList->setMouseClickGrabsKeyboardFocus(true);
 	mappingsList->setWantsKeyboardFocus(true);
 	mappingsList->setColour(ListBox::backgroundColourId,
-							ColourScheme::getInstance().colours[L"Dialog Inner Background"]);
+							ColourScheme::getInstance().colours["Dialog Inner Background"]);
 
-	overrideMidiButton->setToggleState(!pluginField->getMidiEnabledForNode(pluginNode), false);
+	overrideMidiButton->setToggleState(!pluginField->getMidiEnabledForNode(pluginNode), juce::NotificationType::dontSendNotification);
 
 	{
 		BypassableInstance *proc = dynamic_cast<BypassableInstance *>(pluginNode->getProcessor());
@@ -207,7 +207,7 @@ void MappingsDialog::paint (Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 
-	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+	g.fillAll(ColourScheme::getInstance().colours["Window Background"]);
 
     //[/UserPaint]
 }
@@ -239,7 +239,7 @@ void MappingsDialog::buttonClicked (Button* buttonThatWasClicked)
 
 		MidiMapping *mapping = new MidiMapping(midiManager,
 											   pluginField->getFilterGraph(),
-											   pluginNode->nodeId,
+											   pluginNode->nodeID.uid,
 											   0,
 											   0,
 											   false,
@@ -260,7 +260,7 @@ void MappingsDialog::buttonClicked (Button* buttonThatWasClicked)
 
 		OscMapping *mapping = new OscMapping(oscManager,
 											 pluginField->getFilterGraph(),
-											 pluginNode->nodeId,
+											 pluginNode->nodeID.uid,
 											 0,
 											 "",
 											 0);
@@ -360,7 +360,7 @@ void MappingsDialog::paintListBoxItem(int rowNumber,
 									  int height,
 									  bool rowIsSelected)
 {
-	Colour highlight = ColourScheme::getInstance().colours[L"List Selected Colour"];
+	Colour highlight = ColourScheme::getInstance().colours["List Selected Colour"];
 
 	if(rowIsSelected)
 	{
@@ -407,9 +407,12 @@ Component *MappingsDialog::refreshComponentForRow(int rowNumber,
 									  midiMapping->getUpperBound());
 
 		//Fill out the parameters combo box.
-		numParams = pluginNode->getProcessor()->getNumParameters();
-		for(i=0;i<numParams;++i)
-			((MappingEntryMidi *)retval)->addParameter(pluginNode->getProcessor()->getParameterName(i));
+		numParams = pluginNode->getProcessor()->getParameters().size();
+		for(i = 0; i < numParams; i++)
+		{
+			if (auto* param = pluginNode->getProcessor()->getParameters()[i])
+				((MappingEntryMidi *)retval)->addParameter(param->getName(100));
+		}
 		((MappingEntryMidi *)retval)->addParameter("Bypass");
 
 		selectedParam = midiMapping->getParameter();
@@ -426,9 +429,12 @@ Component *MappingsDialog::refreshComponentForRow(int rowNumber,
 									 oscManager->getReceivedAddresses());
 
 		//Fill out the parameters combo box.
-		numParams = pluginNode->getProcessor()->getNumParameters();
-		for(i=0;i<numParams;++i)
-			((MappingEntryOsc *)retval)->addParameter(pluginNode->getProcessor()->getParameterName(i));
+		numParams = pluginNode->getProcessor()->getParameters().size();
+		for(i = 0; i < numParams; i++)
+		{
+			if (auto* param = pluginNode->getProcessor()->getParameters()[i])
+				((MappingEntryOsc *)retval)->addParameter(param->getName(100));
+		}
 		((MappingEntryOsc *)retval)->addParameter("Bypass");
 
 		selectedParam = oscMapping->getParameter();
@@ -466,7 +472,7 @@ void MappingsDialog::textEditorTextChanged(TextEditor &editor)
 //------------------------------------------------------------------------------
 void MappingsDialog::setParameter(int index, int val)
 {
-	if(val == pluginNode->getProcessor()->getNumParameters())
+	if(val == pluginNode->getProcessor()->getParameters().size())
 		val = -1;
 	mappings[index]->setParameter(val);
 }
@@ -618,7 +624,7 @@ BEGIN_JUCER_METADATA
   <BACKGROUND backgroundColour="ffeeece1"/>
   <GENERICCOMPONENT name="mappingsList" id="b8ea3400fe029128" memberName="mappingsList"
                     virtualName="" explicitFocusOrder="0" pos="8 40 16M 79M" class="ListBox"
-                    params="String::empty, this"/>
+                    params="juce::String(), this"/>
   <TEXTBUTTON name="addMidiButton" id="606b2b58df7c2434" memberName="addMidiButton"
               virtualName="" explicitFocusOrder="0" pos="8 31R 80 24" buttonText="add MIDI"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
@@ -631,7 +637,7 @@ BEGIN_JUCER_METADATA
   <TOGGLEBUTTON name="overrideMidiButton" id="3c38be6cc9087230" memberName="overrideMidiButton"
                 virtualName="" explicitFocusOrder="0" pos="317c 31R 282 24" buttonText="Override plugin's default MIDI behaviour"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
-  <LABEL name="oscMidiAddressLabel" id="f81d94aa2ba2808f" memberName="oscMidiAddressLabel"
+  <LABEL name="oscMidiAddressLabe" id="f81d94aa2ba2808f" memberName="oscMidiAddressLabe"
          virtualName="" explicitFocusOrder="0" pos="8 8 136 24" edTextCol="ff000000"
          edBkgCol="0" labelText="OSC MIDI Address:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
@@ -640,12 +646,12 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="136 8 498M 24" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="1"
               caret="1" popupmenu="1"/>
-  <LABEL name="oscHintLabel" id="2cc88438ca611703" memberName="oscHintLabel"
+  <LABEL name="oscHintLabe" id="2cc88438ca611703" memberName="oscHintLabe"
          virtualName="" explicitFocusOrder="0" pos="362R 8 360 24" textCol="ff000000"
          edTextCol="ff000000" edBkgCol="0" labelText="(leave blank if you don't want to receive MIDI over OSC)"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="34"/>
-  <LABEL name="midiChannelLabel" id="bca9a4e091ce9c35" memberName="midiChannelLabel"
+  <LABEL name="midiChannelLabe" id="bca9a4e091ce9c35" memberName="midiChannelLabe"
          virtualName="" explicitFocusOrder="0" pos="472 31R 104 24" edTextCol="ff000000"
          edBkgCol="0" labelText="MIDI Channel:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"

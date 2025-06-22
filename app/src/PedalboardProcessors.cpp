@@ -1,21 +1,4 @@
 //	PedalboardProcessors.cpp - Internal processors provided by the app.
-//	----------------------------------------------------------------------------
-//	This file is part of Pedalboard2, an audio plugin host.
-//	Copyright (c) 2011 Niall Moody.
-//
-//	This program is free software: you can redistribute it and/or modify
-//	it under the terms of the GNU General Public License as published by
-//	the Free Software Foundation, either version 3 of the License, or
-//	(at your option) any later version.
-//
-//	This program is distributed in the hope that it will be useful,
-//	but WITHOUT ANY WARRANTY; without even the implied warranty of
-//	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//	GNU General Public License for more details.
-//
-//	You should have received a copy of the GNU General Public License
-//	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//	----------------------------------------------------------------------------
 
 #include "PedalboardProcessorEditors.h"
 #include "PedalboardProcessors.h"
@@ -27,21 +10,19 @@
 #include "LooperControl.h"
 #include "LooperEditor.h"
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 LevelProcessor::LevelProcessor():
 level(0.5f)
 {
 	setPlayConfigDetails(2, 2, 0, 0);
 }
 
-//------------------------------------------------------------------------------
+
 LevelProcessor::~LevelProcessor()
 {
 
 }
 
-//------------------------------------------------------------------------------
+
 Component *LevelProcessor::getControls()
 {
 	LevelControl *retval = new LevelControl(this);
@@ -49,28 +30,27 @@ Component *LevelProcessor::getControls()
 	return retval;
 }
 
-//------------------------------------------------------------------------------
 void LevelProcessor::updateEditorBounds(const Rectangle<int>& bounds)
 {
 	editorBounds = bounds;
 }
 
-//------------------------------------------------------------------------------
 void LevelProcessor::fillInPluginDescription(PluginDescription &description) const
 {
-	description.name = L"Level";
-	description.descriptiveName = L"Simple level processor.";
-	description.pluginFormatName = L"Internal";
-	description.category = L"Pedalboard Processors";
-	description.manufacturerName = L"Niall Moody";
-	description.version = L"1.00";
-	description.uid = description.name.hashCode();
+	description.name = "Level";
+	description.descriptiveName = "Level";
+	description.pluginFormatName = "Internal";
+	description.category = "Effect";
+	description.manufacturerName = "Niall Moody";
+	description.version = "1.0";
+	description.fileOrIdentifier = "Level";
+	description.lastFileModTime = Time();
+	description.lastInfoUpdateTime = Time();
 	description.isInstrument = false;
 	description.numInputChannels = 2;
 	description.numOutputChannels = 2;
 }
 
-//------------------------------------------------------------------------------
 void LevelProcessor::processBlock(AudioSampleBuffer &buffer,
 								  MidiBuffer &midiMessages)
 {
@@ -80,8 +60,8 @@ void LevelProcessor::processBlock(AudioSampleBuffer &buffer,
 
 	jassert(buffer.getNumChannels() > 1);
 
-	dataLeft = buffer.getSampleData(0);
-	dataRight = buffer.getSampleData(1);
+	dataLeft = buffer.getWritePointer(0);
+	dataRight = buffer.getWritePointer(1);
 
 	for(i=0;i<buffer.getNumSamples();++i)
 	{
@@ -136,12 +116,12 @@ void LevelProcessor::setStateInformation(const void *data, int sizeInBytes)
     {
         if (xmlState->hasTagName("Pedalboard2LevelSettings"))
         {
+            level = (float)xmlState->getDoubleAttribute("level", 0.5);
+
             editorBounds.setX(xmlState->getIntAttribute("editorX"));
             editorBounds.setY(xmlState->getIntAttribute("editorY"));
             editorBounds.setWidth(xmlState->getIntAttribute("editorW"));
             editorBounds.setHeight(xmlState->getIntAttribute("editorH"));
-
-            level = (float)xmlState->getDoubleAttribute("level", 0.5);
         }
     }
 }
@@ -202,7 +182,7 @@ void FilePlayerProcessor::setFile(const File& phil)
 
     if(reader != 0)
     {
-        soundFileSource = new AudioFormatReaderSource(reader, true);
+        soundFileSource.reset(new AudioFormatReaderSource(reader, true));
 		soundFileSource->setLooping(looping);
 
 		if(soundFileSource->getTotalLength() < 32768)
@@ -211,7 +191,7 @@ void FilePlayerProcessor::setFile(const File& phil)
 			readAheadSize = 32768;
 
         //Plug it into our transport source.
-        transportSource.setSource(soundFileSource,
+        transportSource.setSource(soundFileSource.get(),
                                   readAheadSize, //Tells it to buffer this many samples ahead.
 								  &(AudioThumbnailCacheSingleton::getInstance().getTimeSliceThread()));
     }
@@ -278,13 +258,15 @@ void FilePlayerProcessor::changeListenerCallback(ChangeBroadcaster *source)
 //------------------------------------------------------------------------------
 void FilePlayerProcessor::fillInPluginDescription(PluginDescription &description) const
 {
-	description.name = L"File Player";
-	description.descriptiveName = L"Processor which plays back an audio file.";
-	description.pluginFormatName = L"Internal";
-	description.category = L"Pedalboard Processors";
-	description.manufacturerName = L"Niall Moody";
-	description.version = "1.00";
-	description.uid = description.name.hashCode();
+	description.name = "File Player";
+	description.descriptiveName = "File Player";
+	description.pluginFormatName = "Internal";
+	description.category = "Generator";
+	description.manufacturerName = "Niall Moody";
+	description.version = "1.0";
+	description.fileOrIdentifier = "FilePlayer";
+	description.lastFileModTime = Time();
+	description.lastInfoUpdateTime = Time();
 	description.isInstrument = false;
 	description.numInputChannels = 0;
 	description.numOutputChannels = 2;
@@ -335,22 +317,22 @@ const String FilePlayerProcessor::getParameterName(int parameterIndex)
 	switch(parameterIndex)
 	{
 		case Play:
-			retval = L"Play";
+			retval = "Play";
 			break;
 		case ReturnToZero:
-			retval = L"Return to Zero";
+			retval = "Return to Zero";
 			break;
 		case Looping:
-			retval = L"Looping";
+			retval = "Looping";
 			break;
 		case ReadPosition:
-			retval = L"Read Position";
+			retval = "Read Position";
 			break;
 		case SyncToMainTransport:
-			retval = L"Sync to Main Transport";
+			retval = "Sync to Main Transport";
 			break;
 		case Trigger:
-			retval = L"Trigger";
+			retval = "Trigger";
 			break;
 	}
 
@@ -384,15 +366,15 @@ const String FilePlayerProcessor::getParameterText(int parameterIndex)
 	{
 		case Looping:
 			if(looping)
-				retval = L"looping";
+				retval = "looping";
 			else
-				retval = L"not looping";
+				retval = "not looping";
 			break;
 		case SyncToMainTransport:
 			if(syncToMainTransport)
-				retval = L"synced";
+				retval = "synced";
 			else
-				retval = L"not synced";
+				retval = "not synced";
 			break;
 	}
 
@@ -527,15 +509,17 @@ void OutputToggleProcessor::updateEditorBounds(const Rectangle<int>& bounds)
 //------------------------------------------------------------------------------
 void OutputToggleProcessor::fillInPluginDescription(PluginDescription &description) const
 {
-	description.name = L"Output Toggle";
-	description.descriptiveName = L"Simple output toggle processor.";
-	description.pluginFormatName = L"Internal";
-	description.category = L"Pedalboard Processors";
-	description.manufacturerName = L"Niall Moody";
-	description.version = L"1.00";
-	description.uid = description.name.hashCode();
+	description.name = "Output Toggle";
+	description.descriptiveName = "Output Toggle";
+	description.pluginFormatName = "Internal";
+	description.category = "Effect";
+	description.manufacturerName = "Niall Moody";
+	description.version = "1.0";
+	description.fileOrIdentifier = "OutputToggle";
+	description.lastFileModTime = Time();
+	description.lastInfoUpdateTime = Time();
 	description.isInstrument = false;
-	description.numInputChannels = 1;
+	description.numInputChannels = 2;
 	description.numOutputChannels = 2;
 }
 
@@ -549,8 +533,8 @@ void OutputToggleProcessor::processBlock(AudioSampleBuffer &buffer,
 
 	jassert(buffer.getNumChannels() > 1);
 
-	data[0] = buffer.getSampleData(0);
-	data[1] = buffer.getSampleData(1);
+	data[0] = buffer.getWritePointer(0);
+	data[1] = buffer.getWritePointer(1);
 
 	/*if(!toggle)
 	{
@@ -673,16 +657,18 @@ void VuMeterProcessor::updateEditorBounds(const Rectangle<int>& bounds)
 //------------------------------------------------------------------------------
 void VuMeterProcessor::fillInPluginDescription(PluginDescription &description) const
 {
-	description.name = L"VU Meter";
-	description.descriptiveName = L"Simple VU Meter.";
-	description.pluginFormatName = L"Internal";
-	description.category = L"Pedalboard Processors";
-	description.manufacturerName = L"Niall Moody";
-	description.version = L"1.00";
-	description.uid = description.name.hashCode();
+	description.name = "VU Meter";
+	description.descriptiveName = "VU Meter";
+	description.pluginFormatName = "Internal";
+	description.category = "Analyser";
+	description.manufacturerName = "Niall Moody";
+	description.version = "1.0";
+	description.fileOrIdentifier = "VuMeter";
+	description.lastFileModTime = Time();
+	description.lastInfoUpdateTime = Time();
 	description.isInstrument = false;
 	description.numInputChannels = 2;
-	description.numOutputChannels = 0;
+	description.numOutputChannels = 2;
 }
 
 //------------------------------------------------------------------------------
@@ -695,8 +681,8 @@ void VuMeterProcessor::processBlock(AudioSampleBuffer &buffer,
 
 	jassert(buffer.getNumChannels() > 1);
 
-	dataLeft = buffer.getSampleData(0);
-	dataRight = buffer.getSampleData(1);
+	dataLeft = buffer.getWritePointer(0);
+	dataRight = buffer.getWritePointer(1);
 
 	for(i=0;i<buffer.getNumSamples();++i)
 	{
@@ -742,7 +728,7 @@ void VuMeterProcessor::getStateInformation(MemoryBlock &destData)
 //------------------------------------------------------------------------------
 void VuMeterProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-	ScopedPointer<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+	std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
     if (xmlState != 0)
     {
@@ -814,15 +800,17 @@ void RecorderProcessor::setFile(const File& phil)
 	{
 		if(!soundFile.deleteFile())
 		{
-			AlertWindow::showMessageBox(AlertWindow::WarningIcon,
-										"Could not delete existing file",
-										"Have you got the file open elsewhere? (e.g. in another File Player)");
+			AlertWindow::showAsync(MessageBoxOptions()
+				.withIconType(MessageBoxIconType::WarningIcon)
+				.withTitle("Error")
+				.withMessage("Couldn't create the output file you specified.\n\nThe error was: " + String(soundFile.getFullPathName())),
+				nullptr);
 
-			soundFile = File::nonexistent;
+			soundFile = juce::File();
 		}
 	}
 
-	if(soundFile != File::nonexistent)
+	if(soundFile != juce::File())
 	{
 		philStream = new FileOutputStream(soundFile);
 
@@ -835,7 +823,7 @@ void RecorderProcessor::setFile(const File& phil)
 		if(!writer)
 		{
 			delete philStream;
-			soundFile = File::nonexistent;
+			soundFile = juce::File();
 			threadWriter = 0;
 		}
 		else
@@ -890,7 +878,7 @@ void RecorderProcessor::changeListenerCallback(ChangeBroadcaster *source)
 				{
 					stopRecording = true;
 
-					setFile(File::nonexistent);
+					setFile(juce::File());
 				}
 			}
 			sendChangeMessage();
@@ -901,16 +889,18 @@ void RecorderProcessor::changeListenerCallback(ChangeBroadcaster *source)
 //------------------------------------------------------------------------------
 void RecorderProcessor::fillInPluginDescription(PluginDescription &description) const
 {
-	description.name = L"Audio Recorder";
-	description.descriptiveName = L"Simple audio recorder.";
-	description.pluginFormatName = L"Internal";
-	description.category = L"Pedalboard Processors";
-	description.manufacturerName = L"Niall Moody";
-	description.version = L"1.00";
-	description.uid = description.name.hashCode();
+	description.name = "Recorder";
+	description.descriptiveName = "Recorder";
+	description.pluginFormatName = "Internal";
+	description.category = "Effect";
+	description.manufacturerName = "Niall Moody";
+	description.version = "1.0";
+	description.fileOrIdentifier = "Recorder";
+	description.lastFileModTime = Time();
+	description.lastInfoUpdateTime = Time();
 	description.isInstrument = false;
 	description.numInputChannels = 2;
-	description.numOutputChannels = 0;
+	description.numOutputChannels = 2;
 }
 
 //------------------------------------------------------------------------------
@@ -921,8 +911,8 @@ void RecorderProcessor::processBlock(AudioSampleBuffer &buffer,
 
 	jassert(buffer.getNumChannels() > 1);
 
-	data[0] = buffer.getSampleData(0);
-	data[1] = buffer.getSampleData(1);
+	data[0] = buffer.getWritePointer(0);
+	data[1] = buffer.getWritePointer(1);
 
 	if(recording && threadWriter)
 	{
@@ -948,13 +938,6 @@ AudioProcessorEditor *RecorderProcessor::createEditor()
 }
 
 //------------------------------------------------------------------------------
-void RecorderProcessor::prepareToPlay(double sampleRate,
-									  int estimatedSamplesPerBlock)
-{
-	currentRate = sampleRate;
-}
-
-//------------------------------------------------------------------------------
 const String RecorderProcessor::getParameterName(int parameterIndex)
 {
 	String retval;
@@ -962,10 +945,10 @@ const String RecorderProcessor::getParameterName(int parameterIndex)
 	switch(parameterIndex)
 	{
 		case Record:
-			retval = L"Record";
+			retval = "Record";
 			break;
 		case SyncToMainTransport:
-			retval = L"Sync to Main Transport";
+			retval = "Sync to Main Transport";
 			break;
 	}
 
@@ -996,9 +979,9 @@ const String RecorderProcessor::getParameterText(int parameterIndex)
 	{
 		case SyncToMainTransport:
 			if(syncToMainTransport)
-				retval = L"synced";
+				retval = "synced";
 			else
-				retval = L"not synced";
+				retval = "not synced";
 			break;
 	}
 
@@ -1022,8 +1005,7 @@ void RecorderProcessor::setParameter(int parameterIndex, float newValue)
 				{
 					stopRecording = true;
 
-					//Saves the file to disk.
-					setFile(File::nonexistent);
+					setFile(juce::File());
 
 					if(syncToMainTransport)
 						MainTransport::getInstance()->transportFinished();
@@ -1060,7 +1042,7 @@ void RecorderProcessor::getStateInformation(MemoryBlock &destData)
 //------------------------------------------------------------------------------
 void RecorderProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-	ScopedPointer<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+	std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
     if (xmlState != 0)
     {
@@ -1122,7 +1104,7 @@ void MetronomeProcessor::setAccentFile(const File& phil)
 
     if(reader != 0)
     {
-        soundFileSource[0] = new AudioFormatReaderSource(reader, true);
+        soundFileSource[0].reset(new AudioFormatReaderSource(reader, true));
 		soundFileSource[0]->setLooping(false);
 
 		if(soundFileSource[0]->getTotalLength() < 32768)
@@ -1131,12 +1113,12 @@ void MetronomeProcessor::setAccentFile(const File& phil)
 			readAheadSize = 32768;
 
         //Plug it into our transport source.
-        transportSource[0].setSource(soundFileSource[0],
+        transportSource[0].setSource(soundFileSource[0].get(),
 									 readAheadSize, //Tells it to buffer this many samples ahead.
 									 &(AudioThumbnailCacheSingleton::getInstance().getTimeSliceThread()));
     }
 	else
-		files[0] = File::nonexistent;
+		files[0] = juce::File();
 }
 
 //------------------------------------------------------------------------------
@@ -1155,7 +1137,7 @@ void MetronomeProcessor::setClickFile(const File& phil)
 
     if(reader != 0)
     {
-        soundFileSource[1] = new AudioFormatReaderSource(reader, true);
+        soundFileSource[1].reset(new AudioFormatReaderSource(reader, true));
 		soundFileSource[1]->setLooping(false);
 
 		if(soundFileSource[1]->getTotalLength() < 32768)
@@ -1164,12 +1146,12 @@ void MetronomeProcessor::setClickFile(const File& phil)
 			readAheadSize = 32768;
 
         //Plug it into our transport source.
-        transportSource[1].setSource(soundFileSource[1],
+        transportSource[1].setSource(soundFileSource[1].get(),
 									 readAheadSize, //Tells it to buffer this many samples ahead.
 									 &(AudioThumbnailCacheSingleton::getInstance().getTimeSliceThread()));
     }
 	else
-		files[1] = File::nonexistent;
+		files[1] = juce::File();
 }
 
 //------------------------------------------------------------------------------
@@ -1217,13 +1199,15 @@ void MetronomeProcessor::changeListenerCallback(ChangeBroadcaster *source)
 //------------------------------------------------------------------------------
 void MetronomeProcessor::fillInPluginDescription(PluginDescription &description) const
 {
-	description.name = L"Metronome";
-	description.descriptiveName = L"Simple metronome.";
-	description.pluginFormatName = L"Internal";
-	description.category = L"Pedalboard Processors";
-	description.manufacturerName = L"Niall Moody";
-	description.version = L"1.00";
-	description.uid = description.name.hashCode();
+	description.name = "Metronome";
+	description.descriptiveName = "Metronome";
+	description.pluginFormatName = "Internal";
+	description.category = "Generator";
+	description.manufacturerName = "Niall Moody";
+	description.version = "1.0";
+	description.fileOrIdentifier = "Metronome";
+	description.lastFileModTime = Time();
+	description.lastInfoUpdateTime = Time();
 	description.isInstrument = false;
 	description.numInputChannels = 0;
 	description.numOutputChannels = 1;
@@ -1241,7 +1225,7 @@ void MetronomeProcessor::processBlock(AudioSampleBuffer &buffer,
 
 	jassert(buffer.getNumChannels() > 0);
 
-	data = buffer.getSampleData(0);
+	data = buffer.getWritePointer(0);
 
 	//Clear the buffer first.
 	for(i=0;i<numSamples;++i)
@@ -1264,7 +1248,7 @@ void MetronomeProcessor::processBlock(AudioSampleBuffer &buffer,
 					measureCount = numerator;
 					isAccent = true;
 
-					if(files[0] != File::nonexistent)
+					if(files[0] != juce::File())
 					{
 						transportSource[0].setPosition(0.0);
 						transportSource[0].start();
@@ -1285,7 +1269,7 @@ void MetronomeProcessor::processBlock(AudioSampleBuffer &buffer,
 					sineCoeff = 2.0f*sinf(3.1415926535897932384626433832795f*440.0f*2.0f/44100.0f);
 					isAccent = false;
 
-					if(files[1] != File::nonexistent)
+					if(files[1] != juce::File())
 					{
 						transportSource[1].setPosition(0.0);
 						transportSource[1].start();
@@ -1319,12 +1303,12 @@ void MetronomeProcessor::processBlock(AudioSampleBuffer &buffer,
 				}
 			}
 
-			//if(isAccent && (files[0] != File::nonexistent))
+			//if(isAccent && (files[0] != juce::File()))
 			if(isAccent && (transportSource[0].isPlaying()))
 			{
 				
 			}
-			//else if(!isAccent && (files[1] !=File::nonexistent))
+			//else if(!isAccent && (files[1] !=juce::File()))
 			else if(!isAccent && (transportSource[1].isPlaying()))
 			{
 				
@@ -1371,10 +1355,10 @@ const String MetronomeProcessor::getParameterName(int parameterIndex)
 	switch(parameterIndex)
 	{
 		case Play:
-			retval = L"Play";
+			retval = "Play";
 			break;
 		case SyncToMainTransport:
-			retval = L"Sync to Main Transport";
+			retval = "Sync to Main Transport";
 			break;
 	}
 
@@ -1411,9 +1395,9 @@ const String MetronomeProcessor::getParameterText(int parameterIndex)
 	{
 		case SyncToMainTransport:
 			if(syncToMainTransport)
-				retval = L"synced";
+				retval = "synced";
 			else
-				retval = L"not synced";
+				retval = "not synced";
 			break;
 	}
 
@@ -1478,7 +1462,7 @@ void MetronomeProcessor::getStateInformation(MemoryBlock &destData)
 //------------------------------------------------------------------------------
 void MetronomeProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-	ScopedPointer<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+	std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
     if (xmlState != 0)
     {
@@ -1563,7 +1547,7 @@ inputAudio(2, 2560)
 LooperProcessor::~LooperProcessor()
 {
 	//Saves the file.
-	setFile(File::nonexistent);
+	setFile(juce::File());
 
 	AudioThumbnailCacheSingleton::getInstance().getTimeSliceThread().removeTimeSliceClient(this);
 
@@ -1605,7 +1589,7 @@ void LooperProcessor::setFile(const File& phil)
 
 	soundFile = phil;
 
-	if(soundFile != File::nonexistent)
+	if(soundFile != juce::File())
 	{
 		if(fileReader)
 			delete fileReader;
@@ -1627,15 +1611,17 @@ void LooperProcessor::setFile(const File& phil)
 	{
 		if(!soundFile.deleteFile())
 		{
-			AlertWindow::showMessageBox(AlertWindow::WarningIcon,
-										"Could not delete existing file",
-										"Have you got the file open elsewhere? (e.g. in another File Player)");
+			AlertWindow::showAsync(MessageBoxOptions()
+				.withIconType(MessageBoxIconType::WarningIcon)
+				.withTitle("Error")
+				.withMessage("Couldn't create the output file you specified.\n\nThe error was: " + String(soundFile.getFullPathName())),
+				nullptr);
 
-			soundFile = File::nonexistent;
+			soundFile = juce::File();
 		}
 	}
 
-	if(soundFile != File::nonexistent)
+	if(soundFile != juce::File())
 	{
 		philStream = new FileOutputStream(soundFile);
 
@@ -1648,13 +1634,13 @@ void LooperProcessor::setFile(const File& phil)
 		if(!writer)
 		{
 			delete philStream;
-			soundFile = File::nonexistent;
+			soundFile = juce::File();
 			threadWriter = 0;
 		}
 		else
 		{
 			threadWriter = new AudioFormatWriter::ThreadedWriter(writer,
-																 AudioThumbnailCacheSingleton::getInstance(),
+																 AudioThumbnailCacheSingleton::getInstance().getTimeSliceThread(),
 																 16384);
 			//threadWriter->setDataReceiver(&thumbnail);
 		}
@@ -1688,9 +1674,11 @@ void LooperProcessor::handleAsyncUpdate()
 		--abortCounter;
 		if(!abortCounter)
 		{
-			AlertWindow::showMessageBox(AlertWindow::WarningIcon,
-										"Looper Error",
-										"Unable to start recording; Looper still playing. Aborting.");
+			AlertWindow::showAsync(MessageBoxOptions()
+				.withIconType(MessageBoxIconType::WarningIcon)
+				.withTitle("Error")
+				.withMessage("Unable to start recording; Looper still playing. Aborting."),
+				nullptr);
 
 			return;
 		}
@@ -1712,15 +1700,17 @@ void LooperProcessor::handleAsyncUpdate()
 	{
 		if(!soundFile.deleteFile())
 		{
-			AlertWindow::showMessageBox(AlertWindow::WarningIcon,
-										"Could not delete existing file",
-										"Have you got the file open elsewhere? (e.g. in another File Player)");
+			AlertWindow::showAsync(MessageBoxOptions()
+				.withIconType(MessageBoxIconType::WarningIcon)
+				.withTitle("Error")
+				.withMessage("Couldn't create the output file you specified.\n\nThe error was: " + String(soundFile.getFullPathName())),
+				nullptr);
 
-			soundFile = File::nonexistent;
+			soundFile = juce::File();
 		}
 	}
 
-	if(soundFile != File::nonexistent)
+	if(soundFile != juce::File())
 	{
 		philStream = new FileOutputStream(soundFile);
 
@@ -1733,7 +1723,7 @@ void LooperProcessor::handleAsyncUpdate()
 		if(!writer)
 		{
 			delete philStream;
-			soundFile = File::nonexistent;
+			soundFile = juce::File();
 			threadWriter = 0;
 		}
 		else
@@ -1852,13 +1842,15 @@ void LooperProcessor::changeListenerCallback(ChangeBroadcaster *source)
 //------------------------------------------------------------------------------
 void LooperProcessor::fillInPluginDescription(PluginDescription &description) const
 {
-	description.name = L"Looper";
-	description.descriptiveName = L"Simple looper processor.";
-	description.pluginFormatName = L"Internal";
-	description.category = L"Pedalboard Processors";
-	description.manufacturerName = L"Niall Moody";
-	description.version = L"1.00";
-	description.uid = description.name.hashCode();
+	description.name = "Looper";
+	description.descriptiveName = "Looper";
+	description.pluginFormatName = "Internal";
+	description.category = "Effect";
+	description.manufacturerName = "Niall Moody";
+	description.version = "1.0";
+	description.fileOrIdentifier = "Looper";
+	description.lastFileModTime = Time();
+	description.lastInfoUpdateTime = Time();
 	description.isInstrument = false;
 	description.numInputChannels = 2;
 	description.numOutputChannels = 2;
@@ -1879,13 +1871,13 @@ void LooperProcessor::processBlock(AudioSampleBuffer &buffer,
 
 	jassert(buffer.getNumChannels() > 1);
 
-	data[0] = buffer.getSampleData(0);
-	data[1] = buffer.getSampleData(1);
+	data[0] = buffer.getWritePointer(0);
+	data[1] = buffer.getWritePointer(1);
 
 	inputAudio.copyFrom(0, 0, buffer, 0, 0, numSamples);
 	inputAudio.copyFrom(1, 0, buffer, 1, 0, numSamples);
-	inputData[0] = inputAudio.getSampleData(0);
-	inputData[1] = inputAudio.getSampleData(1);
+	inputData[0] = inputAudio.getWritePointer(0);
+	inputData[1] = inputAudio.getWritePointer(1);
 
 	if(recording && threadWriter)
 	{
@@ -1940,7 +1932,7 @@ void LooperProcessor::processBlock(AudioSampleBuffer &buffer,
 			loopBuffer[loopIndex]->copyFrom(0, loopPos, buffer, 0, 0, i);
 			loopBuffer[loopIndex]->copyFrom(1, loopPos, buffer, 1, 0, i);
 
-			tempf = loopBuffer[loopIndex]->getSampleData(0, 0)[0];
+			tempf = loopBuffer[loopIndex]->getWritePointer(0)[0];
 			tempf = fadeInBuffer[0][127];
 			if(i < samplesToRecord)
 			{
@@ -1948,9 +1940,11 @@ void LooperProcessor::processBlock(AudioSampleBuffer &buffer,
 				loopPos = 0;
 				if(loopIndex >= loopBuffer.size())
 				{
-					AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-													 "Looper Error",
-													 "Not enough memory to continue. Recording stopped.");
+					AlertWindow::showAsync(MessageBoxOptions()
+						.withIconType(MessageBoxIconType::WarningIcon)
+						.withTitle("Error")
+						.withMessage("Not enough memory to continue. Recording stopped."),
+						nullptr);
 					stopRecording = true;
 					loopLength += i;
 					fadeOutStart = i;
@@ -1972,9 +1966,11 @@ void LooperProcessor::processBlock(AudioSampleBuffer &buffer,
 		}
 		else
 		{
-			AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-											 "Looper Error",
-											 "Not enough memory to continue. Recording stopped.");
+			AlertWindow::showAsync(MessageBoxOptions()
+				.withIconType(MessageBoxIconType::WarningIcon)
+				.withTitle("Error")
+				.withMessage("Not enough memory to continue. Recording stopped."),
+				nullptr);
 			stopRecording = true;
 		}
 
@@ -2061,11 +2057,11 @@ void LooperProcessor::processBlock(AudioSampleBuffer &buffer,
 				fadeInCount = loopLength;
 		}
 
-		tempf = loopBuffer[loopIndex]->getSampleData(0, 0)[0];
+		tempf = loopBuffer[loopIndex]->getWritePointer(0)[0];
 		if(autoPlayFade < 1.0f)
 		{
-			buffer.addFromWithRamp(0, 0, loopBuffer[loopIndex]->getSampleData(0, loopPos), i, 0.0f, loopLevel);
-			buffer.addFromWithRamp(1, 0, loopBuffer[loopIndex]->getSampleData(1, loopPos), i, 0.0f, loopLevel);
+			buffer.addFromWithRamp(0, 0, loopBuffer[loopIndex]->getReadPointer(0, loopPos), i, 0.0f, loopLevel);
+			buffer.addFromWithRamp(1, 0, loopBuffer[loopIndex]->getReadPointer(1, loopPos), i, 0.0f, loopLevel);
 			autoPlayFade = 1.0f;
 		}
 		else
@@ -2096,7 +2092,7 @@ void LooperProcessor::processBlock(AudioSampleBuffer &buffer,
 
 			buffer.addFrom(0, i, *(loopBuffer[loopIndex]), 0, loopPos, (numSamples-i), loopLevel);
 			buffer.addFrom(1, i, *(loopBuffer[loopIndex]), 1, loopPos, (numSamples-i), loopLevel);
-			tempf = buffer.getSampleData(0, 0)[0];
+			tempf = buffer.getWritePointer(0)[0];
 
 			loopPos = numSamples-i;
 		}
@@ -2184,10 +2180,10 @@ const String LooperProcessor::getParameterName(int parameterIndex)
 			retval = "Bar Denominator";
 			break;
 		case InputLevel:
-			retval = "Input Level";
+			retval = "Input Leve";
 			break;
 		case LoopLevel:
-			retval = "Loop Level";
+			retval = "Loop Leve";
 			break;
 	}
 
@@ -2270,7 +2266,7 @@ void LooperProcessor::setParameter(int parameterIndex, float newValue)
 					stopRecording = true;
 
 					//Saves the file to disk.
-					//setFile(File::nonexistent);
+					//setFile(juce::File());
 
 					//Wait till the end of the current audio buffer.
 					//while(recording) {Thread::sleep(10);}
@@ -2338,8 +2334,8 @@ void LooperProcessor::getStateInformation(MemoryBlock &destData)
 	xml.setAttribute("autoPlay", autoPlay);
 	xml.setAttribute("barNumerator", numerator);
 	xml.setAttribute("barDenominator", denominator);
-	xml.setAttribute("inputLevel", inputLevel);
-	xml.setAttribute("loopLevel", loopLevel);
+	xml.setAttribute("inputLeve", inputLevel);
+	xml.setAttribute("loopLeve", loopLevel);
 
     xml.setAttribute("editorX", editorBounds.getX());
     xml.setAttribute("editorY", editorBounds.getY());
@@ -2352,7 +2348,7 @@ void LooperProcessor::getStateInformation(MemoryBlock &destData)
 //------------------------------------------------------------------------------
 void LooperProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-	ScopedPointer<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+	std::unique_ptr<XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
     if (xmlState != 0)
     {
@@ -2374,7 +2370,7 @@ void LooperProcessor::setStateInformation(const void *data, int sizeInBytes)
 			autoPlay = xmlState->getBoolAttribute("autoPlay", true);
 			numerator = xmlState->getIntAttribute("barNumerator", 4);
 			denominator = xmlState->getIntAttribute("barDenominator", 4);
-			inputLevel = (float)xmlState->getDoubleAttribute("inputLevel", 0.5);
+			inputLevel = (float)xmlState->getDoubleAttribute("inputLeve", 0.5);
 			loopLevel = (float)xmlState->getDoubleAttribute("loopLevel", 0.5);
         }
     }

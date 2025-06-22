@@ -72,7 +72,7 @@ class ApplicationMappingsEditor : public Component,
 		///	Draws the item.
 		void paintItem(Graphics &g, int width, int height)
 		{
-			g.setColour(ColourScheme::getInstance().colours[L"Text Colour"]);
+			g.setColour(ColourScheme::getInstance().colours["Text Colour"]);
 			g.setFont(14.0f);
 			g.drawText(name, 0, 0, width, height, Justification::centredLeft, false);
 		};
@@ -113,7 +113,7 @@ class ApplicationMappingsEditor : public Component,
 																					Vectors::addmappingbutton_svgSize));
 				auto addImageOver = std::unique_ptr<Drawable>(JuceHelperStuff::loadSVGFromMemory(Vectors::addmappingbuttonover_svg,
 																					Vectors::addmappingbuttonover_svgSize));
-				addMapping = new DrawableButton(L"Add Mapping Buttton",
+				addMapping = new DrawableButton("Add Mapping Buttton",
 												DrawableButton::ImageFitted);
 				addMapping->setImages(addImage.get(), addImageOver.get());
 				addMapping->addListener(this);
@@ -126,7 +126,7 @@ class ApplicationMappingsEditor : public Component,
 				for(i=0;i<keyMappings.size();++i)
 				{
 					TextButton *tempB = new TextButton(keyMappings[i].getTextDescription());
-					tempB->getProperties().set("type", L"KeyPress");
+					tempB->getProperties().set("type", "KeyPress");
 					tempB->addListener(this);
 					mappingButtons.add(tempB);
 					addAndMakeVisible(tempB);
@@ -141,7 +141,7 @@ class ApplicationMappingsEditor : public Component,
 
 						tempstr << "MIDI CC: " << midiManager->getAppMapping(i)->getCc();
 						TextButton *tempB = new TextButton(tempstr);
-						tempB->getProperties().set("type", L"MIDI CC");
+						tempB->getProperties().set("type", "MIDI CC");
 						tempB->addListener(this);
 						mappingButtons.add(tempB);
 						addAndMakeVisible(tempB);
@@ -154,7 +154,7 @@ class ApplicationMappingsEditor : public Component,
 					if(oscManager->getAppMapping(i)->getId() == id)
 					{
 						TextButton *tempB = new TextButton(oscManager->getAppMapping(i)->getAddress());
-						tempB->getProperties().set("type", L"OSC");
+						tempB->getProperties().set("type", "OSC");
 						tempB->addListener(this);
 						mappingButtons.add(tempB);
 						addAndMakeVisible(tempB);
@@ -186,7 +186,7 @@ class ApplicationMappingsEditor : public Component,
 												"Enter the key combination to map this command to:\n\n",
 												AlertWindow::NoIcon);
 								win->addButton("OK", 1);
-								win->addButton("Cancel", 0);
+								win->addButton("Cance", 0);
 								win->setWantsKeyboardFocus(true);
 								win->grabKeyboardFocus();
 								win->addKeyListener(this);
@@ -240,7 +240,7 @@ class ApplicationMappingsEditor : public Component,
 								win->addTextEditor("oscParam", "0", "Parameter:");
 								win->getTextEditor("oscParam")->setInputRestrictions(3, "0123456789");
 								win->addButton("OK", 1, KeyPress(KeyPress::returnKey));
-								win->addButton("Cancel", 0, KeyPress(KeyPress::escapeKey));
+								win->addButton("Cance", 0, KeyPress(KeyPress::escapeKey));
 								win->enterModalState(true, juce::ModalCallbackFunction::create([this, win](int result) {
 									if (result == 1) {
 										int param;
@@ -371,7 +371,7 @@ class ApplicationMappingsEditor : public Component,
 				{
 					juce::String tempstr;
 					tempKeyPress = key;
-					tempstr << L"Enter the key combination to map this command to:\n\n" << key.getTextDescription();
+					tempstr << "Enter the key combination to map this command to:\n\n" << key.getTextDescription();
 					win->setMessage(tempstr);
 					win->repaint();
 				}
@@ -432,7 +432,7 @@ class ApplicationMappingsEditor : public Component,
 		///	Draws the item.
 		void paintItem(Graphics &g, int width, int height)
 		{
-			g.setColour(ColourScheme::getInstance().colours[L"Text Colour"]);
+			g.setColour(ColourScheme::getInstance().colours["Text Colour"]);
 			g.setFont(Font(16.0f, Font::bold));
 			g.drawText(name, 0, 0, width, height, Justification::centredLeft, false);
 		};

@@ -49,29 +49,29 @@ LooperControl::LooperControl (LooperProcessor *proc, AudioThumbnail *thumbnail)
       recordButton (0)
 {
     addAndMakeVisible (fileDisplay = new WaveformDisplay (thumbnail, false));
-    fileDisplay->setName (L"fileDisplay");
+    fileDisplay->setName ("fileDisplay");
 
     addAndMakeVisible (filename = new juce::FilenameComponent ("filename", juce::File(), true, false, true, "*.wav;*.aif", "", "<no file loaded>"));
-    filename->setName (L"filename");
+    filename->setName ("filename");
 
-    addAndMakeVisible (syncButton = new juce::ToggleButton (L"syncButton"));
-    syncButton->setTooltip (L"Sync file playback to the main transport");
-    syncButton->setButtonText (L"Sync to main transport");
+    addAndMakeVisible (syncButton = new juce::ToggleButton ("syncButton"));
+    syncButton->setTooltip ("Sync file playback to the main transport");
+    syncButton->setButtonText ("Sync to main transport");
     syncButton->addListener (this);
 
-    addAndMakeVisible (stopAfterBarButton = new juce::ToggleButton (L"stopAfterBarButton"));
-    stopAfterBarButton->setTooltip (L"Stop recording after a bar has elapsed.");
-    stopAfterBarButton->setButtonText (L"Stop after bar");
+    addAndMakeVisible (stopAfterBarButton = new juce::ToggleButton ("stopAfterBarButton"));
+    stopAfterBarButton->setTooltip ("Stop recording after a bar has elapsed.");
+    stopAfterBarButton->setButtonText ("Stop after bar");
     stopAfterBarButton->addListener (this);
 
     addAndMakeVisible (playPauseButton = new juce::DrawableButton ("playPauseButton", juce::DrawableButton::ImageOnButtonBackground));
-    playPauseButton->setName (L"playPauseButton");
+    playPauseButton->setName ("playPauseButton");
 
     addAndMakeVisible (rtzButton = new juce::DrawableButton ("rtzButton", juce::DrawableButton::ImageOnButtonBackground));
-    rtzButton->setName (L"rtzButton");
+    rtzButton->setName ("rtzButton");
 
     addAndMakeVisible (recordButton = new juce::DrawableButton ("recordButton", juce::DrawableButton::ImageOnButtonBackground));
-    recordButton->setName (L"recordButton");
+    recordButton->setName ("recordButton");
 
 
     //[UserPreSize]
@@ -86,11 +86,11 @@ LooperControl::LooperControl (LooperProcessor *proc, AudioThumbnail *thumbnail)
 												    Vectors::pausebutton_svgSize));
 	playPauseButton->setImages(playImage.get());
 	playPauseButton->setColour(juce::DrawableButton::backgroundColourId,
-							   ColourScheme::getInstance().colours[L"Button Colour"]);
+							   ColourScheme::getInstance().colours["Button Colour"]);
 	playPauseButton->setColour(juce::DrawableButton::backgroundOnColourId,
-							   ColourScheme::getInstance().colours[L"Button Colour"]);
+							   ColourScheme::getInstance().colours["Button Colour"]);
 	playPauseButton->addListener(this);
-	playPauseButton->setTooltip(L"Play/pause audio file");
+	playPauseButton->setTooltip("Play/pause audio file");
 
 	recording = false;
 
@@ -100,22 +100,22 @@ LooperControl::LooperControl (LooperProcessor *proc, AudioThumbnail *thumbnail)
 												   Vectors::stopbutton_svgSize));
 	recordButton->setImages(recordImage.get());
 	recordButton->setColour(juce::DrawableButton::backgroundColourId,
-						    ColourScheme::getInstance().colours[L"Button Colour"]);
+						    ColourScheme::getInstance().colours["Button Colour"]);
 	recordButton->setColour(juce::DrawableButton::backgroundOnColourId,
-						    ColourScheme::getInstance().colours[L"Button Colour"]);
+						    ColourScheme::getInstance().colours["Button Colour"]);
 	recordButton->addListener(this);
-	recordButton->setTooltip(L"Record/stop recording a loop");
+	recordButton->setTooltip("Record/stop recording a loop");
 
 	//Used to make sure we're playing if the processor is already playing.
 	changeListenerCallback(processor);
 
 	rtzButton->setImages(rtzImage.get());
 	rtzButton->setColour(juce::DrawableButton::backgroundColourId,
-					     ColourScheme::getInstance().colours[L"Button Colour"]);
+					     ColourScheme::getInstance().colours["Button Colour"]);
 	rtzButton->setColour(juce::DrawableButton::backgroundOnColourId,
-					     ColourScheme::getInstance().colours[L"Button Colour"]);
+					     ColourScheme::getInstance().colours["Button Colour"]);
 	rtzButton->addListener(this);
-	rtzButton->setTooltip(L"Return to the start of the audio file");
+	rtzButton->setTooltip("Return to the start of the audio file");
 
 	const File& soundFile = processor->getFile();
 	if(soundFile != juce::File())
@@ -128,9 +128,9 @@ LooperControl::LooperControl (LooperProcessor *proc, AudioThumbnail *thumbnail)
 		filename->setDefaultBrowseTarget(lastDir);
 
 	syncButton->setToggleState(processor->getParameter(LooperProcessor::SyncToMainTransport) > 0.5f,
-							   false);
+						   juce::sendNotification);
 	stopAfterBarButton->setToggleState(processor->getParameter(LooperProcessor::StopAfterBar) > 0.5f,
-									   false);
+							   juce::sendNotification);
 
 	filename->addListener(this);
 	fileDisplay->addChangeListener(this);
@@ -223,7 +223,7 @@ void LooperControl::buttonClicked (Button* buttonThatWasClicked)
 	else if(buttonThatWasClicked == playPauseButton)
 	{
 		if(!playing)
-			playPauseButton->setImages(pauseImage);
+			playPauseButton->setImages(pauseImage.get());
 		else
 			playPauseButton->setImages(playImage.get());
 		playing = !playing;
@@ -328,8 +328,8 @@ void LooperControl::changeListenerCallback(juce::ChangeBroadcaster *source)
 			}
 		}
 		fileDisplay->setReadPointer((float)processor->getReadPosition());
-		syncButton->setToggleState(processor->getParameter(LooperProcessor::SyncToMainTransport) > 0.5f, false);
-		stopAfterBarButton->setToggleState(processor->getParameter(LooperProcessor::StopAfterBar) > 0.5f, false);
+		syncButton->setToggleState(processor->getParameter(LooperProcessor::SyncToMainTransport) > 0.5f, juce::sendNotification);
+		stopAfterBarButton->setToggleState(processor->getParameter(LooperProcessor::StopAfterBar) > 0.5f, juce::sendNotification);
 	}
 }
 
@@ -356,9 +356,9 @@ void LooperControl::clearDisplay()
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="LooperControl" componentName=""
+<JUCER_COMPONENT documentType="Component" className="LooperContro" componentName=""
                  parentClasses="public Component, public FilenameComponentListener, public Timer, public ChangeListener"
-                 constructorParams="LooperProcessor *proc, AudioThumbnail *thumbnail"
+                 constructorParams="LooperProcessor *proc, AudioThumbnail *thumbnai"
                  variableInitialisers="processor(proc)" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330000013" fixedSize="0" initialWidth="300"
                  initialHeight="100">
@@ -368,7 +368,7 @@ BEGIN_JUCER_METADATA
                     params="thumbnail, false"/>
   <GENERICCOMPONENT name="filename" id="f1e80797e31ff742" memberName="filename" virtualName=""
                     explicitFocusOrder="0" pos="0 0 84M 24" class="FilenameComponent"
-                    params="&quot;filename&quot;, File::nonexistent, true, false, true, &quot;*.wav;*.aif&quot;, &quot;&quot;, &quot;&lt;no file loaded&gt;&quot;"/>
+                    params="&quot;filename&quot;, juce::File(), true, false, true, &quot;*.wav;*.aif&quot;, &quot;&quot;, &quot;&lt;no file loaded&gt;&quot;"/>
   <TOGGLEBUTTON name="syncButton" id="b0788f5602fb3d7f" memberName="syncButton"
                 virtualName="" explicitFocusOrder="0" pos="0 23R 168 24" tooltip="Sync file playback to the main transport"
                 buttonText="Sync to main transport" connectedEdges="0" needsCallback="1"
@@ -391,3 +391,4 @@ BEGIN_JUCER_METADATA
 END_JUCER_METADATA
 */
 #endif
+

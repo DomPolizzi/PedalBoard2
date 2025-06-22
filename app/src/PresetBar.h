@@ -42,7 +42,7 @@ class PluginComponent;
 */
 class PresetBar  : public Component,
                    public Button::Listener,
-                   public ComboBoxListener
+                   public ComboBox::Listener
 {
 public:
     //==========================================================================

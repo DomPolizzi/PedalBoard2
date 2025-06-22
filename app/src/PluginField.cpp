@@ -11,6 +11,7 @@
 #include "PedalboardProcessors.h"
 #include "BypassableInstance.h"
 #include "AudioSingletons.h"
+#include "JuceHeader.h"
 
 #include "NiallsOSCLib/OSCMessage.h"
 #include "NiallsOSCLib/OSCBundle.h"
@@ -48,7 +49,7 @@ displayDoubleClickMessage(true)
 
         p.fillInPluginDescription(desc);
 
-		signalPath->addFilter(&desc, 10, 215);
+		signalPath->addFilter(&desc, 10.0f, 215.0f);
 	}
 
 	//Setup gui.
@@ -63,7 +64,7 @@ displayDoubleClickMessage(true)
 
         p.fillInPluginDescription(desc);
 
-		signalPath->addFilter(&desc, 100, 100);
+		signalPath->addFilter(&desc, 100.0f, 100.0f);
 
 		//And connect it up to the midi input.
 		{
@@ -73,16 +74,16 @@ displayDoubleClickMessage(true)
 			for(i=0;i<signalPath->getNumFilters();++i)
 			{
 				if(signalPath->getNode(i)->getProcessor()->getName() == "Midi Input")
-					midiInput = signalPath->getNode(i)->nodeId;
+					midiInput = signalPath->getNode(i)->nodeID.uid;
 				else if(signalPath->getNode(i)->getProcessor()->getName() == "Midi Interceptor")
 				{
-					midiInterceptor = signalPath->getNode(i)->nodeId;
+					midiInterceptor = signalPath->getNode(i)->nodeID.uid;
 					dynamic_cast<MidiInterceptor *>(signalPath->getNode(i)->getProcessor())->setManager(&midiManager);
 				}
 			}
-			signalPath->addConnection(midiInput,
+			signalPath->addConnection(AudioProcessorGraph::NodeID{midiInput},
 									  AudioProcessorGraph::midiChannelIndex,
-									  midiInterceptor,
+									  AudioProcessorGraph::NodeID{midiInterceptor},
 									  AudioProcessorGraph::midiChannelIndex);
 		}
 	}
@@ -120,11 +121,11 @@ PluginField::~PluginField()
 //------------------------------------------------------------------------------
 void PluginField::paint(Graphics& g)
 {
-	g.fillAll(ColourScheme::getInstance().colours[L"Field Background"]);
+	g.fillAll(ColourScheme::getInstance().colours["Field Background"]);
 
 	if(displayDoubleClickMessage)
 	{
-		g.setColour(ColourScheme::getInstance().colours[L"Text Colour"].withAlpha(0.5f));
+		g.setColour(ColourScheme::getInstance().colours["Text Colour"].withAlpha(0.5f));
 		g.drawText("<double-click to add processor>",
 				   400,
 				   230,
@@ -140,34 +141,25 @@ void PluginField::mouseDown(const MouseEvent& e)
 {
 	if(e.getNumberOfClicks() == 2)
 	{
-		int result = 0;
 		PopupMenu menu;
 
 		pluginList->addToMenu(menu, KnownPluginList::sortAlphabetically);
 
-		//result = menu.showAt(Rectangle<int>(e.x, e.y, 0, 0));
-		result = menu.show();
-
-		if(result > 0)
-		{
-			int pluginIndex = signalPath->getNumFilters()-1;
-
-			signalPath->addFilter(pluginList->getType(pluginList->getIndexChosenByMenu(result)),
-								  (double)e.x,
-								  (double)e.y);
-
-			//Make sure the plugin got created before we add a component for it.
-			if((signalPath->getNumFilters()-1) > pluginIndex)
+		PopupMenu::Options options;
+		menu.showMenuAsync(options, [this, e](int result) {
+			if(result != 0)
 			{
-				pluginIndex = signalPath->getNumFilters()-1;
+				int pluginIndex = signalPath->getNumFilters()-1;
 
-				addFilter(pluginIndex);
+				signalPath->addFilter(pluginList->getType(pluginList->getIndexChosenByMenu(result)),
+									  (double)e.x,
+									  (double)e.y);
 
-				sendChangeMessage();
-
-				clearDoubleClickMessage();
+				//Make sure the plugin got created before we add a component for it.
+				if(signalPath->getNumFilters() > pluginIndex)
+					addFilter(signalPath->getNumFilters()-1);
 			}
-		}
+		});
 	}
 }
 
@@ -216,7 +208,7 @@ bool PluginField::isInterestedInFileDrag(const StringArray& files)
 	{
 		//If they're plugins.
 #ifdef WIN32
-		if(files[i].endsWith(".dll"))
+		if(files[i].endsWith(".dl"))
 		{
 			retval = true;
 			break;
@@ -229,12 +221,17 @@ bool PluginField::isInterestedInFileDrag(const StringArray& files)
 		}
 #endif
 		//If they're sound files.
-		else if(files[i].endsWith(".wav") ||
+		if(files[i].endsWith(".wav") ||
 				files[i].endsWith(".aif") ||
 				files[i].endsWith(".aiff") ||
 				files[i].endsWith(".ogg")||
 				files[i].endsWith(".flac")||
 				files[i].endsWith(".wma"))
+		{
+			retval = true;
+			break;
+		}
+		else if(files[i].endsWith(".xml"))
 		{
 			retval = true;
 			break;
@@ -256,14 +253,14 @@ void PluginField::filesDropped(const StringArray& files, int x, int y)
 	{
 		//If they're plugins.
 #ifdef WIN32
-		if(files[i].endsWith(".dll"))
+		if(files[i].endsWith(".dl"))
 			pluginsInArray = true;
 #elif defined(__APPLE__)
 		if(files[i].endsWith(".vst") || files[i].endsWith(".component"))
 			pluginsInArray = true;
 #endif
 		//If they're sound files.
-		else if(files[i].endsWith(".wav") ||
+		if(files[i].endsWith(".wav") ||
 				files[i].endsWith(".aif") ||
 				files[i].endsWith(".aiff") ||
 				files[i].endsWith(".ogg")||
@@ -271,6 +268,10 @@ void PluginField::filesDropped(const StringArray& files, int x, int y)
 				files[i].endsWith(".wma"))
 		{
 			soundsInArray = true;
+		}
+		else if(files[i].endsWith(".xml"))
+		{
+			loadFromXml(XmlDocument::parse(File(files[i])).get());
 		}
 	}
 
@@ -343,6 +344,18 @@ bool PluginField::getCurrentPosition(CurrentPositionInfo &result)
 	result.isRecording = false;
 
 	return true;
+}
+
+//------------------------------------------------------------------------------
+juce::Optional<juce::AudioPlayHead::PositionInfo> PluginField::getPosition() const
+{
+	juce::AudioPlayHead::PositionInfo info;
+	info.setBpm(tempo);
+	info.setTimeSignature(juce::AudioPlayHead::TimeSignature{4, 4});
+	info.setIsPlaying(MainTransport::getInstance()->getState());
+	info.setIsRecording(false);
+	
+	return info;
 }
 
 //------------------------------------------------------------------------------
@@ -463,7 +476,7 @@ void PluginField::enableMidiInput(bool val)
 
 			p.fillInPluginDescription(desc);
 
-			signalPath->addFilter(&desc, 100, 100);
+			signalPath->addFilter(&desc, 100.0f, 100.0f);
 
 			//And connect it up to the midi input.
 			{
@@ -473,16 +486,16 @@ void PluginField::enableMidiInput(bool val)
 				for(i=0;i<signalPath->getNumFilters();++i)
 				{
 					if(signalPath->getNode(i)->getProcessor()->getName() == "Midi Input")
-						midiInput = signalPath->getNode(i)->nodeId;
+						midiInput = signalPath->getNode(i)->nodeID.uid;
 					else if(signalPath->getNode(i)->getProcessor()->getName() == "Midi Interceptor")
 					{
-						midiInterceptor = signalPath->getNode(i)->nodeId;
+						midiInterceptor = signalPath->getNode(i)->nodeID.uid;
 						dynamic_cast<MidiInterceptor *>(signalPath->getNode(i)->getProcessor())->setManager(&midiManager);
 					}
 				}
-				signalPath->addConnection(midiInput,
+				signalPath->addConnection(AudioProcessorGraph::NodeID{midiInput},
 										  AudioProcessorGraph::midiChannelIndex,
-										  midiInterceptor,
+										  AudioProcessorGraph::NodeID{midiInterceptor},
 										  AudioProcessorGraph::midiChannelIndex);
 			}
 		}
@@ -543,7 +556,7 @@ void PluginField::enableOscInput(bool val)
 
         p.fillInPluginDescription(desc);
 
-		signalPath->addFilter(&desc, 10, 215);
+		signalPath->addFilter(&desc, 10.0f, 215.0f);
 
 		addFilter(signalPath->getNumFilters()-1);
 	}
@@ -606,7 +619,7 @@ void PluginField::deleteFilter(AudioProcessorGraph::Node *node)
 {
 	int i;
 	PluginConnection *connection;
-	const uint32 uid = node->nodeId;
+	const AudioProcessorGraph::NodeID uid = node->nodeID;
 	multimap<uint32, Mapping *>::iterator it;
 	String pluginName = node->getProcessor()->getName();
 
@@ -619,19 +632,16 @@ void PluginField::deleteFilter(AudioProcessorGraph::Node *node)
 		{
 			const PluginPinComponent *src = connection->getSource();
 			const PluginPinComponent *dest = connection->getDestination();
-			uint32 srcId, destId;
+			AudioProcessorGraph::NodeID srcId, destId;
 
-			//Had a crash here once, where dest was 0. Not exactly sure why that
-			//happened, but the following will at least prevent it happening
-			//again...
 			if(src)
-				srcId = src->getUid();
+				srcId = AudioProcessorGraph::NodeID{src->getUid()};
 			else
-				srcId = 4294967295u;
+				srcId = AudioProcessorGraph::NodeID();
 			if(dest)
-				destId = dest->getUid();
+				destId = AudioProcessorGraph::NodeID{dest->getUid()};
 			else
-				destId = 4294967295u;
+				destId = AudioProcessorGraph::NodeID();
 
 			if((uid == srcId) || (uid == destId))
 			{
@@ -642,13 +652,13 @@ void PluginField::deleteFilter(AudioProcessorGraph::Node *node)
 	}
 
 	//Delete any associated mappings.
-	for(it=mappings.lower_bound(uid);
-		it!=mappings.upper_bound(uid);
+	for(it=mappings.lower_bound(uid.uid);
+		it!=mappings.upper_bound(uid.uid);
 		++it)
 	{
 		delete it->second;
 	}
-	mappings.erase(uid);
+	mappings.erase(uid.uid);
 
 	//Unregister the filter from wanting MIDI over OSC.
 	{
@@ -745,9 +755,9 @@ void PluginField::releaseConnection(int x, int y)
 				if((s->getParameterPin() && p->getParameterPin()) ||
 				   (!s->getParameterPin() && !p->getParameterPin()))
 				{
-					signalPath->addConnection(s->getUid(),
+					signalPath->addConnection(AudioProcessorGraph::NodeID{s->getUid()},
 											  s->getChannel(),
-											  p->getUid(),
+											  AudioProcessorGraph::NodeID{p->getUid()},
 											  p->getChannel());
 					draggingConnection->setDestination(p);
 
@@ -803,18 +813,18 @@ void PluginField::deleteConnection()
 				const PluginPinComponent *s = c->getSource();
 				const PluginPinComponent *d = c->getDestination();
 
-				signalPath->removeConnection(s->getUid(),
-												s->getChannel(),
-												d->getUid(),
-												d->getChannel());
+				signalPath->removeConnection(AudioProcessorGraph::NodeID{s->getUid()},
+											 s->getChannel(),
+											 AudioProcessorGraph::NodeID{d->getUid()},
+											 d->getChannel());
 				removeChildComponent(c);
 				delete c;
 
 				//If it's a param connection, delete any MIDI or OSC mappings.
 				if(c->getParameterConnection())
 				{
-					uint32 sourceId = s->getUid();
-					uint32 destId = d->getUid();
+					AudioProcessorGraph::NodeID sourceId = AudioProcessorGraph::NodeID{s->getUid()};
+					AudioProcessorGraph::NodeID destId = AudioProcessorGraph::NodeID{d->getUid()};
 					String tempstr = signalPath->getNodeForId(sourceId)->getProcessor()->getName();
 
 					//It's a Midi connection, so delete any associated Midi
@@ -823,8 +833,8 @@ void PluginField::deleteConnection()
 					{
 						multimap<uint32, Mapping *>::iterator it;
 
-						for(it=mappings.lower_bound(destId);
-							it!=mappings.upper_bound(destId);)
+						for(it=mappings.lower_bound(destId.uid);
+							it!=mappings.upper_bound(destId.uid);)
 						{
 							MidiMapping *mapping = dynamic_cast<MidiMapping *>(it->second);
 
@@ -841,8 +851,8 @@ void PluginField::deleteConnection()
 					{
 						multimap<uint32, Mapping *>::iterator it;
 
-						for(it=mappings.lower_bound(destId);
-							it!=mappings.upper_bound(destId);)
+						for(it=mappings.lower_bound(destId.uid);
+							it!=mappings.upper_bound(destId.uid);)
 						{
 							OscMapping *mapping = dynamic_cast<OscMapping *>(it->second);
 
@@ -889,24 +899,24 @@ void PluginField::enableMidiForNode(AudioProcessorGraph::Node *node, bool val)
 		return;
 
 	//Check if there's a connection.
-	connection = (signalPath->getConnectionBetween(midiInput->nodeId,
+	connection = (signalPath->getConnectionBetween(AudioProcessorGraph::NodeID{midiInput->nodeID.uid},
 												   AudioProcessorGraph::midiChannelIndex,
-												   node->nodeId,
+												   AudioProcessorGraph::NodeID{node->nodeID.uid},
 												   AudioProcessorGraph::midiChannelIndex) != 0);
 	if(val)
 	{
 		//If there's a connection, remove it.
-		signalPath->removeConnection(midiInput->nodeId,
+		signalPath->removeConnection(AudioProcessorGraph::NodeID{midiInput->nodeID.uid},
 									 AudioProcessorGraph::midiChannelIndex,
-									 node->nodeId,
+									 AudioProcessorGraph::NodeID{node->nodeID.uid},
 									 AudioProcessorGraph::midiChannelIndex);
 	}
 	else
 	{
 		//If there's not a connection, add it.
-		signalPath->addConnection(midiInput->nodeId,
+		signalPath->addConnection(AudioProcessorGraph::NodeID{midiInput->nodeID.uid},
 								  AudioProcessorGraph::midiChannelIndex,
-								  node->nodeId,
+								  AudioProcessorGraph::NodeID{node->nodeID.uid},
 								  AudioProcessorGraph::midiChannelIndex);
 	}
 }
@@ -931,9 +941,9 @@ bool PluginField::getMidiEnabledForNode(AudioProcessorGraph::Node *node) const
 	if(!midiInput)
 		return false;
 	else
-		return signalPath->getConnectionBetween(midiInput->nodeId,
+		return signalPath->getConnectionBetween(AudioProcessorGraph::NodeID{midiInput->nodeID.uid},
 												AudioProcessorGraph::midiChannelIndex,
-												node->nodeId,
+												AudioProcessorGraph::NodeID{node->nodeID.uid},
 												AudioProcessorGraph::midiChannelIndex) != 0;
 }
 
@@ -1014,7 +1024,7 @@ XmlElement *PluginField::getXml() const
 	}
 
 	//Set the patch tempo.
-	retval->setAttribute(L"tempo", tempo);
+	retval->setAttribute("tempo", tempo);
 
 	//Add FilterGraph.
 	retval->addChildElement(signalPath->createXml(oscManager));
@@ -1030,7 +1040,7 @@ XmlElement *PluginField::getXml() const
 		XmlElement *nameXml = new XmlElement("Name");
 
 		nameXml->setAttribute("id", (int)it2->first);
-		nameXml->setAttribute("val", it2->second);
+		nameXml->setAttribute("va", it2->second);
 
 		userNamesXml->addChildElement(nameXml);
 	}
@@ -1078,7 +1088,7 @@ void PluginField::loadFromXml(XmlElement *patch)
 	clearMappings();
 	if(patch)
 	{
-		tempo = patch->getDoubleAttribute(L"tempo", 120.0);
+		tempo = patch->getDoubleAttribute("tempo", 120.0);
 
 		signalPath->clear(false, false, false);
 		signalPath->restoreFromXml(*(patch->getChildByName("FILTERGRAPH")),
@@ -1089,7 +1099,7 @@ void PluginField::loadFromXml(XmlElement *patch)
 
 	//Add the filter components.
 	for(i=0;i<signalPath->getNumFilters();++i)
-		addFilter(i, false);
+		addFilter(i);
 
 	//Update any plugin names.
 	{
@@ -1097,12 +1107,12 @@ void PluginField::loadFromXml(XmlElement *patch)
 
 		if(userNamesXml)
 		{
-			forEachXmlChildElement(*userNamesXml, e)
+			for (auto* e : userNamesXml->getChildWithTagNameIterator("*"))
 			{
 				if(e->hasTagName("Name"))
 				{
 					uint32 id = e->getIntAttribute("id");
-					String name = e->getStringAttribute("val");
+					String name = e->getStringAttribute("va");
 
 					for(i=0;i<getNumChildComponents();++i)
 					{
@@ -1110,7 +1120,7 @@ void PluginField::loadFromXml(XmlElement *patch)
 
 						if(pluginComp)
 						{
-							if(pluginComp->getNode()->nodeId == id)
+							if(pluginComp->getNode()->nodeID.uid == id)
 							{
 								pluginComp->setUserName(name);
 								userNames[id] = name;
@@ -1140,7 +1150,7 @@ void PluginField::loadFromXml(XmlElement *patch)
 			NodeAndId n;
 
 			n.node = signalPath->getNode(i);
-			n.id = n.node->nodeId;
+			n.id = n.node->nodeID.uid;
 			tempNodes.add(n);
 		}
 
@@ -1158,9 +1168,9 @@ void PluginField::loadFromXml(XmlElement *patch)
 			//Fill out sourceNode and destNode.
 			for(j=0;j<tempNodes.size();++j)
 			{
-				if(tempNodes[j].id == connection->sourceNodeId)
+				if(tempNodes[j].id == connection->source.nodeID.uid)
 					sourceNode = tempNodes[j].node;
-				else if(tempNodes[j].id == connection->destNodeId)
+				else if(tempNodes[j].id == connection->destination.nodeID.uid)
 					destNode = tempNodes[j].node;
 			}
 
@@ -1192,18 +1202,18 @@ void PluginField::loadFromXml(XmlElement *patch)
 				continue;
 			}
 
-			if((connection->sourceChannelIndex == connection->destChannelIndex) &&
-			   (connection->sourceChannelIndex == AudioProcessorGraph::midiChannelIndex))
+			if((connection->source.channelIndex == connection->destination.channelIndex) &&
+			   (connection->source.channelIndex == AudioProcessorGraph::midiChannelIndex))
 			{
 				sourcePin = sourceComp->getParamPin(0);
 				destPin = destComp->getParamPin(0);
 
-				paramConnections.add(connection->destNodeId);
+				paramConnections.add(connection->destination.nodeID.uid);
 			}
 			else
 			{
-				sourcePin = sourceComp->getOutputPin(connection->sourceChannelIndex);
-				destPin = destComp->getInputPin(connection->destChannelIndex);
+				sourcePin = sourceComp->getOutputPin(connection->source.channelIndex);
+				destPin = destComp->getInputPin(connection->destination.channelIndex);
 			}
 
 			if(!sourcePin || !destPin)
@@ -1222,7 +1232,7 @@ void PluginField::loadFromXml(XmlElement *patch)
 
 		if(mappingsXml)
 		{
-			forEachXmlChildElement(*mappingsXml, e)
+			for (auto* e : mappingsXml->getChildWithTagNameIterator("*"))
 			{
 				if(e->hasTagName("MidiMapping"))
 				{
@@ -1309,7 +1319,7 @@ void PluginField::loadFromXml(XmlElement *patch)
 
 							if(comp)
 							{
-								if(comp->getNode()->nodeId == uid)
+								if(comp->getNode()->nodeID.uid == uid)
 								{
 									PluginPinComponent *paramInput = 0;
 
@@ -1358,7 +1368,7 @@ void PluginField::loadFromXml(XmlElement *patch)
 
 							if(comp)
 							{
-								if(comp->getNode()->nodeId == uid)
+								if(comp->getNode()->nodeID.uid == uid)
 								{
 									PluginPinComponent *paramInput = 0;
 
@@ -1439,7 +1449,7 @@ void PluginField::clear()
 
         p.fillInPluginDescription(desc);
 
-		signalPath->addFilter(&desc, 10, 215);
+		signalPath->addFilter(&desc, 10.0f, 215.0f);
 	}
 
 	//Setup gui.
@@ -1454,7 +1464,7 @@ void PluginField::clear()
 
         p.fillInPluginDescription(desc);
 
-		signalPath->addFilter(&desc, 100, 100);
+		signalPath->addFilter(&desc, 100.0f, 100.0f);
 
 		//And connect it up to the midi input.
 		{
@@ -1464,16 +1474,14 @@ void PluginField::clear()
 			for(i=0;i<signalPath->getNumFilters();++i)
 			{
 				if(signalPath->getNode(i)->getProcessor()->getName() == "Midi Input")
-					midiInput = signalPath->getNode(i)->nodeId;
+					midiInput = signalPath->getNode(i)->nodeID.uid;
 				else if(signalPath->getNode(i)->getProcessor()->getName() == "Midi Interceptor")
-				{
-					midiInterceptor = signalPath->getNode(i)->nodeId;
-					dynamic_cast<MidiInterceptor *>(signalPath->getNode(i)->getProcessor())->setManager(&midiManager);
-				}
+					midiInterceptor = signalPath->getNode(i)->nodeID.uid;
 			}
-			signalPath->addConnection(midiInput,
+
+			signalPath->addConnection(AudioProcessorGraph::NodeID{midiInput},
 									  AudioProcessorGraph::midiChannelIndex,
-									  midiInterceptor,
+									  AudioProcessorGraph::NodeID{midiInterceptor},
 									  AudioProcessorGraph::midiChannelIndex);
 		}
 	}
@@ -1617,11 +1625,99 @@ void PluginField::connectAll(PluginConnection *connection)
 		{
 			sourcePin = source->getOutputPin(left);
 			destPin = dest->getInputPin(right);
-			signalPath->addConnection(sourcePin->getUid(),
+			signalPath->addConnection(AudioProcessorGraph::NodeID{sourcePin->getUid()},
 									  sourcePin->getChannel(),
-									  destPin->getUid(),
+									  AudioProcessorGraph::NodeID{destPin->getUid()},
 									  destPin->getChannel());
 			addAndMakeVisible(new PluginConnection(sourcePin, destPin));
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+void PluginField::filesDropped(const StringArray& files, int x, int y)
+{
+	int i;
+	bool soundsInArray = false;
+	bool pluginsInArray = false;
+	OwnedArray<PluginDescription> foundPlugins;
+
+	for(i=0;i<files.size();++i)
+	{
+		//If they're plugins.
+#ifdef WIN32
+		if(files[i].endsWith(".dl"))
+			pluginsInArray = true;
+#elif defined(__APPLE__)
+		if(files[i].endsWith(".vst") || files[i].endsWith(".component"))
+			pluginsInArray = true;
+#endif
+		//If they're sound files.
+		if(files[i].endsWith(".wav") ||
+				files[i].endsWith(".aif") ||
+				files[i].endsWith(".aiff") ||
+				files[i].endsWith(".ogg")||
+				files[i].endsWith(".flac")||
+				files[i].endsWith(".wma"))
+		{
+			soundsInArray = true;
+		}
+		else if(files[i].endsWith(".xml"))
+		{
+			loadFromXml(XmlDocument::parse(File(files[i])).get());
+		}
+	}
+
+	if(pluginsInArray)
+	{
+		pluginList->scanAndAddDragAndDroppedFiles(AudioPluginFormatManagerSingleton::getInstance(),
+												  files,
+												  foundPlugins);
+
+		for(i=0;i<foundPlugins.size();++i)
+		{
+			int pluginIndex = signalPath->getNumFilters()-1;
+
+			signalPath->addFilter(foundPlugins[i],
+								  (double)x,
+								  (double)y);
+
+			//Make sure the plugin got created before we add a component for it.
+			if((signalPath->getNumFilters()-1) > pluginIndex)
+			{
+				pluginIndex = signalPath->getNumFilters()-1;
+
+				addFilter(pluginIndex);
+
+				sendChangeMessage();
+			}
+
+			x += 100;
+			y += 100;
+		}
+	}
+
+	if(soundsInArray)
+	{
+		for(i=0;i<files.size();++i)
+		{
+			int pluginIndex = signalPath->getNumFilters()-1;
+
+			signalPath->addFilter(new FilePlayerProcessor(File(files[i])),
+								  (double)x,
+								  (double)y);
+
+			//Make sure the plugin got created before we add a component for it.
+			if((signalPath->getNumFilters()-1) > pluginIndex)
+			{
+				pluginIndex = signalPath->getNumFilters()-1;
+
+				addFilter(pluginIndex);
+
+				sendChangeMessage();
+
+				clearDoubleClickMessage();
+			}
 		}
 	}
 }

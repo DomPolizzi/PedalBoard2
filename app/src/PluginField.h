@@ -43,6 +43,13 @@ class PluginField : public Component,
 	///	Fills in the background.
 	void paint(Graphics& g);
 
+	/// Implementation of AudioPlayHead method for backward compatibility
+	bool getCurrentPosition(CurrentPositionInfo &result);
+
+	/// Implementation of pure virtual method from AudioPlayHead in JUCE 7.0.12
+	juce::Optional<juce::AudioPlayHead::PositionInfo> getPosition() const override;
+
+
 	///	Used to add plugins with a double-click.
 	void mouseDown(const MouseEvent& e);
 
@@ -58,7 +65,7 @@ class PluginField : public Component,
 	void filesDropped(const StringArray& files, int x, int y);
 
 	///	So plugins get info about the tempo etc.
-	bool getCurrentPosition(CurrentPositionInfo &result);
+	// getCurrentPosition is declared above
 
 	///	Enables/disables the audio input.
 	void enableAudioInput(bool val);
@@ -132,7 +139,7 @@ class PluginField : public Component,
 	///	Clears the 'double-click...' message.
 	void clearDoubleClickMessage();
 
-	juce_UseDebuggingNewOperator
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PluginField)
   private:
 	///	Helper method. Clears mappings.
 	void clearMappings();

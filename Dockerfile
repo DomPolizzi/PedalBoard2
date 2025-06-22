@@ -53,6 +53,8 @@ COPY --chown=juceuser:juceuser app/ ./PedalBoard2/app/
 
 WORKDIR /home/juceuser/PedalBoard2/build
 
-# Build with CMake
-#RUN cmake -B . -S .. && cmake --build . --config Release
-RUN cmake -B . -S .. && cmake --build . --config Debug
+# Build with CMake - separate configure and build steps for better debugging
+RUN cmake -B . -S .. -DCMAKE_BUILD_TYPE=Debug
+
+# Build the project
+RUN cmake --build . --config Debug

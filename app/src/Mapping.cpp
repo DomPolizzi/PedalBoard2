@@ -52,7 +52,7 @@ Mapping::~Mapping()
 //------------------------------------------------------------------------------
 void Mapping::updateParameter(float val)
 {
-	AudioProcessor *filter = filterGraph->getNodeForId(plugin)->getProcessor();
+	AudioProcessor *filter = filterGraph->getNodeForId(juce::AudioProcessorGraph::NodeID(plugin))->getProcessor();
 
 	if(parameter == -1)
 	{
@@ -62,7 +62,14 @@ void Mapping::updateParameter(float val)
 			bypassable->setBypass(val > 0.5f);
 	}
 	else
-		filter->setParameter(parameter, val);
+	{
+		auto parameters = filter->getParameters();
+		if (parameter >= 0 && parameter < parameters.size())
+		{
+			auto *param = parameters.getUnchecked(parameter);
+			param->setValueNotifyingHost(val);
+		}
+	}
 }
 
 //------------------------------------------------------------------------------

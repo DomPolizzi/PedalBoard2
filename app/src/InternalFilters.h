@@ -79,7 +79,7 @@ public:
     bool requiresUnblockedMessageThreadDuringCreation(const PluginDescription&) const override { return false; }
 
     //==============================================================================
-    String getName() const                                { return "Internal"; }
+    String getName() const                                { return "Interna"; }
     bool fileMightContainThisPluginType (const String&)           { return false; }
     FileSearchPath getDefaultLocationsToSearch()          { return FileSearchPath(); }
     void findAllTypesForFile (OwnedArray <PluginDescription>&, const String&) {}
@@ -112,3 +112,4 @@ private:
 
 
 #endif
+

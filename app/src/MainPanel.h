@@ -1,49 +1,25 @@
-/*
-  ==============================================================================
-
-  This is an automatically generated file created by the Jucer!
-
-  Creation date:  26 Nov 2011 3:32:09pm
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Jucer version: 1.12
-
-  ------------------------------------------------------------------------------
-
-  The Jucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-6 by Raw Material Software ltd.
-
-  ==============================================================================
-*/
-
 #ifndef __JUCER_HEADER_MAINPANEL_MAINPANEL_89D8C0B__
 #define __JUCER_HEADER_MAINPANEL_MAINPANEL_89D8C0B__
 
 //[Headers]     -- You can add your own extra header files here --
+#include <JuceHeader.h>
+
+// Include core JUCE modules first
+#include <juce_core/juce_core.h>
+#include <juce_gui_basics/juce_gui_basics.h>
+
+// Then include application headers
 #include "FilterGraph.h"
 #include "ColourScheme.h"
 #include "NiallsSocketLib/UDPSocket.h"
-
-#include <JuceHeader.h>
 #include "PluginField.h"
 #include "MidiAppFifo.h"
 
 class PluginListWindow;
-//[/Headers]
+class PatchOrganiser;
+class UserPresetWindow;
+class PreferencesDialog;
 
-
-
-//==============================================================================
-/**
-                                                                    //[Comments]
-    An auto-generated component, created by the Jucer.
-
-    Describe your class and how it works here!
-                                                                    //[/Comments]
-*/
 class MainPanel  : public Component,
                    public MenuBarModel,
                    public ApplicationCommandTarget,
@@ -296,24 +272,24 @@ private:
 			Font smallFont(24.0f);
 			Font bigFont(48.0f, Font::bold);
 	
-			g.setColour(ColourScheme::getInstance().colours[L"Text Colour"]);
+			g.setColour(ColourScheme::getInstance().colours["Text Colour"]);
 
 			g.setFont(smallFont);
-			g.drawText(L"Out of bounds",
+			g.drawText("Out of bounds",
 					   0,
 					   0,
 					   250,
 					   50,
 					   Justification(Justification::centred),
 					   false);
-			g.drawText(L"MIDI Program Change",
+			g.drawText("MIDI Program Change",
 					   0,
 					   24,
 					   250,
 					   50,
 					   Justification(Justification::centred),
 					   false);
-			g.drawText(L"received:",
+			g.drawText("received:",
 					   0,
 					   48,
 					   250,

@@ -45,17 +45,17 @@ AudioRecorderControl::AudioRecorderControl (RecorderProcessor *proc, AudioThumbn
       recordButton (0)
 {
     addAndMakeVisible (fileDisplay = new WaveformDisplayLite (thumbnail));
-    fileDisplay->setName (L"fileDisplay");
+    fileDisplay->setName ("fileDisplay");
 
     addAndMakeVisible (filename = new FilenameComponent ("filename", juce::File(), true, false, true, "*.wav", ".wav", "<no file loaded>"));
-    filename->setName (L"filename");
+    filename->setName ("filename");
 
-    addAndMakeVisible (syncButton = new ToggleButton (L"syncButton"));
-    syncButton->setButtonText (L"Sync to main transport");
+    addAndMakeVisible (syncButton = new ToggleButton ("syncButton"));
+    syncButton->setButtonText ("Sync to main transport");
     syncButton->addListener (this);
 
     addAndMakeVisible (recordButton = new DrawableButton ("recordButton", DrawableButton::ImageOnButtonBackground));
-    recordButton->setName (L"recordButton");
+    recordButton->setName ("recordButton");
 
 
     //[UserPreSize]
@@ -68,11 +68,11 @@ AudioRecorderControl::AudioRecorderControl (RecorderProcessor *proc, AudioThumbn
 									   Vectors::stopbutton_svgSize));
 	recordButton->setImages(recordImage.get());
 	recordButton->setColour(DrawableButton::backgroundColourId,
-						    ColourScheme::getInstance().colours[L"Button Colour"]);
+						    ColourScheme::getInstance().colours["Button Colour"]);
 	recordButton->setColour(DrawableButton::backgroundOnColourId,
-						    ColourScheme::getInstance().colours[L"Button Colour"]);
+						    ColourScheme::getInstance().colours["Button Colour"]);
 	recordButton->addListener(this);
-	recordButton->setTooltip(L"Record audio input");
+	recordButton->setTooltip("Record audio input");
 
 	const File& soundFile = processor->getFile();
 	if(soundFile.existsAsFile())
@@ -216,3 +216,4 @@ void AudioRecorderControl::setWaveformBackground(const juce::Colour& col)
 #if 0
 
 #endif
+

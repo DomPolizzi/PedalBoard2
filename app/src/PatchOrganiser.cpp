@@ -46,47 +46,47 @@ PatchOrganiser::PatchOrganiser (MainPanel *panel, Array<XmlElement *>& patchArra
       moveDownButton (0),
       importButton (0)
 {
-    addAndMakeVisible (patchList = new ListBox (L"patchList", this));
-    patchList->setName (L"patchList");
+    addAndMakeVisible (patchList = new ListBox ("patchList", this));
+    patchList->setName ("patchList");
 
-    addAndMakeVisible (addButton = new TextButton (L"addButton"));
-    addButton->setButtonText (L"Add");
+    addAndMakeVisible (addButton = new TextButton ("addButton"));
+    addButton->setButtonText ("Add");
     addButton->addListener (this);
 
-    addAndMakeVisible (copyButton = new TextButton (L"copyButton"));
-    copyButton->setButtonText (L"Copy");
+    addAndMakeVisible (copyButton = new TextButton ("copyButton"));
+    copyButton->setButtonText ("Copy");
     copyButton->addListener (this);
 
-    addAndMakeVisible (removeButton = new TextButton (L"removeButton"));
-    removeButton->setButtonText (L"Remove");
+    addAndMakeVisible (removeButton = new TextButton ("removeButton"));
+    removeButton->setButtonText ("Remove");
     removeButton->addListener (this);
 
-    addAndMakeVisible (moveUpButton = new TextButton (L"moveUpButton"));
-    moveUpButton->setButtonText (L"Move Up");
+    addAndMakeVisible (moveUpButton = new TextButton ("moveUpButton"));
+    moveUpButton->setButtonText ("Move Up");
     moveUpButton->addListener (this);
 
-    addAndMakeVisible (moveDownButton = new TextButton (L"moveDownButton"));
-    moveDownButton->setButtonText (L"Move Down");
+    addAndMakeVisible (moveDownButton = new TextButton ("moveDownButton"));
+    moveDownButton->setButtonText ("Move Down");
     moveDownButton->addListener (this);
 
-    addAndMakeVisible (importButton = new TextButton (L"importButton"));
-    importButton->setButtonText (L"Import...");
+    addAndMakeVisible (importButton = new TextButton ("importButton"));
+    importButton->setButtonText ("Import...");
     importButton->addListener (this);
 
 
     //[UserPreSize]
 
-	addButton->setTooltip(L"Add a new patch");
-	copyButton->setTooltip(L"Duplicate selected patch");
-	removeButton->setTooltip(L"Delete selected patch");
-	moveUpButton->setTooltip(L"Move patch up");
-	moveDownButton->setTooltip(L"Move patch down");
-	importButton->setTooltip(L"Import patch from another .pdl file");
+	addButton->setTooltip("Add a new patch");
+	copyButton->setTooltip("Duplicate selected patch");
+	removeButton->setTooltip("Delete selected patch");
+	moveUpButton->setTooltip("Move patch up");
+	moveDownButton->setTooltip("Move patch down");
+	importButton->setTooltip("Import patch from another .pdl file");
 
 	patchList->setOutlineThickness(1);
 	patchList->setMultipleSelectionEnabled(true);
 	patchList->setColour(ListBox::backgroundColourId,
-						 ColourScheme::getInstance().colours[L"Dialog Inner Background"]);
+						 ColourScheme::getInstance().colours["Dialog Inner Background"]);
 
     //[/UserPreSize]
 
@@ -118,7 +118,7 @@ void PatchOrganiser::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
 
-	g.fillAll(ColourScheme::getInstance().colours[L"Window Background"]);
+	g.fillAll(ColourScheme::getInstance().colours["Window Background"]);
 
     //[/UserPrePaint]
 
@@ -166,7 +166,7 @@ void PatchOrganiser::buttonClicked (Button* buttonThatWasClicked)
 		// listeners to its state change, which means most times
 		// comboBoxChanged() will not get called before
 		// patchList->updateContent(). Which is a pain in the bum.)
-		patchComboBox->setSelectedId(patchComboBox->getNumItems(), false);
+		patchComboBox->setSelectedId(patchComboBox->getNumItems(), juce::dontSendNotification);
 		mainPanel->comboBoxChanged(patchComboBox);
 
 		patchList->updateContent();
@@ -208,12 +208,12 @@ void PatchOrganiser::buttonClicked (Button* buttonThatWasClicked)
 				{
 					if(j > 0)
 					{
-						patchComboBox->setSelectedItemIndex(j-1, true);
+						patchComboBox->setSelectedItemIndex(j-1, juce::sendNotificationAsync);
 						mainPanel->comboBoxChanged(patchComboBox);
 					}
 					else
 					{
-						patchComboBox->setSelectedItemIndex(j+1, true);
+						patchComboBox->setSelectedItemIndex(j+1, juce::sendNotificationAsync);
 						mainPanel->comboBoxChanged(patchComboBox);
 					}
 				}
@@ -224,7 +224,7 @@ void PatchOrganiser::buttonClicked (Button* buttonThatWasClicked)
 			}
 
 			//Update the combobox.
-			patchComboBox->clear(true);
+			patchComboBox->clear(juce::dontSendNotification);
 			for(i=0;i<patches.size();++i)
 				patchComboBox->addItem(patches[i]->getStringAttribute("name"), i+1);
 			patchComboBox->addItem("<new patch>", patches.size()+1);
@@ -265,7 +265,7 @@ void PatchOrganiser::buttonClicked (Button* buttonThatWasClicked)
 		}
 
 		//Update the combo box.
-		patchComboBox->clear(true);
+		patchComboBox->clear(juce::dontSendNotification);
 		for(i=0;i<patches.size();++i)
 			patchComboBox->addItem(patches[i]->getStringAttribute("name"), i+1);
 		patchComboBox->addItem("<new patch>", patches.size()+1);
@@ -311,7 +311,7 @@ void PatchOrganiser::buttonClicked (Button* buttonThatWasClicked)
 		}
 
 		//Update the combo box.
-		patchComboBox->clear(true);
+		patchComboBox->clear(juce::dontSendNotification);
 		for(i=0;i<patches.size();++i)
 			patchComboBox->addItem(patches[i]->getStringAttribute("name"), i+1);
 		patchComboBox->addItem("<new patch>", patches.size()+1);
@@ -328,60 +328,61 @@ void PatchOrganiser::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_importButton] -- add your button handler code here..
 
-		FileChooser phil(L"Select file to import patch from...",
-						 File::nonexistent,
-						 L"*.pdl");
+		FileChooser phil("Select file to import patch from...",
+						 juce::File(),
+						 "*.pdl");
 
-		if(phil.browseForFileToOpen())
-		{
-			File philResult = phil.getResult();
-			XmlDocument doc(philResult);
-			ScopedPointer<XmlElement> root(doc.getDocumentElement());
-
-			if(root)
+		phil.launchAsync(FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles,
+			[this](const FileChooser& chooser)
 			{
-				String tempstr;
-				StringArray patchNames;
-				XmlElement *tempEl = 0;
-
-				forEachXmlChildElementWithTagName(*root, tempEl2, "Patch")
+				if (chooser.getResults().size() > 0)
 				{
-					patchNames.add(tempEl2->getStringAttribute("name"));
-				}
+					File philResult = chooser.getResult();
+					XmlDocument doc(philResult);
+					std::unique_ptr<XmlElement> root(doc.getDocumentElement());
 
-				tempstr << "Patches in file: " << philResult.getFileName();
-				AlertWindow win(L"Select patch...",
-								tempstr,
-								AlertWindow::NoIcon);
-
-				win.addComboBox("patchName", patchNames);
-				win.addButton(L"OK", 1, KeyPress(KeyPress::returnKey));
-				win.addButton(L"Cancel", 0, KeyPress(KeyPress::escapeKey));
-
-				if(win.runModalLoop())
-				{
-					//Get the XmlElement the user selected.
-					int index = win.getComboBoxComponent("patchName")->getSelectedItemIndex();
-					forEachXmlChildElementWithTagName(*root, tempEl2, "Patch")
+					if(root != nullptr)
 					{
-						if(tempEl2->getStringAttribute("name") == patchNames[index])
+						if(root->hasTagName("PedalBoard"))
 						{
-							tempEl = tempEl2;
-							break;
+							StringArray patchNames;
+							for (auto* tempEl : root->getChildWithTagNameIterator("Patch"))
+								patchNames.add(tempEl->getStringAttribute("name"));
+
+							if(patchNames.size() > 0)
+							{
+								auto win = std::make_unique<AlertWindow>("Import Patch",
+												"Which patch would you like to import?",
+												AlertWindow::NoIcon);
+
+								win->addComboBox("patchName", patchNames);
+								win->addButton("OK", 1, KeyPress(KeyPress::returnKey));
+								win->addButton("Cancel", 0, KeyPress(KeyPress::escapeKey));
+
+								auto* winPtr = win.get();
+								auto* rootPtr = root.get(); // Get raw pointer to avoid copying unique_ptr
+								winPtr->showAsync(MessageBoxOptions(), [this, rootPtr, patchNames, winPtr](int result)
+								{
+									if (result == 1)
+									{
+										//Get the XmlElement the user selected.
+										int index = winPtr->getComboBoxComponent("patchName")->getSelectedItemIndex();
+										for (auto* tempEl2 : rootPtr->getChildWithTagNameIterator("Patch"))
+										{
+											if(tempEl2->getStringAttribute("name") == patchNames[index])
+											{
+												mainPanel->addPatch(tempEl2);
+												break;
+											}
+										}
+									}
+								});
+								win.release(); // Let JUCE manage the window lifetime
+							}
 						}
 					}
-
-					//Copy it to a new XmlElement *
-					XmlElement *newPatch = new XmlElement(*tempEl);
-
-					mainPanel->addPatch(newPatch);
-
-					patchList->updateContent();
-					repaint();
 				}
-			}
-		}
-
+			});
         //[/UserButtonCode_importButton]
     }
 
@@ -410,10 +411,10 @@ void PatchOrganiser::paintListBoxItem(int rowNumber,
 
 	if(rowIsSelected)
 	{
-		ColourGradient basil(colours[L"List Selected Colour"].brighter(0.4f),
+		ColourGradient basil(colours["List Selected Colour"].brighter(0.4f),
 							 0.0f,
 							 0.0f,
-							 colours[L"List Selected Colour"].darker(0.125f),
+							 colours["List Selected Colour"].darker(0.125f),
 							 0.0f,
 							 (float)height,
 							 false);
