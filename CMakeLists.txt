@@ -68,6 +68,37 @@ target_link_libraries(PedalBoard2 PRIVATE
     juce::juce_opengl
 )
 
+# === JUCE Configuration ===
+target_compile_definitions(PedalBoard2 PRIVATE
+    JUCE_WEB_BROWSER=0
+    JUCE_USE_CURL=0
+    JUCE_APPLICATION_NAME_STRING="$<TARGET_PROPERTY:PedalBoard2,JUCE_PRODUCT_NAME>"
+    JUCE_APPLICATION_VERSION_STRING="$<TARGET_PROPERTY:PedalBoard2,JUCE_VERSION>"
+)
+
+# Linux-specific configuration
+if(UNIX AND NOT APPLE)
+    # Find required packages
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+    pkg_check_modules(WEBKIT REQUIRED webkit2gtk-4.0)
+    pkg_check_modules(JACK REQUIRED jack)
+    
+    # Add GTK include directories and libraries
+    target_include_directories(PedalBoard2 PRIVATE ${GTK3_INCLUDE_DIRS})
+    target_link_libraries(PedalBoard2 PRIVATE ${GTK3_LIBRARIES})
+    target_include_directories(PedalBoard2 PRIVATE ${WEBKIT_INCLUDE_DIRS})
+    target_link_libraries(PedalBoard2 PRIVATE ${WEBKIT_LIBRARIES})
+    
+    # Add JACK library
+    target_include_directories(PedalBoard2 PRIVATE ${JACK_INCLUDE_DIRS})
+    target_link_libraries(PedalBoard2 PRIVATE ${JACK_LIBRARIES})
+    
+    # Add compiler flags
+    target_compile_options(PedalBoard2 PRIVATE ${GTK3_CFLAGS_OTHER})
+    target_compile_options(PedalBoard2 PRIVATE ${JACK_CFLAGS_OTHER})
+endif()
+
 # Optional: add icon, resources etc.
 
 # === (Recommended) Fetch JUCE automatically if not using JUCE_DIR ===

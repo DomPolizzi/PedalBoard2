@@ -16,6 +16,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   libcurl4-openssl-dev \
   libglu1-mesa-dev \
   libjack-jackd2-dev \
+  libsoup2.4-dev \
+  libjavascriptcoregtk-4.0-dev \
   libsndfile1-dev \
   libxrender-dev \
   libxcomposite-dev \
@@ -38,8 +40,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   ladspa-sdk \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Set environment variables to help find GTK
+# Set environment variables to help find GTK and other libraries
 ENV PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig
+ENV GTK_PATH=/usr/lib/x86_64-linux-gnu/gtk-3.0
+
+# Verify GTK installation
+RUN pkg-config --exists gtk+-3.0 && echo "GTK3 found" || echo "GTK3 NOT found"
+RUN pkg-config --exists webkit2gtk-4.0 && echo "WebKit2GTK found" || echo "WebKit2GTK NOT found"
 
 # Create user (optional)
 RUN useradd -ms /bin/bash juceuser

@@ -850,7 +850,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MappingSlider);
 };
 
-int getMappingSliderThumbRadius (MappingSlider& slider)
+inline int getMappingSliderThumbRadius (MappingSlider& slider)
 {
     return jmin (7,
                  slider.getHeight() / 2,

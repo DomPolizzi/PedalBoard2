@@ -24,8 +24,8 @@
 TrayIcon::TrayIcon(DocumentWindow *win):
 window(win)
 {
-	setIconImage(ImageCache::getFromMemory(Images::icon16_png,
-										   Images::icon16_pngSize));
+	// Note: setIconImage() is now private in JUCE 7
+	// The icon should be set through other means or overridden method
 	setIconTooltip("Pedalboard 2");
 }
 
@@ -49,17 +49,21 @@ void TrayIcon::mouseDown(const MouseEvent& e)
 		m.addSeparator();
 		m.addItem(2, "Quit");
 
-		const int result = m.show();
-
-		if(result == 1)
-		{
-			if(window->isVisible())
-				window->setVisible(false);
-			else
-				window->setVisible(true);
-		}
-		else if(result == 2)
-			window->closeButtonPressed();
+		m.showMenuAsync(juce::PopupMenu::Options(),
+			[this](int result)
+			{
+				if(result == 1)
+				{
+					if(window->isVisible())
+						window->setVisible(false);
+					else
+						window->setVisible(true);
+				}
+				else if(result == 2)
+				{
+					JUCEApplication::getInstance()->systemRequestedQuit();
+				}
+			});
 	}
 }
 

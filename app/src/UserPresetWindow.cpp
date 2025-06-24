@@ -146,27 +146,28 @@ void UserPresetWindow::buttonClicked (Button* buttonThatWasClicked)
 							"Enter a name for the duplicate preset:",
 							AlertWindow::NoIcon);
 
-			win.addTextEditor("presetName", "");
+			win.addTextEditor("name", "");
 
 			win.addButton("Cancel", 0);
 			win.addButton("Ok", 1, KeyPress(KeyPress::returnKey));
 
-			if(win.runModalLoop())
+			win.enterModalState(true, ModalCallbackFunction::create([this, selected, &win](int result)
 			{
-				String tempstr;
-				File srcPreset = selected->getFile();
+				if (result == 1)
+				{
+					String tempstr;
+					File srcPreset = selected->getFile();
+					tempstr = win.getTextEditorContents("name");
 
-				tempstr = win.getTextEditorContents("presetName");
-				tempstr << ".fxp";
-
-				srcPreset.copyFileTo(srcPreset.getParentDirectory().getChildFile(tempstr));
-
-				//A bit hacky, but treeHasChanged() doesn't seem to do anything...
-				selected->getParentItem()->itemOpennessChanged(true);
-				presetList->repaint();
-
-				//treeRoot.treeHasChanged();
-			}
+					if(tempstr.length() > 0)
+					{
+						File newFile = srcPreset.getParentDirectory().getChildFile(tempstr + ".fxp");
+						srcPreset.copyFileTo(newFile);
+						treeRoot.itemOpennessChanged(true);
+						presetList->repaint();
+					}
+				}
+			}));
 		}
 
         //[/UserButtonCode_copyButton]
@@ -216,41 +217,47 @@ void UserPresetWindow::buttonClicked (Button* buttonThatWasClicked)
 								AlertWindow::NoIcon);
 
 		whichPlugin.addComboBox("plugins", plugins);
-		whichPlugin.addButton("Cance", 0);
+		whichPlugin.addButton("Cancel", 0);
 		whichPlugin.addButton("Ok", 1, KeyPress(KeyPress::returnKey));
 
-		if(whichPlugin.runModalLoop())
+		whichPlugin.enterModalState(true, ModalCallbackFunction::create([this, &plugins, &whichPlugin](int result)
 		{
-			FileChooser phil("Import preset",
-							 juce::File(),
-							 "*.fxp");
-
-			if(phil.browseForFileToOpen())
+			if (result == 1)
 			{
-				String pluginName = whichPlugin.getComboBoxComponent("plugins")->getText();
-				File presetDir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Pedalboard2").getChildFile("presets");
-				File pluginDir = presetDir.getChildFile(pluginName);
-				File srcPreset = phil.getResult();
+				FileChooser phil("Import preset",
+								 juce::File(),
+								 "*.fxp");
 
-				if(!pluginDir.exists())
-				{
-					if(!pluginDir.createDirectory())
+				phil.launchAsync(FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles,
+					[this, &plugins, &whichPlugin](const FileChooser& chooser)
 					{
-						AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
-														 "Preset Import Error",
-														 "Could not create a directory for this plugin. Check your permissions.");
-					}
+						if (chooser.getResult().existsAsFile())
+						{
+							String pluginName = plugins[whichPlugin.getComboBoxComponent("plugins")->getSelectedId()];
+							File presetDir = File::getSpecialLocation(File::userApplicationDataDirectory).getChildFile("Pedalboard2").getChildFile("presets");
+							File pluginDir = presetDir.getChildFile(pluginName);
+							File srcPreset = chooser.getResult();
 
-					phil.getResult().copyFileTo(pluginDir.getChildFile(srcPreset.getFileName()));
+							if(!pluginDir.exists())
+							{
+								if(!pluginDir.createDirectory())
+								{
+									AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon,
+																	 "Preset Import Error",
+																	 "Could not create a directory for this plugin. Check your permissions.");
+									return;
+								}
+							}
 
-					treeRoot.itemOpennessChanged(true);
-					presetList->repaint();
-				}
+							srcPreset.copyFileTo(pluginDir.getChildFile(srcPreset.getFileName()));
+
+							treeRoot.itemOpennessChanged(true);
+							presetList->repaint();
+						}
+					});
 			}
-		}
-
-        //[/UserButtonCode_importButton]
-    }
+		}));
+	}
     else if (buttonThatWasClicked == exportButton)
     {
         //[UserButtonCode_exportButton] -- add your button handler code here..
@@ -263,8 +270,12 @@ void UserPresetWindow::buttonClicked (Button* buttonThatWasClicked)
 							 juce::File(),
 							 "*.fxp");
 
-			if(phil.browseForFileToSave(true))
-				selected->getFile().copyFileTo(phil.getResult().withFileExtension("fxp"));
+			phil.launchAsync(FileBrowserComponent::saveMode | FileBrowserComponent::canSelectFiles,
+				[this, selected](const FileChooser& chooser)
+				{
+					if (chooser.getResult().getParentDirectory().exists())
+						selected->getFile().copyFileTo(chooser.getResult().withFileExtension("fxp"));
+				});
 		}
 
         //[/UserButtonCode_exportButton]
@@ -281,22 +292,24 @@ void UserPresetWindow::buttonClicked (Button* buttonThatWasClicked)
 							"Enter a new name for the selected preset:",
 							AlertWindow::NoIcon);
 
-			win.addTextEditor("presetName", "");
+			win.addTextEditor("name", "");
 
 			win.addButton("Cancel", 0);
 			win.addButton("Ok", 1, KeyPress(KeyPress::returnKey));
 
-			if(win.runModalLoop())
+			win.enterModalState(true, ModalCallbackFunction::create([this, selected, &win](int result)
 			{
-				File newFile = selected->getFile().getParentDirectory();
+				if (result == 1)
+				{
+					File newFile = selected->getFile().getParentDirectory();
+					newFile = newFile.getChildFile(win.getTextEditorContents("name")).withFileExtension("fxp");
 
-				newFile = newFile.getChildFile(win.getTextEditorContents("presetName")).withFileExtension("fxp");
+					selected->getFile().moveFileTo(newFile);
 
-				selected->getFile().moveFileTo(newFile);
-
-				selected->getParentItem()->itemOpennessChanged(true);
-				presetList->repaint();
-			}
+					selected->getParentItem()->itemOpennessChanged(true);
+					presetList->repaint();
+				}
+			}));
 		}
 
         //[/UserButtonCode_renameButton]
@@ -351,4 +364,3 @@ BEGIN_JUCER_METADATA
 END_JUCER_METADATA
 */
 #endif
-

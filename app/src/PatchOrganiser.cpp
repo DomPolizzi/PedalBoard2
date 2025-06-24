@@ -472,6 +472,20 @@ void PatchOrganiser::listBoxItemClicked(int row, const MouseEvent &e)
 }
 
 //------------------------------------------------------------------------------
+void PatchOrganiser::listBoxItemDoubleClicked(int row, const MouseEvent &e)
+{
+	// Double-click to edit the patch name
+	if(row >= 0 && row < patches.size())
+	{
+		Component* comp = patchList->getComponentForRowNumber(row);
+		if(Label* label = dynamic_cast<Label*>(comp))
+		{
+			label->showEditor();
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
 void PatchOrganiser::backgroundClicked()
 {
 	patchList->deselectAllRows();

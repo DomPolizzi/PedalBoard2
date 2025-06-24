@@ -207,7 +207,7 @@ PreferencesDialog::PreferencesDialog (MainPanel *panel, const String& port, cons
 		startInTrayButton->setToggleState(PropertiesSingleton::getInstance().getUserSettings()->getBoolValue("startInTray", false), juce::NotificationType::dontSendNotification);
 	else
 	{
-		startInTrayButton->setToggleState(false, false);
+		startInTrayButton->setToggleState(false, juce::dontSendNotification);
 		startInTrayButton->setEnabled(false);
 	}
 #else
@@ -416,7 +416,7 @@ void PreferencesDialog::buttonClicked (Button* buttonThatWasClicked)
 			startInTrayButton->setEnabled(true);
 		else
 		{
-			startInTrayButton->setToggleState(false, false);
+			startInTrayButton->setToggleState(false, juce::dontSendNotification);
 			startInTrayButton->setEnabled(false);
 		}
 
@@ -608,4 +608,3 @@ BEGIN_JUCER_METADATA
 END_JUCER_METADATA
 */
 #endif
-

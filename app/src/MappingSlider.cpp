@@ -1737,6 +1737,89 @@ void drawGlassPointer (Graphics& g,
     g.strokePath (p, PathStrokeType (outlineThickness));
 }
 
+void MappingSlider::drawLinearMappingSliderThumb (Graphics& g,
+                                         int x, int y,
+                                         int width, int height,
+                                         float sliderPos,
+                                         float minSliderPos,
+                                         float maxSliderPos,
+                                         const MappingSlider::MappingSliderStyle style,
+                                         MappingSlider& slider)
+{
+    const float sliderRadius = (float) (getMappingSliderThumbRadius (slider) - 2);
+
+    Colour knobColour (createBaseColour (slider.findColour (MappingSlider::thumbColourId)
+                                                             .withMultipliedSaturation (slider.isEnabled() ? 1.0f : 0.5f),
+                                                                 slider.hasKeyboardFocus (false) && slider.isEnabled(),
+                                                                 slider.isMouseOverOrDragging() && slider.isEnabled(),
+                                                                 slider.isMouseButtonDown() && slider.isEnabled()));
+
+    const float outlineThickness = slider.isEnabled() ? 0.8f : 0.3f;
+
+    if (style == MappingSlider::LinearHorizontal || style == MappingSlider::LinearVertical)
+    {
+        float kx, ky;
+
+        if (style == MappingSlider::LinearVertical)
+        {
+            kx = x + width * 0.5f;
+            ky = sliderPos;
+        }
+        else
+        {
+            kx = sliderPos;
+            ky = y + height * 0.5f;
+        }
+
+        drawGlassSphere (g,
+                         kx - sliderRadius,
+                         ky - sliderRadius,
+                         sliderRadius * 2.0f,
+                         knobColour, outlineThickness);
+    }
+    else
+    {
+        if (style == MappingSlider::ThreeValueVertical)
+        {
+            drawGlassSphere (g, x + width * 0.5f - sliderRadius,
+                             sliderPos - sliderRadius,
+                             sliderRadius * 2.0f,
+                             knobColour, outlineThickness);
+        }
+        else if (style == MappingSlider::ThreeValueHorizontal)
+        {
+            drawGlassSphere (g,sliderPos - sliderRadius,
+                             y + height * 0.5f - sliderRadius,
+                             sliderRadius * 2.0f,
+                             knobColour, outlineThickness);
+        }
+
+        if (style == MappingSlider::TwoValueVertical || style == MappingSlider::ThreeValueVertical)
+        {
+            const float sr = jmin (sliderRadius, width * 0.4f);
+
+            drawGlassPointer (g, jmax (0.0f, x + width * 0.5f - sliderRadius * 2.0f),
+                              minSliderPos - sliderRadius,
+                              sliderRadius * 2.0f, knobColour, outlineThickness, 1);
+
+            drawGlassPointer (g, jmin (x + width - sliderRadius * 2.0f, x + width * 0.5f), maxSliderPos - sr,
+                              sliderRadius * 2.0f, knobColour, outlineThickness, 3);
+        }
+        else if (style == MappingSlider::TwoValueHorizontal || style == MappingSlider::ThreeValueHorizontal)
+        {
+            const float sr = jmin (sliderRadius, height * 0.4f);
+
+            drawGlassPointer (g, minSliderPos - sr,
+                              jmax (0.0f, y + height * 0.5f - sliderRadius * 2.0f),
+                              sliderRadius * 2.0f, knobColour, outlineThickness, 2);
+
+            drawGlassPointer (g, maxSliderPos - sliderRadius,
+                              jmin (y + height - sliderRadius * 2.0f, y + height * 0.5f),
+                              sliderRadius * 2.0f, knobColour, outlineThickness, 4);
+        }
+    }
+}
+
 void MappingSlider::drawLinearMappingSlider (Graphics& g,
                                     int x, int y,
                                     int width, int height,
@@ -1815,86 +1898,4 @@ void MappingSlider::drawLinearMappingSliderBackground (Graphics& g,
 
     g.setColour (Colour (0x4c000000));
     g.strokePath (indent, PathStrokeType (0.5f));
-}
-
-void drawLinearMappingSliderThumb (Graphics& g,
-                                         int x, int y,
-                                         int width, int height,
-                                         float sliderPos,
-                                         float minSliderPos,
-                                         float maxSliderPos,
-                                         const MappingSlider::MappingSliderStyle style,
-                                         MappingSlider& slider)
-{
-    const float sliderRadius = (float) (getMappingSliderThumbRadius (slider) - 2);
-
-    Colour knobColour (createBaseColour (slider.findColour (MappingSlider::thumbColourId),
-                                                             slider.hasKeyboardFocus (false) && slider.isEnabled(),
-                                                             slider.isMouseOverOrDragging() && slider.isEnabled(),
-                                                             slider.isMouseButtonDown() && slider.isEnabled()));
-
-    const float outlineThickness = slider.isEnabled() ? 0.8f : 0.3f;
-
-    if (style == MappingSlider::LinearHorizontal || style == MappingSlider::LinearVertical)
-    {
-        float kx, ky;
-
-        if (style == MappingSlider::LinearVertical)
-        {
-            kx = x + width * 0.5f;
-            ky = sliderPos;
-        }
-        else
-        {
-            kx = sliderPos;
-            ky = y + height * 0.5f;
-        }
-
-        drawGlassSphere (g,
-                         kx - sliderRadius,
-                         ky - sliderRadius,
-                         sliderRadius * 2.0f,
-                         knobColour, outlineThickness);
-    }
-    else
-    {
-        if (style == MappingSlider::ThreeValueVertical)
-        {
-            drawGlassSphere (g, x + width * 0.5f - sliderRadius,
-                             sliderPos - sliderRadius,
-                             sliderRadius * 2.0f,
-                             knobColour, outlineThickness);
-        }
-        else if (style == MappingSlider::ThreeValueHorizontal)
-        {
-            drawGlassSphere (g,sliderPos - sliderRadius,
-                             y + height * 0.5f - sliderRadius,
-                             sliderRadius * 2.0f,
-                             knobColour, outlineThickness);
-        }
-
-        if (style == MappingSlider::TwoValueVertical || style == MappingSlider::ThreeValueVertical)
-        {
-            const float sr = jmin (sliderRadius, width * 0.4f);
-
-            drawGlassPointer (g, jmax (0.0f, x + width * 0.5f - sliderRadius * 2.0f),
-                              minSliderPos - sliderRadius,
-                              sliderRadius * 2.0f, knobColour, outlineThickness, 1);
-
-            drawGlassPointer (g, jmin (x + width - sliderRadius * 2.0f, x + width * 0.5f), maxSliderPos - sr,
-                              sliderRadius * 2.0f, knobColour, outlineThickness, 3);
-        }
-        else if (style == MappingSlider::TwoValueHorizontal || style == MappingSlider::ThreeValueHorizontal)
-        {
-            const float sr = jmin (sliderRadius, height * 0.4f);
-
-            drawGlassPointer (g, minSliderPos - sr,
-                              jmax (0.0f, y + height * 0.5f - sliderRadius * 2.0f),
-                              sliderRadius * 2.0f, knobColour, outlineThickness, 2);
-
-            drawGlassPointer (g, maxSliderPos - sliderRadius,
-                              jmin (y + height - sliderRadius * 2.0f, y + height * 0.5f),
-                              sliderRadius * 2.0f, knobColour, outlineThickness, 4);
-        }
-    }
 }

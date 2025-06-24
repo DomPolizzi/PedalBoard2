@@ -219,15 +219,19 @@ void PresetBar::buttonClicked(Button *button)
 						juce::File(),
 						"*.fxp");
 
-		if(dlg.browseForFileToOpen())
-		{
-			PresetManager manager;
-			AudioProcessor *proc = component->getNode()->getProcessor();
+		dlg.launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+			[this](const juce::FileChooser& chooser)
+			{
+				if (chooser.getResults().size() > 0)
+				{
+					PresetManager manager;
+					AudioProcessor *proc = component->getNode()->getProcessor();
 
-			manager.importPreset(dlg.getResult(), proc);
-			presetsComboBox->setText(proc->getProgramName(proc->getCurrentProgram()),
-									 true);
-		}
+					manager.importPreset(chooser.getResult(), proc);
+					presetsComboBox->setText(proc->getProgramName(proc->getCurrentProgram()),
+											 juce::dontSendNotification);
+				}
+			});
 	}
 	else if(button == saveButton)
 	{
@@ -252,7 +256,7 @@ void PresetBar::fillOutComboBox()
 	StringArray userPresets;
 	AudioProcessor *proc = component->getNode()->getProcessor();
 
-	presetsComboBox->clear(true);
+	presetsComboBox->clear(juce::dontSendNotification);
 
 	//Add plugin presets to the combobox.
 	j = 1;
@@ -281,7 +285,7 @@ Drawable *PresetBar::loadSVGFromMemory(const void *dataToInitialiseFrom,
 	XmlDocument doc(memBlock.toString());
 	auto svgData = std::unique_ptr<XmlElement>(doc.getDocumentElement());
 
-	retval = Drawable::createFromSVG(*svgData);
+	retval = Drawable::createFromSVG(*svgData).release();
 
 	return retval;
 }
